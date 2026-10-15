@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="PhotoImport.csproj" />
+  <Project Path="tests/PhotoImport.Tests/PhotoImport.Tests.csproj" />
 </Solution>
