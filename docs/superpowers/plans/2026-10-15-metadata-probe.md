@@ -125,4 +125,4 @@ Self-review: every approved milestone requirement maps to Tasks 1–5; shared si
 
 Recommended execution: **native**. The five tasks share a small set of contracts and one backend; implementing them in this session keeps interface changes coherent. Run the required fresh whole-change review before claiming implementation complete. Subagent execution is available if the user prefers independent implementation/review per task.
 
-Approved by the user on 2026-10-15 with native execution in the current checkout on feat/metadata-probe. Tasks 1–4 are implemented and verified; Task 5 hardware acceptance remains pending because no phone was visible at discovery.
+Approved by the user on 2026-10-15 with native execution in the current checkout on feat/metadata-probe. Tasks 1–4 are implemented and verified. Task 5 produced a Samsung S21 partial assessment on 2026-10-16: capture timestamps unavailable, current backend not accepted for sync. iPhone, complete coverage, verified capture metadata, and selected-file/original access remain pending. See docs/work-status.md and docs/compatibility/android-samsung-sm-g991b.md for evidence and remaining work.

@@ -112,6 +112,16 @@ public class MetadataProbeTests
     }
 
     [Fact]
+    public void CancellationDuringDisconnectKeepsCancelledStatus()
+    {
+        using var device = SimpleDevice(); using var cts = new CancellationTokenSource();
+        device.OnRead = _ => { cts.Cancel(); throw new DeviceDisconnectedException("Device disappeared during cancellation"); };
+        var result = MetadataProbe.Run(device, Info(), cts.Token);
+        Assert.Equal("cancelled", result.CompletionStatus);
+        Assert.Contains(result.Errors, e => e.Message.Contains("disappeared"));
+    }
+
+    [Fact]
     public void EmptyDeviceCompletes()
     {
         using var device = new FakePhotoDevice();

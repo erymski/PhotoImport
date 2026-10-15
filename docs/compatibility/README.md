@@ -2,7 +2,7 @@
 
 ## Current evidence
 
-On 2026-10-15, the Release CLI's `list-devices` command completed with exit 0 and reported no portable devices in the Windows user session. No Android or iPhone has been tested. Neither platform is accepted for synchronization. Selected-file and original/full-resolution transfer access are untested.
+Initial discovery reported no phone. On 2026-10-16, a Samsung Galaxy S21 (SM-G991B) was assessed over USB/MTP: a partial run recorded 13,156 images in 125.618 seconds, including 3,601 actual camera-folder images, with no authored capture dates exposed. Its device/serial identifier candidates stayed unchanged in one unplug/replug and fresh-process check. See the [Android compatibility report](android-samsung-sm-g991b.md). The current backend is not accepted for synchronization. iPhone remains untested; selected-file/original access and complete inventory coverage remain unverified.
 
 Automated tests cover application behavior using metadata-only fake devices. They cannot establish USB driver behavior, capture timestamp correctness, stable physical identity, or actual enumeration coverage. See [backend inspection](backend-notes.md) for public API limitations.
 

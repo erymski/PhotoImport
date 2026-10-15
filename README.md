@@ -2,7 +2,7 @@
 
 Windows 10/11, .NET 10 CLI for investigating USB phone photo metadata before implementing capture-date-based imports. Uses the MediaDevices 2.0.0 NuGet package.
 
-Milestone 1's diagnostic CLI is implemented. Android/iPhone compatibility and selected-file/original access are unverified until tested on physical devices. No synchronization commands are implemented yet.
+Milestone 1's diagnostic CLI is implemented. A Samsung S21 assessment found no authored capture dates in 13,156 observed images, so the current backend is not accepted for synchronization. iPhone compatibility and selected-file/original access remain unverified. No synchronization commands are implemented yet.
 
 ```powershell
 dotnet build PhotoImport.slnx --configuration Release

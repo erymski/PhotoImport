@@ -13,20 +13,23 @@ Source: [product specification](specs.md), sections 3 and 11.
 - [x] Write and self-review [implementation plan](superpowers/plans/2026-10-15-metadata-probe.md).
 - [x] User review of implementation plan; native execution selected on 2026-10-15.
 - [x] Implement device discovery, metadata probe, console/JSON output, and automated tests using TDD.
-- [x] Build and verify the CLI: 55 tests passed after hardware/review regressions; Release verification and final evidence recorded below.
+- [x] Build and verify the CLI: 56 tests passed after hardware/review regressions; final full-solution Release build had 0 warnings/errors.
 - [x] Write [physical-device assessment procedure](compatibility/README.md) and [backend evidence limits](compatibility/backend-notes.md).
 - [x] Complete independent whole-change review and address important findings: reviewer found no outstanding Critical, Important, or Minor findings after the fix pass.
-- [ ] Test a real Android phone; record compatibility evidence.
+- [x] Test a real Android phone; record [Samsung S21 evidence](compatibility/android-samsung-sm-g991b.md): capture dates unavailable; current backend not accepted for sync.
+- [ ] Investigate a metadata path that exposes reliable capture dates; verify against EXIF/Picasa and complete Android folder coverage before synchronization.
 - [ ] Test a real iPhone; record compatibility evidence independently.
 - [ ] Validate selected-file/original access through a separately invoked transfer test before accepting either backend for synchronization.
 
 ## Current findings
 
-Implemented on `feat/metadata-probe`, using the MediaDevices 2.0.0 NuGet package. Initial discovery found no phone; a later Samsung S21 connection was discovered over USB/MTP. The first real probe exposed a wrapped device-removal exception and failed before export; regression fixes now preserve partial results and native diagnostics, and a real retry is running. See [Samsung assessment](compatibility/android-samsung-sm-g991b.md). iPhone remains untested. Milestone 1 remains open until actual-phone timestamp/identity/coverage validation and the separately invoked selected-file/original transfer test.
+Implemented on `feat/metadata-probe`, using the MediaDevices 2.0.0 NuGet package. The Samsung S21 probe saved a partial report with 13,156 images in 125.618 seconds, including 3,601 actual camera-folder images; all lacked authored capture dates. Device ID, PnP ID, and serial candidates were unchanged across one physical replug and a fresh process. A physical device-removal error was retained in the JSON. Current decision: no-go for date-based synchronization with this public-API backend. See [Samsung assessment](compatibility/android-samsung-sm-g991b.md). iPhone remains untested. Milestone 1 stays open pending reliable capture metadata, full coverage, remaining platform validation, and the separately invoked selected-file/original transfer test. No probe process remains running.
 
 ## Review and implementation decisions
 
 The independent whole-change reviewer inspected production code, tests, package XML/IL, and upstream source. The final verdict permits merging the diagnostic implementation; it does not certify physical compatibility. Review findings addressed: wrapped worker exceptions, loss of earlier sibling observations, cleanup overriding primary results/cancellation, and ownership of device handles during interrupted discovery. The reviewer did not rerun tests; execution evidence comes from this session.
+
+A subsequent one-line cancellation/disconnect race correction was verified with a new test that failed with `incomplete` before the change and passed with `cancelled` afterward; the whole suite now passes 56/56. This targeted correction was made after the independent review. Tool-driven Ctrl+C was not a successful hardware cancellation demonstration; that limitation is recorded in the phone report.
 
 - Use PowerShell and the Markdown ledger for Windows bookkeeping instead of Bash scripts; task bookkeeping is maintained manually.
 - Test timestamp/JSON fidelity through mapper and report-writer consumers rather than trivial serialization-only tests; those consumer tests now pass.

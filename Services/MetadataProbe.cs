@@ -61,6 +61,7 @@ public static class MetadataProbe
         {
             errors.Add(new("enumeration", null, null, ex.Message));
         }
+        cancelled |= cancellationToken.IsCancellationRequested;
         return new(deviceInfo, started, clock.Elapsed, cancelled ? "cancelled" : errors.Count > 0 ? "incomplete" : "complete",
             roots, photos, errors) { Warnings = warnings };
 
