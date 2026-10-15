@@ -52,6 +52,7 @@ public sealed class ProbeCli(IPhotoDeviceProvider provider, TextWriter output, T
             }
             catch (Exception ex) when (IsOutputError(ex)) { error.WriteLine($"Report output failed: {ex.Message}"); return 5; }
         }
+        IPhotoDevice? session = null;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -66,7 +67,7 @@ public sealed class ProbeCli(IPhotoDeviceProvider provider, TextWriter output, T
             if (matches.Count == 0) matches = devices.Where(d => string.Equals(d.FriendlyName, selector, StringComparison.OrdinalIgnoreCase)).ToList();
             if (matches.Count > 1) return Usage("Ambiguous device name; choose an exact ID: " + string.Join(", ", matches.Select(d => d.Id)));
             if (matches.Count == 0) { error.WriteLine("Device not found. Run list-devices, unlock the phone, and enable USB file transfer/trust."); return 3; }
-            using var session = provider.Open(matches[0], cancellationToken);
+            session = provider.Open(matches[0], cancellationToken);
             var report = MetadataProbe.Run(session, matches[0], cancellationToken);
             ProbeReportWriter.WriteConsole(report, output);
             var exit = report.CompletionStatus switch { "complete" => 0, "cancelled" => 130, _ => 4 };
@@ -85,6 +86,12 @@ public sealed class ProbeCli(IPhotoDeviceProvider provider, TextWriter output, T
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or MediaDeviceException
             or NotConnectedException or System.Runtime.InteropServices.COMException or TypeInitializationException)
         { error.WriteLine($"Device operation failed: {ex.Message}"); return 3; }
+        finally
+        {
+            try { session?.Dispose(); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            { error.WriteLine($"Device cleanup warning: {ex.Message}"); }
+        }
     }
 
     private int Usage(string message) { error.WriteLine(message); return 2; }

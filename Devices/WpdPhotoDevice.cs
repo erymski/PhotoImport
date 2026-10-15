@@ -18,17 +18,21 @@ public sealed class WpdPhotoDevice : IPhotoDevice
         return (IReadOnlyList<DeviceEntry>)[Remember(root, true)];
     }, cancellationToken);
 
-    public IReadOnlyList<DeviceEntry> GetChildren(DeviceEntry directory, CancellationToken cancellationToken) => Read(() =>
+    public IEnumerable<DeviceEntry> GetChildren(DeviceEntry directory, CancellationToken cancellationToken)
     {
-        var folder = (MediaDirectoryInfo)objects[Key(directory)];
-        var result = new List<DeviceEntry>();
-        foreach (var item in folder.EnumerateFileSystemInfos("*", SearchOption.TopDirectoryOnly))
+        var folder = Read(() => (MediaDirectoryInfo)objects[Key(directory)], cancellationToken);
+        var iterator = Read(() => folder.EnumerateFileSystemInfos("*", SearchOption.TopDirectoryOnly).GetEnumerator(), cancellationToken);
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            result.Add(Remember(item, item is MediaDirectoryInfo || (item.Attributes & (MediaFileAttributes.Directory | MediaFileAttributes.Object)) != 0));
+            while (Read(iterator.MoveNext, cancellationToken))
+            {
+                var item = Read(() => iterator.Current, cancellationToken);
+                yield return Read(() => Remember(item, item is MediaDirectoryInfo
+                    || (item.Attributes & (MediaFileAttributes.Directory | MediaFileAttributes.Object)) != 0), cancellationToken);
+            }
         }
-        return (IReadOnlyList<DeviceEntry>)result;
-    }, cancellationToken);
+        finally { WpdOperation.Run(iterator.Dispose, default); }
+    }
 
     public PhotoMetadata ReadPhotoMetadata(DeviceEntry file, CancellationToken cancellationToken) => Read(() =>
     {
@@ -67,17 +71,14 @@ public sealed class WpdPhotoDevice : IPhotoDevice
     {
         ObjectDisposedException.ThrowIf(disposed, this);
         cancellationToken.ThrowIfCancellationRequested();
-        try { return operation(); }
-        catch (NotConnectedException ex) { throw new DeviceDisconnectedException("The phone disconnected. Reconnect and unlock it, then retry.", ex); }
-        catch (MediaDeviceException ex) { throw new IOException($"WPD metadata operation failed: {ex.Message}", ex); }
-        catch (NotSupportedException ex) { throw new IOException($"WPD metadata operation is unsupported: {ex.Message}", ex); }
+        return WpdOperation.Run(operation, cancellationToken);
     }
 
     public void Dispose()
     {
         if (disposed) return;
         disposed = true;
-        try { device.Disconnect(); }
-        finally { objects.Clear(); device.Dispose(); }
+        try { WpdOperation.Run(device.Disconnect, default); }
+        finally { objects.Clear(); WpdOperation.Run(device.Dispose, default); }
     }
 }

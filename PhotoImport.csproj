@@ -11,5 +11,6 @@
   <ItemGroup>
     <Compile Remove="tests/**/*.cs" />
     <PackageReference Include="MediaDevices" Version="2.0.0" />
+    <InternalsVisibleTo Include="PhotoImport.Tests" />
   </ItemGroup>
 </Project>

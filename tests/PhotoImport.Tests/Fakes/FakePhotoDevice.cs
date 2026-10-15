@@ -18,17 +18,20 @@ public sealed class FakePhotoDevice : IPhotoDevice
     public Dictionary<string, PhotoMetadata> Metadata { get; } = [];
     public Dictionary<string, Exception> Failures { get; } = [];
     public Action<DeviceEntry>? OnRead { get; set; }
+    public Func<DeviceEntry, IEnumerable<DeviceEntry>>? ChildrenIterator { get; set; }
     public bool IsDisposed { get; private set; }
+    public Exception? DisposeError { get; set; }
     public IReadOnlyList<DeviceEntry> GetStorageRoots(CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if (Failures.TryGetValue("roots", out var error)) throw error;
         return Roots;
     }
-    public IReadOnlyList<DeviceEntry> GetChildren(DeviceEntry directory, CancellationToken token)
+    public IEnumerable<DeviceEntry> GetChildren(DeviceEntry directory, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if (Failures.TryGetValue(directory.ObjectId, out var error)) throw error;
+        if (ChildrenIterator is not null) return ChildrenIterator(directory);
         return Children.GetValueOrDefault(directory.ObjectId) ?? [];
     }
     public PhotoMetadata ReadPhotoMetadata(DeviceEntry file, CancellationToken token)
@@ -38,5 +41,5 @@ public sealed class FakePhotoDevice : IPhotoDevice
         OnRead?.Invoke(file);
         return Metadata.GetValueOrDefault(file.ObjectId) ?? Photo(file);
     }
-    public void Dispose() => IsDisposed = true;
+    public void Dispose() { IsDisposed = true; if (DisposeError is not null) throw DisposeError; }
 }

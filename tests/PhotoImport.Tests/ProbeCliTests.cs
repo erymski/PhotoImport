@@ -120,6 +120,36 @@ public sealed class ProbeCliTests : IDisposable
     }
 
     [Fact]
+    public void WrappedBackendDisconnectExportsPartialInsteadOfCrashing()
+    {
+        provider.Device.Children["root"] = [FakePhotoDevice.Entry("p", "\\DCIM\\a.jpg"), FakePhotoDevice.Entry("q", "\\DCIM\\b.jpg")];
+        provider.Device.OnRead = entry =>
+        {
+            if (entry.ObjectId == "q") WpdOperation.Run<int>(() => throw new AggregateException(
+                new MediaDevices.MediaDeviceException("COM Error 0x800701b1 in GetValues")), default);
+        };
+        var path = Path.Combine(temp, "disconnected.json");
+        Assert.Equal(4, Run("probe", "--device", "phone", "--output", path));
+        using var json = JsonDocument.Parse(File.ReadAllText(path));
+        Assert.Equal(1, json.RootElement.GetProperty("photoCount").GetInt32());
+        Assert.Equal("incomplete", json.RootElement.GetProperty("completionStatus").GetString());
+        Assert.True(provider.Device.IsDisposed);
+    }
+
+    [Fact]
+    public void CleanupFailureCannotOverrideCancellationOrEraseReport()
+    {
+        using var cts = new CancellationTokenSource();
+        provider.Device.OnRead = _ => cts.Cancel();
+        provider.Device.DisposeError = new IOException("USB disconnected during cleanup");
+        var path = Path.Combine(temp, "cleanup.json");
+        var result = new ProbeCli(provider, output, error).Run(["probe", "--device", "phone", "--output", path], cts.Token);
+        Assert.Equal(130, result); Assert.Contains("cleanup", error.ToString(), StringComparison.OrdinalIgnoreCase);
+        using var json = JsonDocument.Parse(File.ReadAllText(path));
+        Assert.Equal("cancelled", json.RootElement.GetProperty("completionStatus").GetString());
+    }
+
+    [Fact]
     public void SuccessfulProbeDisposesDeviceWithoutNeedingCaptureDates()
     {
         Assert.Equal(0, Run("probe", "--device", "phone")); Assert.True(provider.Device.IsDisposed);

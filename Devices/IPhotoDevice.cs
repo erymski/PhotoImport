@@ -14,7 +14,7 @@ public interface IPhotoDeviceProvider
 public interface IPhotoDevice : IDisposable
 {
     IReadOnlyList<DeviceEntry> GetStorageRoots(CancellationToken cancellationToken);
-    IReadOnlyList<DeviceEntry> GetChildren(DeviceEntry directory, CancellationToken cancellationToken);
+    IEnumerable<DeviceEntry> GetChildren(DeviceEntry directory, CancellationToken cancellationToken);
     PhotoMetadata ReadPhotoMetadata(DeviceEntry file, CancellationToken cancellationToken);
 }
 

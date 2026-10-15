@@ -82,6 +82,36 @@ public class MetadataProbeTests
     }
 
     [Fact]
+    public void FailureDuringChildEnumerationKeepsEarlierPhoto()
+    {
+        using var device = SimpleDevice();
+        device.ChildrenIterator = _ => Children();
+        static IEnumerable<DeviceEntry> Children()
+        {
+            yield return Entry("p", "\\DCIM\\a.jpg");
+            throw new IOException("Folder enumeration failed after one image");
+        }
+        var result = MetadataProbe.Run(device, Info(), default);
+        Assert.Equal("incomplete", result.CompletionStatus);
+        Assert.Single(result.Photos);
+        Assert.Contains(result.Errors, e => e.Message.Contains("after one image"));
+    }
+
+    [Fact]
+    public void CancellationDuringChildEnumerationKeepsEarlierPhoto()
+    {
+        using var device = SimpleDevice(); using var cts = new CancellationTokenSource();
+        device.ChildrenIterator = _ => Children();
+        IEnumerable<DeviceEntry> Children()
+        {
+            yield return Entry("p", "\\DCIM\\a.jpg");
+            cts.Cancel(); cts.Token.ThrowIfCancellationRequested();
+        }
+        var result = MetadataProbe.Run(device, Info(), cts.Token);
+        Assert.Equal("cancelled", result.CompletionStatus); Assert.Single(result.Photos);
+    }
+
+    [Fact]
     public void EmptyDeviceCompletes()
     {
         using var device = new FakePhotoDevice();
