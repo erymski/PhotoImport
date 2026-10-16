@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 2,
+  "device": { "id": "example-android", "friendlyName": "Synthetic example", "manufacturer": null, "model": null, "transport": "USB", "identifiers": { "DeviceId": "example-android" }, "warnings": [] },
+  "completionStatus": "complete",
+  "files": [
+    {
+      "sourcePath": "\\DCIM\\Camera\\boundary.jpg", "elapsedSeconds": 0,
+      "source": { "canonicalPath": "\\DCIM\\Camera\\boundary.jpg", "sizeBytes": 100, "persistentObjectId": "example-1" },
+      "observation": {
+        "bytesRead": 50, "outcome": "available", "rawFields": { "dateTimeOriginal": "2026:10:10 12:00:00" },
+        "captureClock": null, "captureTimestamp": null, "warnings": [], "error": null,
+        "captureDirectories": [{ "dateTimeOriginal": "2026:10:10 12:00:00", "subSecTimeOriginal": null, "offsetTimeOriginal": null }],
+        "captureDay": "2026-10-10", "captureDayStatus": "available", "source": "Synthetic EXIF example"
+      }
+    },
+    {
+      "sourcePath": "\\DCIM\\Camera\\newer.jpg", "elapsedSeconds": 0,
+      "source": { "canonicalPath": "\\DCIM\\Camera\\newer.jpg", "sizeBytes": 200, "persistentObjectId": "example-2" },
+      "observation": {
+        "bytesRead": 50, "outcome": "available", "rawFields": { "dateTimeOriginal": "2026:10:11 08:00:00" },
+        "captureClock": null, "captureTimestamp": null, "warnings": [], "error": null,
+        "captureDirectories": [{ "dateTimeOriginal": "2026:10:11 08:00:00", "subSecTimeOriginal": null, "offsetTimeOriginal": null }],
+        "captureDay": "2026-10-11", "captureDayStatus": "available", "source": "Synthetic EXIF example"
+      }
+    }
+  ],
+  "errors": [], "warnings": ["Synthetic example, not physical-phone evidence."]
+}

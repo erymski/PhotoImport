@@ -1,4 +1,5 @@
 using MetadataExtractor;
+using MetadataExtractor.Util;
 using PhotoImport.Models;
 
 namespace PhotoImport.Services;
@@ -25,6 +26,10 @@ public static class MediaExifReader
             }
             token.ThrowIfCancellationRequested();
             using var memory = new MemoryStream(buffer, 0, count, writable:false);
+            var type = FileTypeDetector.DetectFileType(memory);
+            if ((ext == ".dng" && type != FileType.Tiff) || (ext != ".dng" && type != FileType.Heif))
+                return Failure("unsupported", "Detected media header disagrees with the selected format.");
+            memory.Position = 0;
             var directories = ImageMetadataReader.ReadMetadata(memory);
             return ExifObservationReader.FromDirectories(directories, count, provenance,
                 ["Only the bounded memory prefix was parsed; later metadata may be outside this observation."]);

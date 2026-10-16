@@ -6,6 +6,15 @@ namespace PhotoImport.Tests;
 public sealed class MediaExifReaderTests
 {
     [Theory]
+    [InlineData(".dng")]
+    [InlineData(".heic")]
+    public void RenamedJpegDoesNotBecomeValidatedDngOrHeic(string extension)
+    {
+        using var source=new ForwardOnlyStream(JpegFixture.Create());
+        var result=MediaExifReader.Read(source,extension,default);
+        Assert.Equal("unsupported",result.Outcome);Assert.Null(result.CaptureDay);
+    }
+    [Theory]
     [InlineData(".jpg")]
     [InlineData(".dng")]
     public void RealLibraryExtractsDayFromForwardOnlySyntheticMedia(string extension)

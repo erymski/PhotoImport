@@ -5,20 +5,26 @@ namespace PhotoImport;
 
 internal static class Program
 {
+    internal static int Run(string[] args, CancellationToken token, Func<IPhotoDeviceProvider> deviceProviderFactory, TextWriter output, TextWriter error)
+    {
+        if(args.FirstOrDefault()=="plan")return new DayPreviewCli(output,error).Run(args,token);
+        var provider=deviceProviderFactory();
+        try{return args.FirstOrDefault()=="exif"?new JpegExifCli(provider,output,error).Run(args,token):new ProbeCli(provider,output,error).Run(args,token);}
+        finally
+        {
+            try{(provider as IDisposable)?.Dispose();}
+            catch(IOException ex){error.WriteLine($"Device manager cleanup warning: {ex.Message}");}
+        }
+    }
     private static int Main(string[] args)
     {
         using var cancellation = new CancellationTokenSource();
-        var provider = new WpdPhotoDeviceProvider();
         ConsoleCancelEventHandler handler = (_, e) => { e.Cancel = true; cancellation.Cancel(); };
         Console.CancelKeyPress += handler;
-        try { return args.FirstOrDefault() == "exif"
-            ? new JpegExifCli(provider, Console.Out, Console.Error).Run(args, cancellation.Token)
-            : new ProbeCli(provider, Console.Out, Console.Error).Run(args, cancellation.Token); }
+        try { return Run(args,cancellation.Token,()=>new WpdPhotoDeviceProvider(),Console.Out,Console.Error); }
         finally
         {
             Console.CancelKeyPress -= handler;
-            try { provider.Dispose(); }
-            catch (IOException ex) { Console.Error.WriteLine($"Device manager cleanup warning: {ex.Message}"); }
         }
     }
 }
