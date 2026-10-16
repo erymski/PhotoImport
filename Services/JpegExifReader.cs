@@ -12,11 +12,7 @@ public static class JpegExifReader
     public static JpegExifObservation Read(Stream stream, CancellationToken token)
     {
         using var bounded = new PrefixStream(stream, token);
-        var fields = new Dictionary<string, string?>();
-        var warnings = new List<string>();
-        ExifCaptureDirectory[] captureDirectories = [];
-        JpegExifObservation Result(string outcome, string? error = null, string? clock = null, string? timestamp = null) =>
-            new(bounded.BytesRead, outcome, fields, clock, timestamp, warnings, error) { CaptureDirectories = captureDirectories };
+        JpegExifObservation Result(string outcome, string? error = null) => new(bounded.BytesRead, outcome, new Dictionary<string,string?>(), null, null, [], error);
         try
         {
             // Read every segment type lazily: the package's filtered mode may seek to skip
@@ -25,61 +21,12 @@ public static class JpegExifReader
                 .FirstOrDefault(s => s.Type == JpegSegmentType.App1 && ExifReader.StartsWithJpegExifPreamble(s.Bytes));
             token.ThrowIfCancellationRequested();
             if (segment is null) return Result("missing", "No EXIF segment before JPEG scan data/end.");
-            warnings.Add("Later segments were not inspected; this observation covers the first EXIF APP1 segment only.");
-            var directories = new ExifReader().ReadJpegSegments([segment]).ToList();
-            // Date, fraction, and offset must come from the SAME source directory.
-            // Per-tag unioning can otherwise attach an unrelated orphan offset/fraction.
-            captureDirectories = directories.OfType<ExifSubIfdDirectory>()
-                .Select(d => new ExifCaptureDirectory(d.GetString(0x9003), d.GetString(0x9291), d.GetString(0x9011)))
-                .Where(d => d.DateTimeOriginal is not null || d.SubSecTimeOriginal is not null || d.OffsetTimeOriginal is not null).ToArray();
-            var tags = new (string Name, int Tag, bool Ifd0)[] {
-                ("dateTime", 0x0132, true), ("offsetTime", 0x9010, false),
-                ("dateTimeOriginal", 0x9003, false), ("dateTimeDigitized", 0x9004, false),
-                ("offsetTimeOriginal", 0x9011, false), ("offsetTimeDigitized", 0x9012, false),
-                ("subSecTimeOriginal", 0x9291, false), ("subSecTimeDigitized", 0x9292, false) };
-            var ambiguous = captureDirectories.Distinct().Count() > 1;
-            if (ambiguous) warnings.Add("EXIF capture fields differ by directory; dates, offsets and subseconds cannot be combined across directories.");
-            foreach (var (name, tag, ifd0) in tags)
-            {
-                var values = directories.Where(d => ifd0 ? d is ExifIfd0Directory : d is ExifSubIfdDirectory)
-                    .Select(d => d.GetString(tag)).Where(v => v is not null).Distinct(StringComparer.Ordinal).ToArray();
-                fields[name] = values.Length == 1 ? values[0] : null;
-                if (values.Length > 1) { ambiguous = true; warnings.Add($"Conflicting {name} values: {string.Join("; ", values)}"); }
-            }
-            warnings.AddRange(directories.SelectMany(d => d.Errors.Select(e => $"{d.Name}: {e}")));
-            if (ambiguous) return Result("ambiguous", "Conflicting EXIF date fields.");
-            if (directories.Any(d => d.HasError)) return Result("invalid", "EXIF parser reported errors; capture date is unverified.");
-            var captureDirectory = captureDirectories.FirstOrDefault();
-            var original = captureDirectory?.DateTimeOriginal;
-            if (string.IsNullOrWhiteSpace(original)) return Result("missing", "EXIF DateTimeOriginal is absent; no DateTime or filename fallback.");
-            if (!DateTime.TryParseExact(original, "yyyy:MM:dd HH:mm:ss", CultureInfo.InvariantCulture,
-                DateTimeStyles.None, out var date)) return Result("invalid", "Invalid EXIF DateTimeOriginal.");
-            var subseconds = captureDirectory?.SubSecTimeOriginal;
-            if (subseconds is not null)
-            {
-                if (subseconds.Length is < 1 or > 7 || subseconds.Any(c => c is < '0' or > '9'))
-                    return Result("invalid", "Invalid or unsupported EXIF SubSecTimeOriginal precision.");
-                date = date.AddTicks(long.Parse(subseconds.PadRight(7, '0'), CultureInfo.InvariantCulture));
-            }
-            var offset = captureDirectory?.OffsetTimeOriginal;
-            if (offset is not null && !ValidOffset(offset)) return Result("invalid", "Invalid EXIF OffsetTimeOriginal.");
-            var clock = date.ToString("yyyy-MM-dd'T'HH:mm:ss.FFFFFFF", CultureInfo.InvariantCulture);
-            if (offset is null) warnings.Add("Capture offset is unknown; no UTC instant or PC timezone was inferred.");
-            return Result("available", clock: clock, timestamp: offset is null ? null : clock + offset);
+            return ExifObservationReader.FromDirectories(new ExifReader().ReadJpegSegments([segment]).ToList(), bounded.BytesRead, "Embedded EXIF in first JPEG EXIF APP1 segment; MetadataExtractor", ["Later segments were not inspected; this observation covers the first EXIF APP1 segment only."]);
         }
         catch (OperationCanceledException) { return Result("cancelled", "Cancelled between USB reads; synchronous driver calls may delay cancellation."); }
         catch (JpegProcessingException ex) { return Result(bounded.BytesRead <= 2 ? "unsupported" : "invalid", ex.Message); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         { return Result(token.IsCancellationRequested ? "cancelled" : "incomplete", ex.Message); }
-    }
-
-    private static bool ValidOffset(string value)
-    {
-        if (value.Length != 6 || value[0] is not ('+' or '-') || value[3] != ':'
-            || new[] { value[1], value[2], value[4], value[5] }.Any(c => c is < '0' or > '9')) return false;
-        var hours = (value[1] - '0') * 10 + value[2] - '0';
-        var minutes = (value[4] - '0') * 10 + value[5] - '0';
-        return hours <= 14 && minutes < 60 && (hours != 14 || minutes == 0);
     }
 
     private sealed class PrefixStream(Stream source, CancellationToken token) : Stream
@@ -106,3 +53,4 @@ public static class JpegExifReader
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
     }
 }
+
