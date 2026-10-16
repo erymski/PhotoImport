@@ -66,3 +66,25 @@ Private evidence: `artifacts/android-s21-raw-properties-verified.json`, `artifac
 This does not prove that every possible Samsung vendor command lacks capture information. It establishes that broadening ordinary WPD property reads does not supply a usable capture timestamp for the tested photos. A raw WPD reader alone is consequently not a demonstrated solution. Synchronization remains blocked under the existing capture-date and metadata-only rules; the specification has not been relaxed.
 
 Reference-source context, not a claim about Samsung's exact firmware: Android's reference [MTP property handler](https://raw.githubusercontent.com/aosp-mirror/platform_frameworks_base/master/media/java/android/mtp/MtpPropertyGroup.java) supplies modification time for both DateModified and DateAdded, and its [object-info implementation](https://raw.githubusercontent.com/aosp-mirror/platform_frameworks_base/master/media/java/android/mtp/MtpDatabase.java) fills both object-info time slots from modification time. These behaviors are consistent with the observations. Microsoft documents [reading all WPD properties](https://learn.microsoft.com/en-us/windows/win32/wpd_sdk/retrieving-properties-for-a-single-object) separately from media-content access.
+
+## Approved one-JPEG EXIF experiment
+
+On 2026-10-16 the user explicitly authorized one JPEG media-stream read as an exception to the metadata-only rule, capped at 256 KiB at the application boundary. The normal probe was unchanged. The isolated diagnostic used MediaDevices 2.0.0 with GenericRead access and MetadataExtractor 2.9.3 parsing an in-memory prefix after the device stream closed. No image bytes were saved, no full-file fallback was attempted, and no phone files or synchronization state were changed.
+
+| Observation | Result |
+| --- | --- |
+| Reported protocol | MTP: 1.00 |
+| Camera JPEG | `20261015_191713.jpg` |
+| Source length | 3,002,932 bytes |
+| Application bytes read | 262,144 bytes, 16 reads |
+| EXIF DateTimeOriginal / DateTimeDigitized | `2026:10:15 19:17:14` / same |
+| EXIF SubSecTimeOriginal / SubSecTimeDigitized | `762` / same |
+| EXIF OffsetTimeOriginal / OffsetTime | `+02:00` / same |
+| EXIF OffsetTimeDigitized | Absent |
+| WPD projected modification time | `2026-10-15 19:17:17`, no offset |
+| Entire experiment duration | 38.741 seconds, including discovery and cleanup |
+| Outcome | Capture fields found; exit 0; no errors or parser warnings |
+
+The fields express a capture timestamp of `2026-10-15T19:17:14.762+02:00`. It differs from the projected modification time and from the filename clock; neither is used as capture-time truth. Independent gallery/Picasa agreement remains unverified. The measured duration cannot isolate USB reading throughput. Driver read-ahead was not measured and could exceed the application cap.
+
+Private evidence: `artifacts/android-s21-one-jpeg-exif.json`; source: ignored `artifacts/exif-spike/`. The diagnostic built with 0 warnings/errors. This demonstrates feasibility for one JPEG, not library-wide reliability, other-format support, or complete original-file access. The metadata-only WPD property path remains insufficient. A [proposed JPEG validation addendum](../superpowers/specs/2026-10-16-android-jpeg-exif-addendum.md) scopes any further exception; it has not been approved.
