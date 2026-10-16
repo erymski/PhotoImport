@@ -209,6 +209,18 @@ public sealed class LivePreviewCliTests:IDisposable
         Assert.Equal(2,preview.RootElement.GetProperty("totalPhotoCount").GetInt32());
     }
 
+    [Theory][InlineData("0x80070079")][InlineData("0x8007001f")][InlineData("0x80070141")][InlineData("0x802a0002")]
+    public void RealBackendSessionFailureStopsAfterFailedAttemptAndRetainsEvidence(string code)
+    {
+        using var provider=Phone("2026:10:11 12:00:00","2026:10:12 12:00:00","2026:10:13 12:00:00");
+        provider.Device.Content[@"\Camera\b.jpg"]=()=>WpdOperation.Run<PhotoReadHandle>(()=>throw new AggregateException(
+            new MediaDevices.MediaDeviceException($"COM Error {code} in IPortableDeviceResources.GetStream: session failed")),default);
+        Assert.Equal(3,Run(Args(),provider));Assert.Equal([@"\Camera\a.jpg",@"\Camera\b.jpg"],provider.Device.Opened);
+        var capture=PreviewInputReader.ReadCapture(Path.Combine(Destination,"capture.json"),default);
+        Assert.Equal(2,capture.Files.Count);Assert.Equal(new DateOnly(2026,10,11),capture.Files[0].Observation.CaptureDay);
+        using var manifest=Read("run.json");Assert.Equal(2,manifest.RootElement.GetProperty("attemptedCount").GetInt32());
+    }
+
     [Theory][InlineData(false)][InlineData(true)]
     public void FinalFlushCancellationOrReportCloseFailurePersistsUnsuccessfulStatus(bool cancel)
     {
