@@ -159,4 +159,20 @@ The PNG error was `Unable to skip. Requested 65536 bytes but only 43566 remained
 
 Total experiment duration: 85.188 seconds including Camera metadata enumeration and cleanup. The PNG step waited with essentially idle CPU; the user reported the phone was unavailable during that wait. It subsequently returned, both JSON reports were saved, and no USB process remains active. The measurements do not identify the exact blocking call or isolate USB throughput. Exit 0 indicates all three attempts completed without a fatal/session error, not success for every parser.
 
-Private evidence: `artifacts/android-s21-three-format-prefix.json`; source: ignored `artifacts/format-feasibility/` (build 0 warnings/errors). The product `exif` command remains JPEG-only. Extending it, or authorizing more content reads, requires a separately approved scope; this throwaway test does neither. iPhone remains deferred.
+Private evidence: `artifacts/android-s21-three-format-prefix.json`; source: ignored `artifacts/format-feasibility/` (build 0 warnings/errors). This throwaway test did not authorize extending the product or further reads. The later approved implementation and validation are recorded below. iPhone remains deferred.
+
+## Product capture-day diagnostic and offline preview validation
+
+On 2026-10-16 the user separately approved one run on the same JPEG, HEIC and DNG, capped at 256 KiB per file in the application, saving only metadata, followed by a local preview against the saved inventory. Implementation commit `5de95ae` completed the three-file diagnostic with exit 0 in 13.052 seconds. No full-file fallback, saved media bytes, phone modifications or sync-state changes occurred. Driver read-ahead was not measured or bounded.
+
+| Selected source | Capture day | Application bytes | Day status |
+| --- | --- | --- | --- |
+| DCIM/Camera/20261015_191713.jpg | 2026-10-15 | 16,468 | available |
+| Pictures/Telegram/IMG_20260301_150441_005.HEIC | 2026-03-01 | 262,144 | available |
+| DCIM/Camera/20180626_195706.dng | 2018-06-26 | 262,144 | available |
+
+Total application bytes: 540,756. The schema-2 report contains canonical paths, reported sizes and persistent identifiers obtained at read time. HEIC retains the two Apple maker-note format errors as warnings for day resolution; its exact-timestamp outcome remains invalid. The independent day outcome is available under the approved policy. DNG retains an unknown offset without inventing a UTC instant. Independent Gallery day comparison for HEIC/DNG is pending; JPEG day agreement was established previously.
+
+The offline `plan` matched all three observations to the existing 3,909-image inventory. With cutoff 2026-10-10, the JPEG is eligible (3,002,932 reported bytes), HEIC/DNG are older, and the other 3,906 rows remain unresolved. The preview correctly exits 4/incomplete because most inventory objects have no capture reports and PNG remains unsupported. This checks real saved-report interoperability and source association, not a complete-library preview or freshness/content identity. No new inventory or broader media scan was performed.
+
+Private evidence: `artifacts/android-s21-day-validation.json`, `artifacts/android-s21-day-validation-preview.json` and its console text. No USB process remains active. Remaining gates include independent HEIC/DNG day comparison, other-folder coverage and unresolved-format policy; iPhone remains deferred.
