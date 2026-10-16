@@ -1,6 +1,6 @@
 # Scoped Android live preview
 
-Status: proposed written design. The user approved the scope on 2026-10-16: explicit folders, a required photo-read limit, at most 256 KiB per supported photo, metadata/selection reports, and visible unresolved entries. Written-design review is pending. Current-checkout native execution and one final independent review remain selected. Implementation and subsequent hardware testing are separate stages.
+Status: written design approved by the user on 2026-10-16. Scope: explicit folders, a required photo-read limit, at most 256 KiB per supported photo, metadata/selection reports, and visible unresolved entries. Current-checkout native execution and one final independent review remain selected. Implementation and subsequent hardware testing are separate stages.
 
 ## Intent
 

@@ -87,8 +87,9 @@ Architectural brainstorming started after the user requested continuation. Inten
 - [x] Confirm proposed scope and approach with the user (2026-10-16: "Use this scope").
 - [x] Draft command, orchestration, limits, failures, output and verification in the [proposed written design](superpowers/specs/2026-10-16-scoped-live-preview-design.md).
 - [x] Self-review for placeholders, boundary/limit ambiguity, report compatibility and scope; clarify that exact-time errors do not fail an available day. No product code or phone access performed.
-- [ ] Obtain user review of the written design before implementation planning.
-- [ ] Write and review the implementation plan, preserving the selected execution method.
+- [x] Obtain user review of the written design (2026-10-16: "Approve design; write implementation plan").
+- [x] Write and self-review the [implementation plan](superpowers/plans/2026-10-16-scoped-live-preview.md), preserving native execution and one final independent review. Coverage, interface consistency, output-directory race and cancellation/cleanup handling checked.
+- [ ] Obtain user review of the implementation plan before product changes. No phone reads included.
 
 ### Existing photo-sort implementation inspected on 2026-10-16
 
