@@ -1,6 +1,6 @@
 # Samsung Galaxy S21 (SM-G991B)
 
-Assessment date: 2026-10-16, Europe/Madrid. Backend: MediaDevices NuGet 2.0.0 / Windows WPD. Status: **no-go for synchronization through the tested MTP and PTP metadata paths**. Capture dates were unavailable for every image in the inventory sample, including 3,601 camera-folder images; a raw-property follow-up confirmed unsupported capture/creation properties for three camera objects in both USB modes. Complete inventory coverage remains unverified.
+Assessment date: 2026-10-16, Europe/Madrid. Backend: MediaDevices NuGet 2.0.0 / Windows WPD. Status: **ordinary MTP/PTP properties remain insufficient; day-level JPEG EXIF path and one complete JPEG resource read verified**. DCIM/Pictures traversal subsequently completed through the API. Synchronization is not yet accepted: independent folder counts and capture-date behavior for other observed formats remain unverified. iPhone is deferred.
 
 ## Observed
 
@@ -23,19 +23,19 @@ Assessment date: 2026-10-16, Europe/Madrid. Backend: MediaDevices NuGet 2.0.0 / 
 | --- | --- |
 | Android version / driver version | Not collected |
 | Identifier stability after unplug/replug and process restart | Unchanged in one observed replug/fresh-process check; broader stability unverified |
-| Complete folder coverage / expected photo count | Not verified |
+| Complete folder coverage / expected photo count | Scoped API traversal completed: DCIM 3,721 (Camera 3,601), Pictures 188; independent counts pending |
 | Actual authored-date availability / missing-date rate | 0 available / 13,156 observed; 100% missing, including 3,601 camera-folder images |
 | Capture-date accuracy against EXIF/Picasa | Three bounded JPEG reads obtained EXIF dates; user Gallery comparison confirms day-level agreement, which meets the clarified precision requirement; seconds/offsets not independently verified |
 | Timezone/local/UTC interpretation | Not verified; public API dates are projections |
 | Enumeration duration and performance | 125.618 seconds for an incomplete run with 13,156 photo observations |
 | No-content transfer | Normal probe calls no content APIs; separately approved EXIF command reads bounded JPEG prefixes; driver/USB observation pending |
-| Original/full-resolution access | Not tested; separate selected-file transfer validation required |
+| Original/full-resolution access | One complete exposed JPEG resource read: 3,002,932 bytes, 4032×2268, expected EXIF retained; independent original-asset identity unverified |
 
 The public package API does not expose raw timestamp variants, a separate PTP date, or reported photo format/content type, and may hide some native enumeration failures. A clean probe alone cannot establish inventory completeness. See [backend notes](backend-notes.md) and the [acceptance procedure](README.md).
 
 ## Decision
 
-Do not implement or enable date-based synchronization for this phone yet. Ordinary WPD properties remain insufficient, while the separately approved bounded EXIF diagnostic now provides a day-level capture-date path for three camera JPEGs confirmed by the user. Complete folder coverage, other-format behavior, and complete-original access remain unverified. Do not use modification timestamps as an implicit fallback.
+Do not implement or enable date-based synchronization for this phone yet. Ordinary WPD properties remain insufficient, while the separately approved bounded EXIF diagnostic provides a day-level capture-date path for three camera JPEGs confirmed by the user. Scoped folder traversal and one complete JPEG resource read now pass; independent counts and capture-date behavior for the observed HEIC/DNG/PNG files remain unverified. Do not use modification timestamps as an implicit fallback.
 
 ## Raw WPD follow-up: MTP and PTP
 
@@ -108,3 +108,24 @@ Private JSON: `artifacts/android-s21-three-jpeg-exif.json`. The user checked Gal
 The user was directed to Internal storage → DCIM → Camera on the phone to locate the selected files; no local photo copies were created by this diagnostic. Successful prefix access and the Gallery comparison establish a candidate day-level JPEG capture-date path for these samples, not complete-original access, complete photo coverage, other-format support, or synchronization acceptance. The 2017 sample's unknown offset does not prevent using its recorded capture calendar date; no PC-timezone conversion is needed. The draft checkpoint policy still needs explicit same-day-boundary handling before filtering is implemented. iPhone validation remains deferred.
 
 Hardware implementation: `98a77af`. Independent review later identified that separate EXIF directories could incorrectly lend an orphan offset/subsecond to another directory's date. That was corrected by preserving per-directory capture tuples, reporting ambiguity and retaining the separate raw evidence. Two regression cases failed before the correction; the final full suite passes 93 tests and the Release solution builds with 0 warnings/errors. The phone reads were not repeated after this synthetic-data correction, and the original hardware JSON predates the added `captureDirectories` field.
+
+## Scoped DCIM/Pictures metadata traversal
+
+After reconnect/unlock, a throwaway metadata-only harness called the existing production probe with roots limited to `Internal storage/DCIM` and `Internal storage/Pictures`. It uses only the metadata-only interface, never the optional content capability. The run returned `complete`, 3,909 still-image observations, 72.308 seconds, and zero surfaced errors. The same package-hidden-enumeration-error limitation still applies; independent counts are requested rather than inferred from this status.
+
+| Scope | Still-image observations |
+| --- | --- |
+| DCIM, recursive | 3,721 |
+| DCIM/Camera, within that total | 3,601 |
+| Pictures, recursive | 188 |
+| Both roots combined | 3,909 |
+
+Formats: 3,898 JPG, 2 JPEG, 3 HEIC, 2 DNG, and 4 PNG. The HEIC files were found under Pictures and were outside the earlier partial inventory. `.thumbnails` remains excluded. Camera/DCIM counts agree with the earlier partial scan, providing repeatability evidence, not independent physical completeness. The main Pictures root is now covered through the API for the first time. Private evidence: `artifacts/android-s21-camera-pictures-metadata.json`; harness: `artifacts/folder-coverage/`. No new shipping code was needed.
+
+## Separately approved complete-file access test
+
+The user explicitly approved copying only the previously inspected `20261015_191713.jpg` to a new local artifact. A read-only MediaDevices session reported MTP: 1.00. Source metadata reported 3,002,932 bytes; the stream returned exactly that count followed by EOF, and the saved file length matched. Local MetadataExtractor inspection found a JPEG of 4032×2268 pixels with the expected DateTime/DateTimeOriginal `2026:10:15 19:17:14`, original subseconds `762`, and offset `+02:00`. No errors or warnings were reported. The command exited 0.
+
+Transfer plus file flush/stream cleanup took 0.176 seconds. The diagnostic's pre-report-export elapsed measure was 0.861 seconds. A SHA-256 of the local saved bytes was independently recomputed with PowerShell and matched the report. No phone-side hash was available: this verifies complete access to the reported JPEG resource and local size/metadata integrity, not independent bitwise equality to the original asset or absence of driver conversion for every format.
+
+The one local photo is under ignored `artifacts/original-access/20261015_191713.jpg`; private JSON is `artifacts/android-s21-original-access.json`. Both paths were confirmed Git-ignored. The experiment used a new `.partial` destination and finalized it only after verification; no phone files or sync state were modified. It does not authorize copying any other media. Source: ignored `artifacts/original-access-test/` (build 0 warnings/errors after correcting a filesystem type-name qualification). Other formats, independent folder counts, and physical cancellation still need evidence.

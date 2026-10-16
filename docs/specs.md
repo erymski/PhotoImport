@@ -58,6 +58,8 @@ The probe must:
 
 **Approved Android diagnostic exception (2026-10-16):** the separately invoked JPEG EXIF diagnostic described in the [approved addendum](superpowers/specs/2026-10-16-android-jpeg-exif-addendum.md) may read a prefix of explicitly selected JPEG objects into memory, capped at 256 KiB per object at the application boundary. Driver read-ahead may exceed this limit on USB traffic. Save parsed metadata and diagnostics only, with no full-file fallback, phone mutations, or sync-state changes. The ordinary `probe` remains metadata-only. Hardware validation of this extension is limited to at most three selected camera JPEGs. iPhone testing is deferred; Android progress does not depend on it.
 
+The user subsequently authorized the separate full-resource access test for only camera JPEG `20261015_191713.jpg` (3,002,932 bytes), saved under ignored local artifacts and checked for byte count, local SHA-256, EXIF and dimensions. That test succeeded. It is a one-file validation exception, not a general download or synchronization command, and does not broaden the ordinary probe or bounded-reader scope.
+
 Example diagnostic output:
 
 ```text
