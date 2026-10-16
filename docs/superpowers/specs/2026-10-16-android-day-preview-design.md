@@ -1,6 +1,6 @@
 # Android capture-day reporting and offline dry run
 
-Status: proposed for user review. No implementation or additional phone reads are authorized by this document alone.
+Status: approved by the user on 2026-10-16. Native execution in the existing feature branch remains selected. Implementation-plan review is the next gate; no additional hardware reads are included in this implementation scope. The user has since made the Android phone available for a later agreed validation.
 
 ## Intent and scope
 
