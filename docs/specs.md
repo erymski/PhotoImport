@@ -60,6 +60,8 @@ The probe must:
 
 The user subsequently authorized the separate full-resource access test for only camera JPEG `20261015_191713.jpg` (3,002,932 bytes), saved under ignored local artifacts and checked for byte count, local SHA-256, EXIF and dimensions. That test succeeded. It is a one-file validation exception, not a general download or synchronization command, and does not broaden the ordinary probe or bounded-reader scope.
 
+A later separately approved feasibility experiment read at most 256 KiB each from one HEIC, one DNG, and one PNG, using in-memory MetadataExtractor parsing and saving only parsed evidence. HEIC/DNG capture-day candidates were found (HEIC with maker-note errors); PNG parsing could not complete within that prefix. This one-per-format exception does not authorize full-file fallbacks, further content scans, or extending the JPEG-only product command. See the [Samsung report](compatibility/android-samsung-sm-g991b.md).
+
 Example diagnostic output:
 
 ```text

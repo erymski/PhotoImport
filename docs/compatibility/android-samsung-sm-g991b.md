@@ -23,7 +23,7 @@ Assessment date: 2026-10-16, Europe/Madrid. Backend: MediaDevices NuGet 2.0.0 / 
 | --- | --- |
 | Android version / driver version | Not collected |
 | Identifier stability after unplug/replug and process restart | Unchanged in one observed replug/fresh-process check; broader stability unverified |
-| Complete folder coverage / expected photo count | Scoped API traversal completed: DCIM 3,721 (Camera 3,601), Pictures 188; independent counts pending |
+| Complete folder coverage / expected photo count | Scoped API traversal completed: DCIM 3,721 (Camera 3,601), Pictures 188; all-entry Camera count 3,615 matches user total, comprising 3,599 JPG + 2 DNG + 14 MP4 by extension; other folder comparisons pending |
 | Actual authored-date availability / missing-date rate | 0 available / 13,156 observed; 100% missing, including 3,601 camera-folder images |
 | Capture-date accuracy against EXIF/Picasa | Three bounded JPEG reads obtained EXIF dates; user Gallery comparison confirms day-level agreement, which meets the clarified precision requirement; seconds/offsets not independently verified |
 | Timezone/local/UTC interpretation | Not verified; public API dates are projections |
@@ -129,3 +129,34 @@ The user explicitly approved copying only the previously inspected `20261015_191
 Transfer plus file flush/stream cleanup took 0.176 seconds. The diagnostic's pre-report-export elapsed measure was 0.861 seconds. A SHA-256 of the local saved bytes was independently recomputed with PowerShell and matched the report. No phone-side hash was available: this verifies complete access to the reported JPEG resource and local size/metadata integrity, not independent bitwise equality to the original asset or absence of driver conversion for every format.
 
 The one local photo is under ignored `artifacts/original-access/20261015_191713.jpg`; private JSON is `artifacts/android-s21-original-access.json`. Both paths were confirmed Git-ignored. The experiment used a new `.partial` destination and finalized it only after verification; no phone files or sync state were modified. It does not authorize copying any other media. Source: ignored `artifacts/original-access-test/` (build 0 warnings/errors after correcting a filesystem type-name qualification). Other formats, independent folder counts, and physical cancellation still need evidence.
+
+## Camera item-count reconciliation
+
+The user reported 3,615 items in Camera, including 12 videos. A metadata-only enumeration of every direct Camera entry returned exactly 3,615 files and no directories in 2.086 seconds, with no surfaced errors:
+
+| Extension | Files |
+| --- | --- |
+| JPG | 3,599 |
+| DNG | 2 |
+| MP4 | 14 |
+| Total | 3,615 |
+
+This explains the supported-image count of 3,601 without missing supported extensions: the directory has 14 `.mp4` entries rather than the 12 videos initially reported. Video classification here is by extension, not content inspection. The total independently matches the user's directory count; it does not certify all file types or every other photo folder. No content was opened for this reconciliation. Private evidence: `artifacts/android-s21-camera-all-entries.json`.
+
+## Separately approved HEIC/DNG/PNG prefix experiment
+
+The user approved one existing file per format with a 256 KiB application cap, metadata-only output, and no full-file fallback. MediaDevices 2.0.0 opened read-only media streams; each prefix was closed before MetadataExtractor 2.9.3 parsed a seekable memory buffer. Exactly 262,144 application bytes were read per object, 786,432 total. No image/thumbnail bytes were saved, no separate thumbnail API was called, and no phone files or state were changed. Driver read-ahead may exceed the cap on actual USB traffic.
+
+| Sample | Reported size | Capture evidence from prefix | Parser outcome | Seconds |
+| --- | --- | --- | --- | --- |
+| Telegram HEIC | 2,778,405 | DateTime and DateTimeOriginal `2026:03:01 13:34:39`, original offset `+01:00`, subseconds `917` | Date candidates found; two Apple maker-note errors | 1.695 |
+| Camera DNG | 18,883,776 | DateTime and DateTimeOriginal `2018:06:26 19:57:06`; no offset obtained | Parsed, no errors | 1.624 |
+| Pictures PNG | 2,914,035 | No date obtained | Prefix parse failed on a chunk skip beyond available data | 79.620 |
+
+The HEIC errors were `Invalid TIFF tag format code 16` for Apple maker-note tags `0x0017` and `0x0025`. ICC profile dates were also present but are not capture dates. The valid-looking EXIF day candidate is not general HEIC acceptance; maker-note-error policy and independent Gallery agreement remain unverified. The DNG has a usable-looking EXIF day candidate but still needs independent comparison. Neither candidate relies on filename or WPD modification time.
+
+The PNG error was `Unable to skip. Requested 65536 bytes but only 43566 remained.` The generic PNG reader could not finish parsing the bounded prefix. This does not prove the complete PNG lacks capture metadata, and no full-file fallback was attempted. Product PNG capture-date support remains unresolved.
+
+Total experiment duration: 85.188 seconds including Camera metadata enumeration and cleanup. The PNG step waited with essentially idle CPU; the user reported the phone was unavailable during that wait. It subsequently returned, both JSON reports were saved, and no USB process remains active. The measurements do not identify the exact blocking call or isolate USB throughput. Exit 0 indicates all three attempts completed without a fatal/session error, not success for every parser.
+
+Private evidence: `artifacts/android-s21-three-format-prefix.json`; source: ignored `artifacts/format-feasibility/` (build 0 warnings/errors). The product `exif` command remains JPEG-only. Extending it, or authorizing more content reads, requires a separately approved scope; this throwaway test does neither. iPhone remains deferred.

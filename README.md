@@ -4,6 +4,8 @@ Windows 10/11, .NET 10 CLI for investigating USB phone photo metadata before imp
 
 Milestone 1's diagnostic CLI is implemented. Samsung S21 WPD properties exposed no authored capture dates in the original partial inventory. Optional bounded EXIF reads and the user's Gallery comparison verified capture days for three camera JPEGs. A later metadata-only run completed DCIM/Pictures through the API (3,909 images), and a separately approved full JPEG resource read passed byte-count, EXIF, and dimension checks. Independent folder counts and other-format capture dates remain open; the backend is not yet accepted for synchronization. iPhone validation is deferred. No synchronization commands are implemented yet.
 
+Camera's 3,615 total files match the user's count: 3,599 JPG, 2 DNG, and 14 MP4 by extension. Separate HEIC/DNG prefix experiments found capture-day candidates; HEIC had maker-note parser errors, and PNG could not be fully parsed within the approved prefix. These are feasibility results only; the product `exif` command remains JPEG-only.
+
 ```powershell
 dotnet build PhotoImport.slnx --configuration Release
 dotnet test PhotoImport.slnx
