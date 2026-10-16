@@ -158,6 +158,27 @@ public sealed class DayPreviewCliTests : IDisposable
         Assert.Equal(130,exit);Assert.Equal("racing writer",File.ReadAllText(OutputPath));
     }
 
+    [Fact]
+    public void CancellationHasPriorityWhenConsoleWriterThrowsIo()
+    {
+        using var cts=new CancellationTokenSource();
+        using var writer=new CancellingFailingWriter(cts.Cancel);
+        Assert.Equal(130,Program.Run(Args(),cts.Token,()=>throw new Exception("No USB"),writer,error));
+    }
+
+    [Fact]
+    public void CancellationRaisedWhileReportingExportFailureKeepsExit130()
+    {
+        using var cts=new CancellationTokenSource();
+        using var writer=new InterruptingWriter(()=>File.WriteAllText(OutputPath,"racing writer"));
+        using var errorWriter=new InterruptingWriter(cts.Cancel);
+        Assert.Equal(130,Program.Run(Args(),cts.Token,()=>throw new Exception("No USB"),writer,errorWriter));
+        Assert.Equal("racing writer",File.ReadAllText(OutputPath));
+    }
+
+    private sealed class CancellingFailingWriter(Action cancel):StringWriter
+    {public override void WriteLine(string? value){cancel();throw new IOException("Console sink failed");}}
+
     private sealed class InterruptingWriter(Action interrupt):StringWriter
     {
         private bool called;

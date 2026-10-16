@@ -54,13 +54,13 @@ public sealed class DayPreviewCli(TextWriter output, TextWriter error)
             if(outputPath is not null)
             {
                 try{PreviewReportWriter.WriteJson(report,outputPath);}
-                catch(Exception ex) when(IsIoError(ex)){error.WriteLine("Preview output failed: "+ex.Message);return exit==130?130:5;}
+                catch(Exception ex) when(IsIoError(ex)){error.WriteLine("Preview output failed: "+ex.Message);return token.IsCancellationRequested||exit==130?130:5;}
             }
             return token.IsCancellationRequested?130:exit;
         }
         catch(OperationCanceledException){error.WriteLine("Cancelled.");return 130;}
         catch(PreviewInputException ex){return Usage(ex.Message);}
-        catch(Exception ex) when(IsIoError(ex)){error.WriteLine("Local preview I/O failed: "+ex.Message);return 5;}
+        catch(Exception ex) when(IsIoError(ex)){error.WriteLine("Local preview I/O failed: "+ex.Message);return token.IsCancellationRequested?130:5;}
     }
     private int Usage(string message){error.WriteLine(message);return 2;}
     private static bool IsIoError(Exception ex)=>ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or System.Security.SecurityException;
