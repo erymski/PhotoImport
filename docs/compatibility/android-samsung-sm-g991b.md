@@ -25,10 +25,10 @@ Assessment date: 2026-10-16, Europe/Madrid. Backend: MediaDevices NuGet 2.0.0 / 
 | Identifier stability after unplug/replug and process restart | Unchanged in one observed replug/fresh-process check; broader stability unverified |
 | Complete folder coverage / expected photo count | Not verified |
 | Actual authored-date availability / missing-date rate | 0 available / 13,156 observed; 100% missing, including 3,601 camera-folder images |
-| Capture-date accuracy against EXIF/Picasa | Not verified |
+| Capture-date accuracy against EXIF/Picasa | Three bounded JPEG reads obtained EXIF dates; independent Gallery/Picasa agreement pending |
 | Timezone/local/UTC interpretation | Not verified; public API dates are projections |
 | Enumeration duration and performance | 125.618 seconds for an incomplete run with 13,156 photo observations |
-| No-content transfer | Application calls no media/thumbnail APIs; independent driver/USB observation pending |
+| No-content transfer | Normal probe calls no content APIs; separately approved EXIF command reads bounded JPEG prefixes; driver/USB observation pending |
 | Original/full-resolution access | Not tested; separate selected-file transfer validation required |
 
 The public package API does not expose raw timestamp variants, a separate PTP date, or reported photo format/content type, and may hide some native enumeration failures. A clean probe alone cannot establish inventory completeness. See [backend notes](backend-notes.md) and the [acceptance procedure](README.md).
@@ -87,4 +87,20 @@ On 2026-10-16 the user explicitly authorized one JPEG media-stream read as an ex
 
 The fields express a capture timestamp of `2026-10-15T19:17:14.762+02:00`. It differs from the projected modification time and from the filename clock; neither is used as capture-time truth. Independent gallery/Picasa agreement remains unverified. The measured duration cannot isolate USB reading throughput. Driver read-ahead was not measured and could exceed the application cap.
 
-Private evidence: `artifacts/android-s21-one-jpeg-exif.json`; source: ignored `artifacts/exif-spike/`. The diagnostic built with 0 warnings/errors. This demonstrates feasibility for one JPEG, not library-wide reliability, other-format support, or complete original-file access. The metadata-only WPD property path remains insufficient. A [proposed JPEG validation addendum](../superpowers/specs/2026-10-16-android-jpeg-exif-addendum.md) scopes any further exception; it has not been approved.
+Private evidence: `artifacts/android-s21-one-jpeg-exif.json`; source: ignored `artifacts/exif-spike/`. The diagnostic built with 0 warnings/errors. This demonstrates feasibility for one JPEG, not library-wide reliability, other-format support, or complete original-file access. The metadata-only WPD property path remains insufficient. The user subsequently approved the [JPEG validation addendum](../superpowers/specs/2026-10-16-android-jpeg-exif-addendum.md) and the three-photo check below.
+
+## Optional JPEG diagnostic: three-photo validation
+
+The implemented `exif` command used MediaDevices 2.0.0 and MetadataExtractor 2.9.3 on the same three previously sampled camera paths. Both JPEG segment navigation and EXIF decoding use MetadataExtractor; no custom EXIF decoder was introduced. The session reported MTP: 1.00. Each read stopped after the first EXIF APP1 segment, with no media bytes saved or full-file fallback. The command exited 0 and exported `completionStatus: complete`.
+
+| Camera JPEG | EXIF DateTime and DateTimeOriginal (equal) | Original subseconds | Original offset | Application bytes read | Per-photo seconds |
+| --- | --- | --- | --- | --- | --- |
+| `20261015_191713.jpg` | `2026:10:15 19:17:14` | `762` | `+02:00` | 16,468 | 2.095 |
+| `20230225_072051.jpg` | `2023:02:25 07:20:51` | `0761` | `+04:00` | 46,518 | 1.755 |
+| `20171027_130322.jpg` | `2017:10:27 13:03:22` | Absent | Absent | 474 | 1.836 |
+
+Total: 63,460 application bytes in 5.792 seconds including discovery, connection, reads, parsing, and session cleanup. These measurements do not isolate USB throughput or establish actual USB traffic; driver read-ahead remains unmeasured. All samples had valid DateTimeOriginal clocks. The 2017 sample has no offset, so no UTC instant was derived. Later segments were not inspected. The only parser warnings were the first-segment scope notice and the expected unknown-offset notice; no errors occurred.
+
+The general `DateTime` policy used by the existing `photo-sort` project and `DateTimeOriginal` agree for these samples; no broader equivalence is claimed. WPD modification clocks from the previous raw-property assessment differ from the EXIF clocks, notably the 2023 sample (`04:20:53` versus EXIF `07:20:51 +04:00`). Neither WPD clocks nor filenames are accepted as capture truth.
+
+Private JSON: `artifacts/android-s21-three-jpeg-exif.json`. Independent Gallery/Picasa comparison has been requested from the user and is pending. Successful prefix access establishes a candidate JPEG capture-date path, not complete-original access, complete photo coverage, an import policy for unknown offsets, other-format support, or synchronization acceptance. iPhone validation remains deferred.

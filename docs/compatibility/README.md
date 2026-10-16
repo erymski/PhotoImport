@@ -4,7 +4,21 @@
 
 Initial discovery reported no phone. On 2026-10-16, a Samsung Galaxy S21 (SM-G991B) was assessed over USB/MTP: a partial run recorded 13,156 images in 125.618 seconds, including 3,601 actual camera-folder images, with no authored capture dates exposed. Its device/serial identifier candidates stayed unchanged in one unplug/replug and fresh-process check. See the [Android compatibility report](android-samsung-sm-g991b.md). The current backend is not accepted for synchronization. iPhone remains untested; selected-file/original access and complete inventory coverage remain unverified.
 
-Automated tests cover application behavior using metadata-only fake devices. They cannot establish USB driver behavior, capture timestamp correctness, stable physical identity, or actual enumeration coverage. See [backend inspection](backend-notes.md) for public API limitations.
+Automated tests cover metadata-only probing and bounded JPEG EXIF reading using synthetic data and fake USB boundaries. They cannot establish USB driver behavior, capture timestamp correctness, stable physical identity, or actual enumeration coverage. See [backend inspection](backend-notes.md) for public API limitations. iPhone testing is explicitly deferred by the user; continue Android work independently.
+
+## Optional bounded JPEG EXIF assessment
+
+The separately invoked `exif` command reads media-object content under the [approved Android exception](../superpowers/specs/2026-10-16-android-jpeg-exif-addendum.md). It does not change `probe`. Use one to three explicit absolute device `.jpg`/`.jpeg` paths and a new JSON output path:
+
+```powershell
+dotnet bin\Release\net10.0-windows\phone-photo-sync.dll exif --device "My Phone" --photo "\Internal storage\DCIM\Camera\example.jpg" --output artifacts\selected-exif.json
+```
+
+Only a prefix is read (at most 262,144 bytes per selected file at the application boundary), stopping after the first EXIF APP1 segment. The driver can read ahead; USB bytes were not measured. MetadataExtractor performs JPEG segment navigation and EXIF decoding. No image bytes are saved, no full-file fallback is used, and no phone files or sync state are changed. Later EXIF segments are not inspected; conflicting parsed date directories are reported as ambiguous. Unsupported/missing/invalid/truncated input is explicit in per-photo outcomes.
+
+Compare raw `DateTime` (the field used by `photo-sort`) with `DateTimeOriginal`, subseconds, and offsets, then independently compare the capture clock against Gallery/Picasa details. Filenames and WPD modification time are comparisons only. An unknown offset stays unknown, and successful JPEG samples do not establish HEIC/other-format support. Exit 0 requires valid capture clocks for all selected photos but does not certify independent correctness or an offset. Exit 4 covers missing/invalid data and incomplete reads; other exit codes match the table below. Earlier observations survive failure/cancellation where report export succeeds.
+
+The approved hardware run used exactly three existing camera JPEGs spanning 2017, 2023, and 2026. No broader content scan is authorized by that run. Full original-file access, folder coverage, missing-date policy, independent accuracy, and deferred iPhone support remain separate acceptance checks.
 
 ## Run a metadata-only assessment
 
@@ -65,4 +79,4 @@ Create one sanitized Markdown report per actually tested phone. Record:
 | Original access | Unverified until a separate selected-file transfer test; note any driver format-conversion setting |
 | Decision | Accepted evidence and remaining reasons this backend cannot yet be accepted for synchronization |
 
-A separate, explicitly invoked transfer validation must establish that a selected original can be read. This CLI intentionally has no download command, and reported filename/size does not prove original access.
+A separate, explicitly invoked transfer validation must establish that a selected original can be read completely. This CLI has no full-file download command; neither reported filename/size nor a successfully read EXIF prefix proves complete original access.

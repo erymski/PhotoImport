@@ -61,15 +61,16 @@ Command: `phone-photo-sync exif --device <exact-id-or-unique-name> --photo <abso
 
 **Interfaces:** Consume the explicit `exif` CLI from Task 2. Select at most the three previously sampled 2017/2023/2026 camera JPEG paths from existing local evidence; do not enumerate/read extra content to choose samples.
 
-- [ ] Document command, application cap/read-ahead distinction, JPEG-only scope, failure/offset policy, and the unchanged metadata-only default.
-- [ ] Run Release `exif` once for the three selected photos and inspect saved JSON. Expected: per-photo raw EXIF fields or explicit failure; byte count <=262,144 each; no image bytes saved. Record actual outcomes rather than assuming all three work. If phone unavailable, retain completed automated work and request connection without changing transport constraints.
-- [ ] Request independent gallery/Picasa dates for the selected photos if not already available; record that comparison as pending until supplied. EXIF matching filename is not independent validation.
-- [ ] Update acceptance status honestly: folder coverage, other formats, identity/cancellation, original-file access, and deferred iPhone validation are not established by this command.
-- [ ] Run full Release tests/build and `git diff --check`, then commit documentation. Expected all tests pass, build 0 warnings/errors, diff clean.
+- [x] Document command, application cap/read-ahead distinction, JPEG-only scope, failure/offset policy, and the unchanged metadata-only default.
+- [x] Run Release `exif` once for the three selected photos and inspect saved JSON. Expected: per-photo raw EXIF fields or explicit failure; byte count <=262,144 each; no image bytes saved. Record actual outcomes rather than assuming all three work. If phone unavailable, retain completed automated work and request connection without changing transport constraints.
+- [x] Request independent gallery/Picasa dates for the selected photos if not already available; record that comparison as pending until supplied. EXIF matching filename is not independent validation.
+- [x] Update acceptance status honestly: folder coverage, other formats, identity/cancellation, original-file access, and deferred iPhone validation are not established by this command.
+- [x] Run full Release tests/build and `git diff --check`, then commit documentation. Expected all tests pass, build 0 warnings/errors, diff clean.
 - [ ] Run one independent review of this addendum's full implementation range, focused on the five Review Focus cases. Fix important findings with regression tests RED→GREEN and rerun the suite. Do not merge/push or claim milestone acceptance while hardware gates remain open.
 
 ## Plan self-review
 
 All approved addendum requirements map to Tasks 1–3. The optional capability preserves the metadata-only interface and the CLI limits selection to three explicit paths. The first complete EXIF APP1 strategy is intentional: report its limited scope and detect conflicting parsed directories; do not read later image data to prove global uniqueness. Native execution remains the user's selected method. User approved proceeding after inspecting photo-sort on 2026-10-16. Segment navigation and EXIF decoding both reuse MetadataExtractor; report both DateTime and DateTimeOriginal.
+
 
 
