@@ -88,4 +88,14 @@ public class BoundedCaptureCollectorTests
     [Fact]
     public void PartialInventoryCannotProduceCompleteCapture()
     {var inventory=Inventory("20100101.jpg") with {CompletionStatus="incomplete"};using var device=Content(inventory);var result=BoundedCaptureCollector.Run(device,inventory,1,default);Assert.Single(device.Opened);Assert.Equal("incomplete",result.Capture.CompletionStatus);}
+
+    [Fact]
+    public void ExistingInvalidExactTimePolicyStillAllowsAvailableDay()
+    {
+        var inventory=Inventory("a.jpg");using var device=Content(inventory);
+        device.Content[@"\Camera\a.jpg"]=()=>new(new(@"\Camera\a.jpg",1000,"id-a.jpg"),new ForwardOnlyStream(JpegFixture.Create(offset:"invalid")));
+        var result=BoundedCaptureCollector.Run(device,inventory,1,default);var observation=Assert.Single(result.Capture.Files).Observation;
+        Assert.Equal("invalid",observation.Outcome);Assert.Equal("available",observation.CaptureDayStatus);
+        Assert.Equal(new DateOnly(2026,10,15),observation.CaptureDay);Assert.Equal("complete",result.Capture.CompletionStatus);
+    }
 }

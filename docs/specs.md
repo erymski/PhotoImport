@@ -159,6 +159,8 @@ Rules:
 
 ## 6. CLI contract
 
+**Implemented scoped live preview (2026-10-16):** `preview --device <id-or-unique-name> --root <absolute-device-folder> [--root ...] --max-photos <positive-integer> (--cutoff-day YYYY-MM-DD | --checkpoint <local.json>) --output-dir <new-directory>`. The [approved scoped live-preview design](superpowers/specs/2026-10-16-scoped-live-preview-design.md) authorizes implementation of bounded content-read orchestration and saved evidence. It inventories only chosen folders and attempts at most the explicit limit, preserving unresolved/unread rows. It does not implement importing, enrollment or state persistence. Normal `probe` remains metadata-only and `plan` stays offline. Real folder-level validation requires separate scope approval.
+
 **Implemented additive offline preview (2026-10-16):** `plan --inventory <metadata.json> --capture-report <capture.json> [--capture-report <more.json>] (--cutoff-day YYYY-MM-DD | --checkpoint <checkpoint.json>) [--output <new.json>]`. It reads only local snapshots and changes no state. The [approved day-preview design](superpowers/specs/2026-10-16-android-day-preview-design.md) defines capture-day precision, source association, schema-2 capture reports, and completed/tracked cutoff-day modes. Unknown/unsupported dates stay unresolved. This is not the live `sync --dry-run` or enrollment/configuration implementation below; those remain future work. HEIC/DNG have bounded reader support, with new hardware validation still separate.
 
 ```text

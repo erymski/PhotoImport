@@ -89,7 +89,10 @@ Architectural brainstorming started after the user requested continuation. Inten
 - [x] Self-review for placeholders, boundary/limit ambiguity, report compatibility and scope; clarify that exact-time errors do not fail an available day. No product code or phone access performed.
 - [x] Obtain user review of the written design (2026-10-16: "Approve design; write implementation plan").
 - [x] Write and self-review the [implementation plan](superpowers/plans/2026-10-16-scoped-live-preview.md), preserving native execution and one final independent review. Coverage, interface consistency, output-directory race and cancellation/cleanup handling checked.
-- [ ] Obtain user review of the implementation plan before product changes. No phone reads included.
+- [x] Obtain user review of the implementation plan (2026-10-16: "Plan captures it; implement"). No phone reads included.
+- [x] Implement scoped roots/inventory, bounded capture collection, exclusive report reservation and the live `preview` command with offline fake-device tests.
+- [x] Verify all 246 Release tests, solution build with 0 warnings/errors, and whitespace checks. No phone calls performed.
+- [ ] Complete final checks and one independent review; record rulings and results. Folder-level hardware validation remains separate.
 
 ### Existing photo-sort implementation inspected on 2026-10-16
 

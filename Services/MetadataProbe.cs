@@ -63,6 +63,7 @@ public static class MetadataProbe
             cancellationToken.ThrowIfCancellationRequested();
         }
         catch (OperationCanceledException) { cancelled = true; }
+        catch (DeviceDisconnectedException ex) { errors.Add(new("disconnect",null,null,ex.Message)); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException)
         {
             errors.Add(new("enumeration", null, null, ex.Message));
@@ -85,8 +86,8 @@ public static class MetadataProbe
             try
             {
                 var photo = device.ReadPhotoMetadata(entry, cancellationToken);
-                if(scope is not null && photo.SourcePath!=entry.Path)
-                    throw new IOException("Metadata source path differs from canonical inventory entry.");
+                if(scope is not null && (photo.SourcePath!=entry.Path||photo.FileName!=Path.GetFileName(entry.Path)))
+                    throw new IOException("Metadata source path or filename differs from canonical inventory entry.");
                 var photoWarnings = photo.Warnings.ToList();
                 if (string.IsNullOrWhiteSpace(photo.Format)) photoWarnings.Add("Reported media format is missing; included by photo extension.");
                 if (photo.ContentType is not null && !photo.ContentType.Equals("Image", StringComparison.OrdinalIgnoreCase)

@@ -85,6 +85,16 @@ public class DeviceFolderScopeTests
         Assert.Single(result.Photos); Assert.NotEmpty(result.Warnings);
     }
 
+    [Fact]
+    public void InvalidChildSyntaxAndMismatchedMetadataNameRemainErrors()
+    {
+        using var device=Tree();var reads=new List<string>();device.OnRead=e=>reads.Add(e.Path);
+        device.Children["camera"]=[Entry("slash",Camera+@"\elsewhere/file.jpg"),Entry("p",Camera+@"\a.jpg")];
+        device.Metadata["p"]=Photo(Entry("p",Camera+@"\a.jpg")) with {FileName="different.jpg"};
+        var report=MetadataProbe.Run(device,Info(),[Entry("camera",Camera,true)],default);
+        Assert.Empty(report.Photos);Assert.Equal([Camera+@"\a.jpg"],reads);Assert.Equal(2,report.Errors.Count);
+    }
+
     internal static FakePhotoDevice Tree()
     {
         var device=new FakePhotoDevice(); device.Roots.Add(Entry("device",@"\",true));

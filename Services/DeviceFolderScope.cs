@@ -55,7 +55,7 @@ public static class DeviceFolderScope
     internal static bool IsDirectChild(string path,string parent)
     {
         var prefix=parent.TrimEnd('\\')+"\\";
-        return path.StartsWith(prefix,StringComparison.OrdinalIgnoreCase)&&path.Length>prefix.Length
+        return path.IndexOfAny(['/','*','?',':','\0'])<0&&path.StartsWith(prefix,StringComparison.OrdinalIgnoreCase)&&path.Length>prefix.Length
             &&path.AsSpan(prefix.Length).IndexOf('\\')<0&&path.AsSpan(prefix.Length) is not "." and not "..";
     }
 }

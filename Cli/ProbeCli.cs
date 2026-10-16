@@ -15,6 +15,8 @@ public sealed class ProbeCli(IPhotoDeviceProvider provider, TextWriter output, T
             output.WriteLine("phone-photo-sync probe --device <device-id-or-unique-name> [--output metadata.json]");
             output.WriteLine("phone-photo-sync exif --device <device-id-or-unique-name> --photo <absolute-device-path.jpg> [--photo ...] --output <new.json>");
             output.WriteLine("phone-photo-sync plan --inventory <metadata.json> --capture-report <capture.json> (--cutoff-day YYYY-MM-DD | --checkpoint <checkpoint.json>) [--output <new.json>]");
+            output.WriteLine("phone-photo-sync preview --device <id-or-unique-name> --root <absolute-device-folder> [--root ...] --max-photos <positive-integer> (--cutoff-day YYYY-MM-DD | --checkpoint <json>) --output-dir <new-directory>");
+            output.WriteLine("preview inventories explicit folders and attempts bounded capture reads: max 256 KiB per photo; driver read-ahead may transfer more. Saves reports only; unread/unknown dates stay unresolved.");
             output.WriteLine("plan is offline: local JSON only, with no device discovery, media reads, downloads, destination lookup, or state updates.");
             output.WriteLine("Unlock the phone. For Android, enable USB file transfer; for iPhone, install Apple drivers and confirm USB trust.");
             output.WriteLine("probe is metadata only: no photo downloads or sync-state changes. JSON output must be a new file.");

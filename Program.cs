@@ -8,6 +8,7 @@ internal static class Program
     internal static int Run(string[] args, CancellationToken token, Func<IPhotoDeviceProvider> deviceProviderFactory, TextWriter output, TextWriter error)
     {
         if(args.FirstOrDefault()=="plan")return new DayPreviewCli(output,error).Run(args,token);
+        if(args.FirstOrDefault()=="preview")return new LivePreviewCli(output,error).Run(args,token,deviceProviderFactory);
         var provider=deviceProviderFactory();
         try{return args.FirstOrDefault()=="exif"?new JpegExifCli(provider,output,error).Run(args,token):new ProbeCli(provider,output,error).Run(args,token);}
         finally
