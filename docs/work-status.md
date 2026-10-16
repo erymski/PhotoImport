@@ -19,7 +19,7 @@ Source: [product specification](specs.md), sections 3 and 11.
 - [x] Test a real Android phone; record [Samsung S21 evidence](compatibility/android-samsung-sm-g991b.md): capture dates unavailable; current backend not accepted for sync.
 - [x] Inspect all raw WPD properties and supported date properties for three camera objects in MTP and PTP mode: capture/creation dates are unsupported in both.
 - [ ] Establish an acceptable capture-date metadata path within the agreed USB-only constraints; verify against EXIF/Picasa and complete Android folder coverage before synchronization.
-- [ ] Test a real iPhone; record compatibility evidence independently.
+- [ ] Deferred by the user on 2026-10-16: test a real iPhone and record compatibility evidence independently. Continue Android work without waiting for this.
 - [ ] Validate selected-file/original access through a separately invoked transfer test before accepting either backend for synchronization.
 
 ## Current findings
@@ -27,6 +27,12 @@ Source: [product specification](specs.md), sections 3 and 11.
 Implemented on `feat/metadata-probe`, using the MediaDevices 2.0.0 NuGet package. The Samsung S21 probe saved a partial report with 13,156 images in 125.618 seconds, including 3,601 actual camera-folder images; all lacked authored capture dates. Device ID, PnP ID, and serial candidates were unchanged across one physical replug in MTP mode and a fresh process. A physical device-removal error was retained in the JSON. Current decision: no-go for date-based synchronization through the tested MTP/PTP metadata paths. See [Samsung assessment](compatibility/android-samsung-sm-g991b.md). iPhone remains untested. Milestone 1 stays open pending reliable capture metadata, full coverage, remaining platform validation, and the separately invoked selected-file/original transfer test. No probe process remains running.
 
 Follow-up: three raw-property samples in MTP and PTP mode each advertised 16 properties, with creation/authored dates unsupported (`0x80070032`) and modification time supported. PTP did not solve the capture-date blocker. Device/PnP IDs change across USB modes, while the serial candidate stayed unchanged. The application still uses the supported public NuGet API; the private-reflection investigation remains a throwaway local artifact. The user requires normal USB transfer and declined ADB/USB debugging; preserve this constraint. No app, debugging connection, media-content transfer, or synchronization engine was added.
+
+## Next Android feasibility question
+
+iPhone testing is explicitly deferred and is not the reason Android work is blocked. The remaining issue is obtaining an actual capture date over the permitted USB connection.
+
+Proposed, awaiting approval: a throwaway EXIF investigation on one existing camera JPEG. Open its media stream with the MediaDevices package in a read-only device session, read at most 256 KiB at the application boundary, extract embedded EXIF capture-time/offset fields if present, and close the stream. Keep only a diagnostic JSON containing parsed fields, byte counts, and outcome; do not save image bytes or fall back to a full-file download. Driver-side read-ahead means this application limit cannot guarantee the same limit on USB traffic. This is an explicit exception to the specification's no-media-content-read rule for that one experiment, not permission to alter the normal probe or enable synchronization. No media stream has been opened for this proposed test.
 
 ## Review and implementation decisions
 
