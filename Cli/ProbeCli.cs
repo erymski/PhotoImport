@@ -13,8 +13,10 @@ public sealed class ProbeCli(IPhotoDeviceProvider provider, TextWriter output, T
         {
             output.WriteLine("phone-photo-sync list-devices");
             output.WriteLine("phone-photo-sync probe --device <device-id-or-unique-name> [--output metadata.json]");
+            output.WriteLine("phone-photo-sync exif --device <device-id-or-unique-name> --photo <absolute-device-path.jpg> [--photo ...] --output <new.json>");
             output.WriteLine("Unlock the phone. For Android, enable USB file transfer; for iPhone, install Apple drivers and confirm USB trust.");
-            output.WriteLine("Metadata only: no photo downloads or sync-state changes. JSON output must be a new file.");
+            output.WriteLine("probe is metadata only: no photo downloads or sync-state changes. JSON output must be a new file.");
+            output.WriteLine("exif explicitly reads media content for 1–3 selected JPEGs: max 256 KiB per photo in the application; USB driver read-ahead may transfer more. Saves parsed metadata only.");
             return 0;
         }
         string? selector = null, outputPath = null;

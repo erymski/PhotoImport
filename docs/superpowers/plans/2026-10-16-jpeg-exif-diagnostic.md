@@ -48,12 +48,12 @@
 
 Command: `phone-photo-sync exif --device <exact-id-or-unique-name> --photo <absolute-device-path.jpg> [--photo <path.jpeg> ...] --output <new.json>`. Require 1–3 distinct JPEG paths, an explicit device and output. Validate arguments and reserve output using CreateNew before content access. Reject unsupported backends explicitly. Exact device IDs win over unique case-insensitive names, matching existing probe semantics.
 
-- [ ] Write failing CLI tests: missing/duplicate options, four photos, duplicate paths, relative/non-JPEG paths, output collisions and malformed output paths cause no content reads; ambiguous names show IDs. A normal probe never opens the content capability.
-- [ ] Test synthetic success through the real reader/JSON: output contains raw dates, provenance, byte counts/cap, warnings that USB traffic is not bounded, per-file elapsed time, total elapsed time, and no prefix/image-byte fields.
-- [ ] Test first success followed by read failure, cancellation, and cleanup failure: earlier observations survive, streams/session close, and cleanup does not replace cancellation. Test wrapped USB failures normalize instead of crashing. Exit codes: 0 all capture clocks valid, 2 arguments/ambiguity, 3 connection/backend, 4 partial/missing/invalid capture data, 5 output, 130 cancellation.
-- [ ] Run `dotnet test PhotoImport.slnx -c Release --filter FullyQualifiedName~JpegExifCliTests`; expected RED for missing behavior after compiling against a skeleton if needed.
-- [ ] Implement handler, read-only wrapper and routing; show the explicit content-read warning in help/output. Do not add content methods to `IPhotoDevice`, scanning, import state, or full-download behavior.
-- [ ] Run `dotnet test PhotoImport.slnx -c Release` and `dotnet build PhotoImport.slnx -c Release`; expected all tests pass and 0 build warnings/errors. Commit the CLI/capability and tests.
+- [x] Write failing CLI tests: missing/duplicate options, four photos, duplicate paths, relative/non-JPEG paths, output collisions and malformed output paths cause no content reads; ambiguous names show IDs. A normal probe never opens the content capability.
+- [x] Test synthetic success through the real reader/JSON: output contains raw dates, provenance, byte counts/cap, warnings that USB traffic is not bounded, per-file elapsed time, total elapsed time, and no prefix/image-byte fields.
+- [x] Test first success followed by read failure, cancellation, and cleanup failure: earlier observations survive, streams/session close, and cleanup does not replace cancellation. Test wrapped USB failures normalize instead of crashing. Exit codes: 0 all capture clocks valid, 2 arguments/ambiguity, 3 connection/backend, 4 partial/missing/invalid capture data, 5 output, 130 cancellation.
+- [x] Run `dotnet test PhotoImport.slnx -c Release --filter FullyQualifiedName~JpegExifCliTests`; expected RED for missing behavior after compiling against a skeleton if needed.
+- [x] Implement handler, read-only wrapper and routing; show the explicit content-read warning in help/output. Do not add content methods to `IPhotoDevice`, scanning, import state, or full-download behavior.
+- [x] Run `dotnet test PhotoImport.slnx -c Release` and `dotnet build PhotoImport.slnx -c Release`; expected all tests pass and 0 build warnings/errors. Commit the CLI/capability and tests.
 
 ### Task 3: Three-photo validation, documentation, and review
 
@@ -71,4 +71,5 @@ Command: `phone-photo-sync exif --device <exact-id-or-unique-name> --photo <abso
 ## Plan self-review
 
 All approved addendum requirements map to Tasks 1–3. The optional capability preserves the metadata-only interface and the CLI limits selection to three explicit paths. The first complete EXIF APP1 strategy is intentional: report its limited scope and detect conflicting parsed directories; do not read later image data to prove global uniqueness. Native execution remains the user's selected method. User approved proceeding after inspecting photo-sort on 2026-10-16. Segment navigation and EXIF decoding both reuse MetadataExtractor; report both DateTime and DateTimeOriginal.
+
 

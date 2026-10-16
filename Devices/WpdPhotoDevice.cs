@@ -3,13 +3,25 @@ using PhotoImport.Models;
 
 namespace PhotoImport.Devices;
 
-public sealed class WpdPhotoDevice : IPhotoDevice
+public sealed class WpdPhotoDevice : IPhotoDevice, IJpegContentDevice
 {
     private readonly MediaDevice device;
     private readonly Dictionary<string, MediaFileSystemInfo> objects = new(StringComparer.Ordinal);
     private bool disposed;
 
     internal WpdPhotoDevice(MediaDevice device) => this.device = device;
+
+    public Stream OpenJpegRead(string sourcePath, CancellationToken token)
+    {
+        if (!JpegSourcePath.IsValid(sourcePath)) throw new ArgumentException("An absolute device JPEG path is required.", nameof(sourcePath));
+        return Read(() =>
+        {
+            var file = device.GetFileInfo(sourcePath);
+            if (!string.Equals(file.FullName, sourcePath, StringComparison.OrdinalIgnoreCase))
+                throw new IOException("The selected JPEG resolved to a different device path.");
+            return (Stream)new WpdReadStream(file.OpenRead(), token);
+        }, token);
+    }
 
     public IReadOnlyList<DeviceEntry> GetStorageRoots(CancellationToken cancellationToken) => Read(() =>
     {

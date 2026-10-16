@@ -11,7 +11,9 @@ internal static class Program
         var provider = new WpdPhotoDeviceProvider();
         ConsoleCancelEventHandler handler = (_, e) => { e.Cancel = true; cancellation.Cancel(); };
         Console.CancelKeyPress += handler;
-        try { return new ProbeCli(provider, Console.Out, Console.Error).Run(args, cancellation.Token); }
+        try { return args.FirstOrDefault() == "exif"
+            ? new JpegExifCli(provider, Console.Out, Console.Error).Run(args, cancellation.Token)
+            : new ProbeCli(provider, Console.Out, Console.Error).Run(args, cancellation.Token); }
         finally
         {
             Console.CancelKeyPress -= handler;
