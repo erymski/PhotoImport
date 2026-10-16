@@ -54,6 +54,8 @@ The probe must:
 7. Record enumeration time, total photo count, counts with/without capture dates, and any access errors.
 8. Perform no media-content downloads, writes to the phone, or changes to sync state.
 
+**Approved Android diagnostic exception (2026-10-16):** the separately invoked JPEG EXIF diagnostic described in the [approved addendum](superpowers/specs/2026-10-16-android-jpeg-exif-addendum.md) may read a prefix of explicitly selected JPEG objects into memory, capped at 256 KiB per object at the application boundary. Driver read-ahead may exceed this limit on USB traffic. Save parsed metadata and diagnostics only, with no full-file fallback, phone mutations, or sync-state changes. The ordinary `probe` remains metadata-only. Hardware validation of this extension is limited to at most three selected camera JPEGs. iPhone testing is deferred; Android progress does not depend on it.
+
 Example diagnostic output:
 
 ```text

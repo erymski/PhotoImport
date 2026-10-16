@@ -1,6 +1,6 @@
 # Proposed Android JPEG EXIF validation addendum
 
-Status: proposed; awaiting user approval. The one-photo experiment is complete and does not authorize this extension.
+Status: approved by the user on 2026-10-16. Approval covers the optional JPEG diagnostic and at most three selected JPEGs for hardware validation; iPhone testing remains deferred.
 
 ## Evidence and purpose
 
