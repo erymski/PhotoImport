@@ -79,6 +79,17 @@ The review declined to judge physical format/USB/enumeration behavior (ruling: r
 
 The user separately approved one JPEG/HEIC/DNG validation run and an offline preview against the saved inventory. Commit `5de95ae` returned all three capture days successfully in 13.052 seconds, reading 540,756 application bytes total (16,468 JPEG; 262,144 each HEIC/DNG). No image bytes were saved, no full-file fallback or broader scan occurred, and no phone/state changes were made. The source-bearing reports matched all three saved inventory objects. At cutoff 2026-10-10, the JPEG is eligible, HEIC/DNG are older, and 3,906 remaining rows are unresolved; the full preview correctly returned exit 4/incomplete. See the [phone assessment](compatibility/android-samsung-sm-g991b.md) for evidence and limitations. On 2026-10-16 the user confirmed both HEIC/DNG Gallery capture days match (1 March 2026 and 26 June 2018). Sample day validation is complete; exact-time and format-wide accuracy are not claimed. No further phone access was needed to record this confirmation. No USB process remains running.
 
+### Next increment: scoped live preview design
+
+Architectural brainstorming started after the user requested continuation. Intent: obtain a useful day-based preview directly from selected Android folders, reusing the validated readers and offline planner. Recommended approach: explicit folder scope and photo-read limit, bounded content reads, visible unresolved/unprocessed rows, report output only. No new hardware reads or implementation are authorized by this design work.
+
+- [x] Inspect existing probe, content capability, planner, CLI and product constraints.
+- [x] Confirm proposed scope and approach with the user (2026-10-16: "Use this scope").
+- [x] Draft command, orchestration, limits, failures, output and verification in the [proposed written design](superpowers/specs/2026-10-16-scoped-live-preview-design.md).
+- [x] Self-review for placeholders, boundary/limit ambiguity, report compatibility and scope; clarify that exact-time errors do not fail an available day. No product code or phone access performed.
+- [ ] Obtain user review of the written design before implementation planning.
+- [ ] Write and review the implementation plan, preserving the selected execution method.
+
 ### Existing photo-sort implementation inspected on 2026-10-16
 
 The user pointed to `C:\Projects\photo-sort`. Its `app/DateExtractor.cs` already uses MetadataExtractor 2.9.0 with `ImageMetadataReader.ReadMetadata(file)` on local files. JPEG/HEIC use EXIF IFD0 `TagDateTime`; MOV uses QuickTime metadata creation date and MP4 uses the movie-header created date. `Program.cs` enumerates an existing local incoming directory, so this is date extraction after files are on disk, not a USB metadata backend. The tests list JPEG, HEIC, MOV, and MP4 samples and assert calendar dates only, not full timestamps, offsets, or bounded reads. Tests were inspected, not executed. Existing changes in that repository were left untouched.
