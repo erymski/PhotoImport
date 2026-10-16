@@ -85,6 +85,10 @@ public static class LivePreviewRunner
         if(capture is not null)Export(()=>bundle.WriteCapture(capture));
         if(preview is not null)Export(()=>bundle.WritePreview(preview));
         UpdateStatus();Export(()=>bundle.WriteManifest(manifest));
+        try{bundle.Dispose();}
+        catch(Exception ex) when(LivePreviewCli.IsIoError(ex)){localIo=true;Failure("Report cleanup failed: "+ex.Message);}
+        if(token.IsCancellationRequested||localIo)
+            bundle.CorrectFinalStatus(manifest,capture,preview,token,message=>{localIo=true;Failure(message);});
         return Exit();
     }
 }

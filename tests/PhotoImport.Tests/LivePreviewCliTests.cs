@@ -198,6 +198,46 @@ public sealed class LivePreviewCliTests:IDisposable
         Assert.Equal("incomplete",manifest.RootElement.GetProperty("completionStatus").GetString());
     }
 
+    [Fact]
+    public void SharedObjectIdCaseAliasesStayVisibleAndAreNotOpened()
+    {
+        using var provider=Phone("2026:10:11 12:00:00");
+        provider.Device.Metadata.Children["root"]=[Entry("same",@"\Camera\a.jpg"),Entry("same",@"\Camera\A.JPG")];
+        provider.Device.Metadata.OnRead=e=>provider.Device.Metadata.Metadata[e.ObjectId]=Photo(e) with {SizeBytes=1000};
+        Assert.Equal(4,Run(Args(),provider));Assert.Empty(provider.Device.Opened);
+        using var preview=Read("preview.json");Assert.Equal(2,preview.RootElement.GetProperty("unresolvedCount").GetInt32());
+        Assert.Equal(2,preview.RootElement.GetProperty("totalPhotoCount").GetInt32());
+    }
+
+    [Theory][InlineData(false)][InlineData(true)]
+    public void FinalFlushCancellationOrReportCloseFailurePersistsUnsuccessfulStatus(bool cancel)
+    {
+        using var provider=Phone();using var cts=new CancellationTokenSource();
+        var cli=new PhotoImport.Cli.LivePreviewCli(output,error,path=>PreviewBundle.Reserve(path,file=>
+            new FinalizationStream(new FileStream(file,FileMode.CreateNew),
+                onFlush:cancel&&Path.GetFileName(file)=="run.json"?cts.Cancel:null,
+                failClose:!cancel&&Path.GetFileName(file)=="inventory.json")));
+        Assert.Equal(cancel?130:5,cli.Run(Args(),cts.Token,()=>provider));
+        using var manifest=Read("run.json");using var preview=Read("preview.json");
+        Assert.Equal(cancel?"cancelled":"incomplete",manifest.RootElement.GetProperty("completionStatus").GetString());
+        Assert.False(preview.RootElement.GetProperty("isComplete").GetBoolean());
+        if(!cancel)Assert.Contains(manifest.RootElement.GetProperty("errors").EnumerateArray(),e=>e.GetString()!.Contains("report cleanup failure"));
+    }
+
+    private sealed class FinalizationStream(Stream inner,Action? onFlush,bool failClose):Stream
+    {
+        public override void Write(byte[] buffer,int offset,int count)=>inner.Write(buffer,offset,count);
+        public override void Write(ReadOnlySpan<byte> buffer)=>inner.Write(buffer);
+        public override void Flush(){inner.Flush();onFlush?.Invoke();}
+        protected override void Dispose(bool disposing){inner.Dispose();if(failClose)throw new IOException("report cleanup failure");base.Dispose(disposing);}
+        public override bool CanRead=>false;public override bool CanSeek=>false;public override bool CanWrite=>true;
+        public override long Length=>throw new NotSupportedException();
+        public override long Position{get=>throw new NotSupportedException();set=>throw new NotSupportedException();}
+        public override int Read(byte[] buffer,int offset,int count)=>throw new NotSupportedException();
+        public override long Seek(long offset,SeekOrigin origin)=>throw new NotSupportedException();
+        public override void SetLength(long value)=>throw new NotSupportedException();
+    }
+
     private sealed class FailingExportStream(Action fail):MemoryStream
     {
         public override void Write(byte[] buffer,int offset,int count){fail();throw new IOException("export failed");}

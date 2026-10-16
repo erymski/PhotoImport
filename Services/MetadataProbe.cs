@@ -46,7 +46,7 @@ public static class MetadataProbe
                         foreach (var child in device.GetChildren(entry, cancellationToken))
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            if(scope is not null && child.Path!=entry.Path && !DeviceFolderScope.IsDirectChild(child.Path,entry.Path))
+                            if(scope is not null && !(child.IsDirectory&&child.Path==entry.Path) && !DeviceFolderScope.IsDirectChild(child.Path,entry.Path))
                             { errors.Add(new("enumerate",child.ObjectId,child.Path,"Provider returned a child outside its parent folder.")); continue; }
                             if (child.IsDirectory) stack.Push(child);
                             else InspectPhoto(child);
@@ -74,7 +74,10 @@ public static class MetadataProbe
 
         bool Visit(DeviceEntry entry)
         {
-            var key = string.IsNullOrEmpty(entry.ObjectId) ? "path:" + entry.Path : "id:" + entry.ObjectId;
+            // Scoped files retain differently spelled aliases for ambiguity checking.
+            // Directory IDs still prevent cycles; the unscoped probe keeps its prior rules.
+            var key = scope is not null&&!entry.IsDirectory ? "file:"+entry.Path
+                : string.IsNullOrEmpty(entry.ObjectId) ? "path:" + entry.Path : "id:" + entry.ObjectId;
             if (!visited.Add(key)) return false;
             if (string.IsNullOrEmpty(entry.ObjectId)) warnings.Add($"Object ID missing at {entry.Path}; using path for this traversal only.");
             return true;

@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace PhotoImport.Cli;
 
-public sealed class LivePreviewCli(TextWriter output,TextWriter error)
+public sealed class LivePreviewCli(TextWriter output,TextWriter error,Func<string,PreviewBundle>? reserve=null)
 {
     public int Run(string[] args,CancellationToken token,Func<IPhotoDeviceProvider> providerFactory)
     {
@@ -18,7 +18,7 @@ public sealed class LivePreviewCli(TextWriter output,TextWriter error)
             var checkpoint=options.CheckpointPath is null?null:PreviewInputReader.ReadCheckpoint(options.CheckpointPath,token);
             if(checkpoint is not null)ValidateCheckpoint(checkpoint);
             token.ThrowIfCancellationRequested();
-            bundle=PreviewBundle.Reserve(options.OutputDirectory);
+            bundle=(reserve??PreviewBundle.Reserve)(options.OutputDirectory);
             IPhotoDeviceProvider? provider=null;
             try{provider=providerFactory();}
             catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or TypeInitializationException or System.Runtime.InteropServices.COMException)
