@@ -29,8 +29,8 @@ public sealed class JpegExifCli(IPhotoDeviceProvider provider, TextWriter output
             }
         }
         if (selector is null || path is null || photos.Count is < 1 or > 3
-            || photos.Any(p => !JpegSourcePath.IsValid(p)) || photos.Distinct(StringComparer.OrdinalIgnoreCase).Count() != photos.Count)
-            return Usage("Require --device, --output, and 1–3 distinct absolute device JPEG paths. No recursive scanning is performed.");
+            || photos.Any(p => !PhotoSourcePath.IsValid(p)) || photos.Distinct(StringComparer.OrdinalIgnoreCase).Count() != photos.Count)
+            return Usage("Require --device, --output, and 1–3 distinct absolute device JPEG/HEIC/DNG paths. No recursive scanning is performed.");
         try
         {
             // Reserve the output before any USB access; CreateNew also closes the race.
@@ -68,34 +68,39 @@ public sealed class JpegExifCli(IPhotoDeviceProvider provider, TextWriter output
             if (matches.Length == 0) { report.Errors.Add("Selected phone is not connected."); error.WriteLine(report.Errors[^1]); return 3; }
             report.Device = matches[0];
             session = provider.Open(matches[0], token);
-            if (session is not IJpegContentDevice content) { report.Errors.Add("Backend does not support the optional JPEG read capability."); error.WriteLine(report.Errors[^1]); return 3; }
+            if (session is not IPhotoContentDevice content) { report.Errors.Add("Backend does not support the provenance-bearing photo read capability."); error.WriteLine(report.Errors[^1]); return 3; }
             var exit = 0;
             foreach (var photo in report.RequestedPaths)
             {
                 token.ThrowIfCancellationRequested();
-                output.WriteLine($"Reading selected JPEG prefix: {photo}");
+                output.WriteLine($"Reading selected photo prefix: {photo}");
                 var timer = Stopwatch.StartNew();
-                Stream? stream = null;
+                PhotoReadHandle? handle = null;
+                PhotoSourceInfo? sourceInfo = null;
                 JpegExifObservation observation;
                 try
                 {
-                    stream = content.OpenJpegRead(photo, token);
-                    observation = JpegExifReader.Read(stream, token);
+                    handle = content.OpenPhotoRead(photo, token);
+                    sourceInfo = handle.Source;
+                    if (!string.Equals(photo, sourceInfo.CanonicalPath, StringComparison.OrdinalIgnoreCase))
+                        throw new IOException("Selected path resolved to a different canonical source.");
+                    if (sourceInfo.SizeBytes is null or 0) report.Warnings.Add($"Source size is unknown for {photo}; offline planning will be unresolved.");
+                    observation = MediaExifReader.Read(handle.Stream, Path.GetExtension(sourceInfo.CanonicalPath), token);
                 }
                 catch (OperationCanceledException) { observation = Failed("cancelled", "Cancelled before content read."); }
                 catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                 { observation = Failed("incomplete", ex.Message); }
                 finally
                 {
-                    try { stream?.Dispose(); }
+                    try { handle?.Dispose(); }
                     catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
                     { report.Errors.Add($"Stream cleanup warning for {photo}: {ex.Message}"); }
                 }
-                report.Files.Add(new(photo, timer.Elapsed.TotalSeconds, observation));
+                report.Files.Add(new(sourceInfo?.CanonicalPath ?? photo, timer.Elapsed.TotalSeconds, observation) { Source = sourceInfo });
                 var raw = observation.RawFields;
-                output.WriteLine($"  {observation.Outcome}; bytes {observation.BytesRead}; DateTime={raw.GetValueOrDefault("dateTime") ?? "<missing>"}; DateTimeOriginal={raw.GetValueOrDefault("dateTimeOriginal") ?? "<missing>"}; capture={observation.CaptureTimestamp ?? observation.CaptureClock ?? "<missing>"}");
+                output.WriteLine($"  day={observation.CaptureDay?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? "<unresolved>"}; {observation.Outcome}; bytes {observation.BytesRead}; DateTime={raw.GetValueOrDefault("dateTime") ?? "<missing>"}; DateTimeOriginal={raw.GetValueOrDefault("dateTimeOriginal") ?? "<missing>"}; capture={observation.CaptureTimestamp ?? observation.CaptureClock ?? "<missing>"}");
                 if (observation.Outcome == "cancelled" || token.IsCancellationRequested) return 130;
-                if (observation.Outcome != "available") exit = 4;
+                if (observation.CaptureDayStatus != "available") exit = 4;
                 if (observation.Outcome == "incomplete") break; // Avoid more USB calls after transport/truncation failures.
             }
             return report.Errors.Count > 0 ? 4 : exit;

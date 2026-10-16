@@ -3,7 +3,7 @@ using PhotoImport.Models;
 
 namespace PhotoImport.Devices;
 
-public sealed class WpdPhotoDevice : IPhotoDevice, IJpegContentDevice
+public sealed class WpdPhotoDevice : IPhotoDevice, IJpegContentDevice, IPhotoContentDevice
 {
     private readonly MediaDevice device;
     private readonly Dictionary<string, MediaFileSystemInfo> objects = new(StringComparer.Ordinal);
@@ -14,12 +14,20 @@ public sealed class WpdPhotoDevice : IPhotoDevice, IJpegContentDevice
     public Stream OpenJpegRead(string sourcePath, CancellationToken token)
     {
         if (!JpegSourcePath.IsValid(sourcePath)) throw new ArgumentException("An absolute device JPEG path is required.", nameof(sourcePath));
+        return OpenPhotoRead(sourcePath, token).Stream;
+    }
+
+    public PhotoReadHandle OpenPhotoRead(string sourcePath, CancellationToken token)
+    {
+        if (!PhotoSourcePath.IsValid(sourcePath)) throw new ArgumentException("An absolute supported device photo path is required.", nameof(sourcePath));
         return Read(() =>
         {
             var file = device.GetFileInfo(sourcePath);
             if (!string.Equals(file.FullName, sourcePath, StringComparison.OrdinalIgnoreCase))
-                throw new IOException("The selected JPEG resolved to a different device path.");
-            return (Stream)new WpdReadStream(file.OpenRead(), token);
+                throw new IOException("The selected photo resolved to a different device path.");
+            var size = file.Length;
+            var source = new PhotoSourceInfo(file.FullName, size == 0 ? null : size, NullIfEmpty(file.PersistentUniqueId));
+            return new PhotoReadHandle(source, new WpdReadStream(file.OpenRead(), token));
         }, token);
     }
 
