@@ -11,6 +11,8 @@ Build a small, reliable Windows command-line tool that imports only new photogra
 
 A photo is considered *old* when its capture timestamp is at or before the device's saved import checkpoint, even if its previous PC copy has since been deleted. **The local filesystem and the Picasa database are not used to determine whether a photo is old.**
 
+**Precision clarification from the user (2026-10-16):** downloading decisions need only the photo's capture calendar day; exact hours, seconds, subseconds, and UTC instants are not required. Use the date recorded in capture metadata without shifting it into the PC's timezone. Preserve finer fields for diagnostics, but their independent verification is not an acceptance gate for day-based selection. The timestamp-based state/filter examples below predate this clarification and must be adapted before synchronization is implemented. In particular, the treatment of newly encountered photos on an already imported day needs an explicit boundary policy; do not silently skip them merely by truncating the existing timestamp comparison.
+
 ## 2. Goals and non-goals
 
 ### Goals

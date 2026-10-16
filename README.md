@@ -2,7 +2,7 @@
 
 Windows 10/11, .NET 10 CLI for investigating USB phone photo metadata before implementing capture-date-based imports. Uses the MediaDevices 2.0.0 NuGet package.
 
-Milestone 1's diagnostic CLI is implemented. Samsung S21 WPD properties exposed no authored capture dates in 13,156 observed images. An optional bounded EXIF diagnostic successfully read capture dates from three selected camera JPEGs; independent date validation and complete coverage remain open. The backend is not yet accepted for synchronization. iPhone validation is deferred; full original-file access remains unverified. No synchronization commands are implemented yet.
+Milestone 1's diagnostic CLI is implemented. Samsung S21 WPD properties exposed no authored capture dates in 13,156 observed images. An optional bounded EXIF diagnostic successfully read capture dates from three selected camera JPEGs; the user's Gallery comparison confirms the required calendar-day precision for those samples. Complete coverage and other formats remain open. The backend is not yet accepted for synchronization. iPhone validation is deferred; full original-file access remains unverified. No synchronization commands are implemented yet.
 
 ```powershell
 dotnet build PhotoImport.slnx --configuration Release
