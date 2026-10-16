@@ -26,7 +26,7 @@ Source: [product specification](specs.md), sections 3 and 11.
 
 Implemented on `feat/metadata-probe`, using the MediaDevices 2.0.0 NuGet package. The Samsung S21 probe saved a partial report with 13,156 images in 125.618 seconds, including 3,601 actual camera-folder images; all lacked authored capture dates. Device ID, PnP ID, and serial candidates were unchanged across one physical replug in MTP mode and a fresh process. A physical device-removal error was retained in the JSON. Current decision: no-go for date-based synchronization through the tested MTP/PTP metadata paths. See [Samsung assessment](compatibility/android-samsung-sm-g991b.md). iPhone remains untested. Milestone 1 stays open pending reliable capture metadata, full coverage, remaining platform validation, and the separately invoked selected-file/original transfer test. No probe process remains running.
 
-Follow-up: three raw-property samples in MTP and PTP mode each advertised 16 properties, with creation/authored dates unsupported (`0x80070032`) and modification time supported. PTP did not solve the capture-date blocker. Device/PnP IDs change across USB modes, while the serial candidate stayed unchanged. The application still uses the supported public NuGet API; the private-reflection investigation remains a throwaway local artifact. The user requires normal USB transfer and declined ADB/USB debugging; preserve this constraint. No phone app, debugging connection, or synchronization engine was added. The later one-photo EXIF experiment below is the only approved media-content-read exception.
+Follow-up: three raw-property samples in MTP and PTP mode each advertised 16 properties, with creation/authored dates unsupported (`0x80070032`) and modification time supported. PTP did not solve the capture-date blocker. Device/PnP IDs change across USB modes, while the serial candidate stayed unchanged. The application still uses the supported public NuGet API; the private-reflection investigation remains a throwaway local artifact. The user requires normal USB transfer and declined ADB/USB debugging; preserve this constraint. No phone app, debugging connection, or synchronization engine was added. Content access is limited to the separately approved EXIF experiment and optional diagnostic below; no broader scan has been run.
 
 ## Android JPEG EXIF validation
 
@@ -38,10 +38,14 @@ Driver-side read-ahead means the application cap does not establish a USB traffi
 
 - [x] Implement bounded JPEG inspection using MetadataExtractor for both segment navigation and EXIF decoding; report DateTime and DateTimeOriginal separately.
 - [x] Add the explicitly invoked `exif` command with 1–3 selected paths, new-file JSON reservation, read-only USB content capability, cancellation/partial-report behavior, and no full-file fallback.
-- [x] Verify 91 Release tests and solution build with 0 warnings/errors before hardware validation.
+- [x] Verify 91 Release tests and solution build with 0 warnings/errors before hardware validation; final directory-association regression fix passes 93 tests and the Release build with 0 warnings/errors.
 - [x] Run the approved three-photo diagnostic: all three capture clocks available, general/original EXIF dates agree, two explicit offsets and one unknown. Read 63,460 application bytes in 5.792 seconds; each photo stayed below 262,144 bytes. No image bytes saved or phone/state changes. Evidence: ignored `artifacts/android-s21-three-jpeg-exif.json` and the [phone assessment](compatibility/android-samsung-sm-g991b.md).
-- [ ] Obtain independent Gallery/Picasa date comparison from the user (requested); do not treat matching filenames as independent validation.
-- [ ] Complete one independent review and address important findings.
+- [ ] Obtain independent Gallery/Picasa date comparison from the user (requested; provided the phone's Internal storage/DCIM/Camera location when asked); do not treat matching filenames as independent validation.
+- [x] Complete one independent review and address the important finding. Reviewer found cross-directory capture-field mixing; regression tests for orphan offsets/subseconds failed before correction, then full suite passed 93/93. No Critical or Minor findings. Fix was author-verified; no second review or extra hardware reads were performed.
+
+The three-photo hardware report was produced by implementation commit `98a77af`, before the later synthetic-directory regression fix. Its EXIF result and timing remain evidence for that run; the final build's additional directory-association handling was verified with synthetic input, not by repeating the approved phone reads.
+
+Review rulings: later APP1 conflicts remain outside the explicitly disclosed first-segment scope, so this diagnostic cannot certify file-wide uniqueness. Gallery/Picasa accuracy, USB read-ahead, complete-original access and physical cancellation remain hardware/manual evidence gaps; automated tests do not substitute for them. No minor review findings were deferred. Keep `feat/metadata-probe` in place while these milestone acceptance gates remain open.
 
 ## Review and implementation decisions
 

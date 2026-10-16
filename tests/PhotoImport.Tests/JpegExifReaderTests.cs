@@ -5,6 +5,24 @@ namespace PhotoImport.Tests;
 
 public sealed class JpegExifReaderTests
 {
+    [Theory]
+    [InlineData(0x9011)]
+    [InlineData(0x9291)]
+    public void OrphanOffsetOrSubsecondsCannotBeBorrowedFromAnotherDirectory(int orphanTag)
+    {
+        using var stream = new ForwardOnlyStream(JpegFixture.Create(offset: null, subseconds: null, orphanTag: (ushort)orphanTag));
+        var result = JpegExifReader.Read(stream, default);
+        Assert.Equal("ambiguous", result.Outcome);
+        Assert.Null(result.CaptureClock);
+        Assert.Null(result.CaptureTimestamp);
+        Assert.Contains(result.Warnings, w => w.Contains("directory", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(2, result.CaptureDirectories.Count);
+        Assert.Equal("2026:10:15 19:17:14", result.CaptureDirectories[0].DateTimeOriginal);
+        Assert.Null(result.CaptureDirectories[0].OffsetTimeOriginal);
+        Assert.Null(result.CaptureDirectories[0].SubSecTimeOriginal);
+        Assert.Null(result.CaptureDirectories[1].DateTimeOriginal);
+    }
+
     [Fact]
     public void ConflictingCaptureDirectoriesAreAmbiguousRatherThanSilentlyChosen()
     {

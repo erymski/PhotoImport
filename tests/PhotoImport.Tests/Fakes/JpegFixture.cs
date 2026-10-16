@@ -6,7 +6,7 @@ internal static class JpegFixture
 {
     // Hand-built little-endian TIFF: IFD0 DateTime + pointer to an EXIF sub-IFD.
     public static byte[] Create(string original = "2026:10:15 19:17:14", string? offset = "+02:00",
-        string? subseconds = "762", bool conflict = false)
+        string? subseconds = "762", bool conflict = false, ushort? orphanTag = null)
     {
         using var tiff = new MemoryStream();
         using var writer = new BinaryWriter(tiff, Encoding.ASCII, leaveOpen: true);
@@ -15,12 +15,15 @@ internal static class JpegFixture
         if (offset is not null) sub.Add((0x9011, offset));
         if (subseconds is not null) sub.Add((0x9291, subseconds));
         const uint subOffset = 38; // 8-byte TIFF header + 2 + 2*12 + 4 IFD0 bytes.
+        var secondDirectory = conflict || orphanTag is not null;
+        var secondTag = orphanTag ?? 0x9003;
+        var secondValue = orphanTag switch { 0x9011 => "+03:00", 0x9291 => "123", _ => "2020:01:01 00:00:00" };
         var nextIfd = subOffset + 2 + (uint)sub.Count * 12 + 4;
-        var dataOffset = nextIfd + (conflict ? 36u : 0u);
+        var dataOffset = nextIfd + (secondDirectory ? 36u : 0u);
         writer.Write((ushort)2);
         Entry(writer, 0x0132, "2026:10:15 19:17:17", dataOffset);
         writer.Write((ushort)0x8769); writer.Write((ushort)4); writer.Write((uint)1); writer.Write(subOffset);
-        writer.Write(conflict ? nextIfd : 0u);
+        writer.Write(secondDirectory ? nextIfd : 0u);
         writer.Write((ushort)sub.Count);
         var nextOffset = dataOffset + 20;
         foreach (var (tag, value) in sub)
@@ -29,19 +32,19 @@ internal static class JpegFixture
             if (value.Length + 1 > 4) nextOffset += (uint)value.Length + 1;
         }
         writer.Write((uint)0);
-        if (conflict)
+        if (secondDirectory)
         {
             writer.Write((ushort)1);
             writer.Write((ushort)0x014A); writer.Write((ushort)4); writer.Write((uint)1); writer.Write(nextIfd + 18);
             writer.Write((uint)0);
             writer.Write((ushort)1);
-            Entry(writer, 0x9003, "2020:01:01 00:00:00", nextOffset);
+            Entry(writer, secondTag, secondValue, nextOffset);
             writer.Write((uint)0);
         }
         writer.Write(Encoding.ASCII.GetBytes("2026:10:15 19:17:17\0"));
         foreach (var (_, value) in sub.Where(v => v.Value.Length + 1 > 4))
             writer.Write(Encoding.ASCII.GetBytes(value + "\0"));
-        if (conflict) writer.Write(Encoding.ASCII.GetBytes("2020:01:01 00:00:00\0"));
+        if (secondDirectory && secondValue.Length + 1 > 4) writer.Write(Encoding.ASCII.GetBytes(secondValue + "\0"));
         var payload = "Exif\0\0"u8.ToArray().Concat(tiff.ToArray()).ToArray();
         return new byte[] { 0xFF, 0xD8 }.Concat(Segment(0xE1, payload)).Concat(new byte[] { 0xFF, 0xDA, 1, 2, 3, 4 }).ToArray();
     }

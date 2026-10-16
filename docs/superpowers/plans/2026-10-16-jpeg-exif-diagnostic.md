@@ -66,7 +66,7 @@ Command: `phone-photo-sync exif --device <exact-id-or-unique-name> --photo <abso
 - [x] Request independent gallery/Picasa dates for the selected photos if not already available; record that comparison as pending until supplied. EXIF matching filename is not independent validation.
 - [x] Update acceptance status honestly: folder coverage, other formats, identity/cancellation, original-file access, and deferred iPhone validation are not established by this command.
 - [x] Run full Release tests/build and `git diff --check`, then commit documentation. Expected all tests pass, build 0 warnings/errors, diff clean.
-- [ ] Run one independent review of this addendum's full implementation range, focused on the five Review Focus cases. Fix important findings with regression tests RED→GREEN and rerun the suite. Do not merge/push or claim milestone acceptance while hardware gates remain open.
+- [x] Run one independent review of this addendum's full implementation range, focused on the five Review Focus cases. Fix important findings with regression tests RED→GREEN and rerun the suite. Do not merge/push or claim milestone acceptance while hardware gates remain open. Result: one important cross-directory timestamp association finding fixed with two RED→GREEN regression cases; final suite 93/93, build 0 warnings/errors. No Critical or Minor findings. Independent Gallery/Picasa comparison remains pending; hardware reads were not repeated after the synthetic regression fix.
 
 ## Plan self-review
 
