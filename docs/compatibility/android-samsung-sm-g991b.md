@@ -1,6 +1,6 @@
 # Samsung Galaxy S21 (SM-G991B)
 
-Assessment date: 2026-10-16, Europe/Madrid. Backend: MediaDevices NuGet 2.0.0 / Windows WPD. Status: **ordinary MTP/PTP properties remain insufficient; day-level JPEG EXIF path and one complete JPEG resource read verified**. DCIM/Pictures traversal subsequently completed through the API. Synchronization is not yet accepted: independent folder counts and capture-date behavior for other observed formats remain unverified. iPhone is deferred.
+Assessment date: 2026-10-16, Europe/Madrid. Backend: MediaDevices NuGet 2.0.0 / Windows WPD. Status: **ordinary MTP/PTP properties remain insufficient; tested JPEG/HEIC/DNG capture days agree with Gallery; one complete JPEG resource read verified**. DCIM/Pictures traversal subsequently completed through the API. Synchronization is not yet accepted: other-folder counts and unresolved-format policy remain open. Sample agreement does not establish format-wide support. iPhone is deferred.
 
 ## Observed
 
@@ -35,7 +35,7 @@ The public package API does not expose raw timestamp variants, a separate PTP da
 
 ## Decision
 
-Do not implement or enable date-based synchronization for this phone yet. Ordinary WPD properties remain insufficient, while the separately approved bounded EXIF diagnostic provides a day-level capture-date path for three camera JPEGs confirmed by the user. Scoped folder traversal and one complete JPEG resource read now pass; independent counts and capture-date behavior for the observed HEIC/DNG/PNG files remain unverified. Do not use modification timestamps as an implicit fallback.
+Date-based synchronization is not yet accepted for this phone. Ordinary WPD properties remain insufficient, while the separately approved bounded EXIF diagnostic provides user-confirmed capture days for three camera JPEGs and one HEIC/DNG sample each. Scoped folder traversal and one complete JPEG resource read pass; other-folder comparisons and PNG capture-date policy remain open. Do not use modification timestamps as an implicit fallback.
 
 ## Raw WPD follow-up: MTP and PTP
 
@@ -171,8 +171,8 @@ On 2026-10-16 the user separately approved one run on the same JPEG, HEIC and DN
 | Pictures/Telegram/IMG_20260301_150441_005.HEIC | 2026-03-01 | 262,144 | available |
 | DCIM/Camera/20180626_195706.dng | 2018-06-26 | 262,144 | available |
 
-Total application bytes: 540,756. The schema-2 report contains canonical paths, reported sizes and persistent identifiers obtained at read time. HEIC retains the two Apple maker-note format errors as warnings for day resolution; its exact-timestamp outcome remains invalid. The independent day outcome is available under the approved policy. DNG retains an unknown offset without inventing a UTC instant. Independent Gallery day comparison for HEIC/DNG is pending; JPEG day agreement was established previously.
+Total application bytes: 540,756. The schema-2 report contains canonical paths, reported sizes and persistent identifiers obtained at read time. HEIC retains the two Apple maker-note format errors as warnings for day resolution; its exact-timestamp outcome remains invalid. The independent day outcome is available under the approved policy. DNG retains an unknown offset without inventing a UTC instant. On 2026-10-16 the user confirmed both Gallery capture days match: HEIC 1 March 2026 and DNG 26 June 2018. JPEG day agreement was established previously. This validates calendar days for these samples, not exact times, offsets or every file of either format.
 
 The offline `plan` matched all three observations to the existing 3,909-image inventory. With cutoff 2026-10-10, the JPEG is eligible (3,002,932 reported bytes), HEIC/DNG are older, and the other 3,906 rows remain unresolved. The preview correctly exits 4/incomplete because most inventory objects have no capture reports and PNG remains unsupported. This checks real saved-report interoperability and source association, not a complete-library preview or freshness/content identity. No new inventory or broader media scan was performed.
 
-Private evidence: `artifacts/android-s21-day-validation.json`, `artifacts/android-s21-day-validation-preview.json` and its console text. No USB process remains active. Remaining gates include independent HEIC/DNG day comparison, other-folder coverage and unresolved-format policy; iPhone remains deferred.
+Private evidence: `artifacts/android-s21-day-validation.json`, `artifacts/android-s21-day-validation-preview.json` and its console text. No USB process remains active. Sample day comparison is complete. Remaining gates include other-folder coverage and unresolved-format policy; iPhone remains deferred.
