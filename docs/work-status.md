@@ -49,6 +49,14 @@ Review rulings: later APP1 conflicts remain outside the explicitly disclosed fir
 
 Next filtering requirement: use the recorded capture calendar date without PC-timezone conversion. A missing offset is not itself a blocker for obtaining that date. No download selection code exists yet; adapt the old timestamp-checkpoint draft and explicitly resolve same-day additions before implementing filtering. This precision clarification authorizes neither extra media reads nor synchronization.
 
+## Remaining Android hardware checks
+
+- [x] Prepare an ignored metadata-only harness around the existing `MetadataProbe` to scope enumeration to `Internal storage/DCIM` and `Internal storage/Pictures`. It uses only `IPhotoDevice`, not the optional content interface, saves a private JSON report and console counts, and has a two-minute cooperative timeout. Build succeeded with 0 warnings/errors. Source: `artifacts/folder-coverage/`.
+- [ ] Run the scoped inventory and compare counts independently. The first attempt could not find the S21; a fresh production `list-devices` command confirmed no portable devices were visible. No content was read and no folder report was produced. Reconnection/unlock with USB File transfer has been requested.
+- [ ] Separately approve and run the proposed complete-file access test for only `DCIM/Camera/20261015_191713.jpg` (previous size 3,002,932 bytes), to a new ignored `artifacts/original-access/` location. Proposed checks: received byte count versus current reported size, local SHA-256, EXIF and dimensions. This would save one local JPEG for the first time; prior prefix permissions did not authorize it. Approval is pending. A local hash alone is not independent proof of bitwise equality with the original phone asset.
+
+The disconnected phone does not justify changing the USB-only requirement, enabling ADB, broadening content reads, or marking the milestone complete. iPhone remains deferred. No new product behavior was added for these checks.
+
 ## Review and implementation decisions
 
 ### Existing photo-sort implementation inspected on 2026-10-16

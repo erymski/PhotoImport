@@ -35,7 +35,7 @@ The public package API does not expose raw timestamp variants, a separate PTP da
 
 ## Decision
 
-Do not implement or enable date-based synchronization for this phone using this backend yet. The raw WPD/PTP follow-up below did not uncover a capture-date property, so adding a raw-property reader alone is not a demonstrated solution. A different permitted metadata path or an explicitly revised requirement would need validation against EXIF/Picasa and complete folder coverage before accepting a capture-date policy. Do not use modification timestamps as an implicit fallback.
+Do not implement or enable date-based synchronization for this phone yet. Ordinary WPD properties remain insufficient, while the separately approved bounded EXIF diagnostic now provides a day-level capture-date path for three camera JPEGs confirmed by the user. Complete folder coverage, other-format behavior, and complete-original access remain unverified. Do not use modification timestamps as an implicit fallback.
 
 ## Raw WPD follow-up: MTP and PTP
 
@@ -63,7 +63,7 @@ The values and support results were the same in both modes. Source paths and per
 
 Private evidence: `artifacts/android-s21-raw-properties-verified.json`, `artifacts/android-s21-ptp-raw-properties.json`, and `artifacts/android-s21-ptp-devices.txt`. The throwaway diagnostic is under ignored `artifacts/raw-wpd-spike/`. The application project excludes artifact source files from compilation.
 
-This does not prove that every possible Samsung vendor command lacks capture information. It establishes that broadening ordinary WPD property reads does not supply a usable capture timestamp for the tested photos. A raw WPD reader alone is consequently not a demonstrated solution. Synchronization remains blocked under the existing capture-date and metadata-only rules; the specification has not been relaxed.
+This does not prove that every possible Samsung vendor command lacks capture information. It establishes that broadening ordinary WPD property reads does not supply a usable capture timestamp for the tested photos. A raw WPD reader alone is consequently not a demonstrated solution. At this point in the investigation no content-read exception had been approved; the later EXIF exceptions and day-level requirement clarification are recorded below.
 
 Reference-source context, not a claim about Samsung's exact firmware: Android's reference [MTP property handler](https://raw.githubusercontent.com/aosp-mirror/platform_frameworks_base/master/media/java/android/mtp/MtpPropertyGroup.java) supplies modification time for both DateModified and DateAdded, and its [object-info implementation](https://raw.githubusercontent.com/aosp-mirror/platform_frameworks_base/master/media/java/android/mtp/MtpDatabase.java) fills both object-info time slots from modification time. These behaviors are consistent with the observations. Microsoft documents [reading all WPD properties](https://learn.microsoft.com/en-us/windows/win32/wpd_sdk/retrieving-properties-for-a-single-object) separately from media-content access.
 
