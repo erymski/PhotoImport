@@ -65,6 +65,10 @@ The initial attempt found no connected phone, but the user's reconnect resolved 
 
 ## Review and implementation decisions
 
+### Next increment: day-based offline preview
+
+The user accepted continuing with Android format policy and a day-based dry run. Read-only exploration found no filtering/configuration flow yet, so this is a new architectural increment. The [proposed design](superpowers/specs/2026-10-16-android-day-preview-design.md) recommends bounded HEIC/DNG capture reporting plus a local `plan` command from saved inventory/capture reports, with no live scanning, downloads, or checkpoint writes. A manual cutoff closes the entire day; tracked boundary keys preserve later same-day additions for future importer use. Missing/unsupported capture dates stay explicit and make the preview incomplete. Written-design review is pending; no implementation has started and no further phone reads have been performed.
+
 ### Existing photo-sort implementation inspected on 2026-10-16
 
 The user pointed to `C:\Projects\photo-sort`. Its `app/DateExtractor.cs` already uses MetadataExtractor 2.9.0 with `ImageMetadataReader.ReadMetadata(file)` on local files. JPEG/HEIC use EXIF IFD0 `TagDateTime`; MOV uses QuickTime metadata creation date and MP4 uses the movie-header created date. `Program.cs` enumerates an existing local incoming directory, so this is date extraction after files are on disk, not a USB metadata backend. The tests list JPEG, HEIC, MOV, and MP4 samples and assert calendar dates only, not full timestamps, offsets, or bounded reads. Tests were inspected, not executed. Existing changes in that repository were left untouched.
