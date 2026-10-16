@@ -6,10 +6,14 @@ namespace PhotoImport.Services;
 
 public static class MetadataProbe
 {
+    public static ProbeReport Run(IPhotoDevice device, DeviceInfo info, IReadOnlyList<DeviceEntry> roots, CancellationToken token) => RunCore(device,info,token,roots);
     private static readonly HashSet<string> Extensions = new(StringComparer.OrdinalIgnoreCase)
         { ".jpg", ".jpeg", ".heic", ".heif", ".png", ".dng", ".tif", ".tiff" };
 
     public static ProbeReport Run(IPhotoDevice device, DeviceInfo deviceInfo, CancellationToken cancellationToken)
+        => RunCore(device,deviceInfo,cancellationToken,null);
+
+    private static ProbeReport RunCore(IPhotoDevice device, DeviceInfo deviceInfo, CancellationToken cancellationToken,IReadOnlyList<DeviceEntry>? scope)
     {
         var started = DateTimeOffset.UtcNow;
         var clock = Stopwatch.StartNew();
@@ -20,7 +24,7 @@ public static class MetadataProbe
         var cancelled = false;
         try
         {
-            foreach (var root in device.GetStorageRoots(cancellationToken))
+            foreach (var root in scope ?? device.GetStorageRoots(cancellationToken))
             {
                 roots.Add(root.Path);
                 stack.Push(root);
@@ -42,6 +46,8 @@ public static class MetadataProbe
                         foreach (var child in device.GetChildren(entry, cancellationToken))
                         {
                             cancellationToken.ThrowIfCancellationRequested();
+                            if(scope is not null && child.Path!=entry.Path && !DeviceFolderScope.IsDirectChild(child.Path,entry.Path))
+                            { errors.Add(new("enumerate",child.ObjectId,child.Path,"Provider returned a child outside its parent folder.")); continue; }
                             if (child.IsDirectory) stack.Push(child);
                             else InspectPhoto(child);
                         }
@@ -79,6 +85,8 @@ public static class MetadataProbe
             try
             {
                 var photo = device.ReadPhotoMetadata(entry, cancellationToken);
+                if(scope is not null && photo.SourcePath!=entry.Path)
+                    throw new IOException("Metadata source path differs from canonical inventory entry.");
                 var photoWarnings = photo.Warnings.ToList();
                 if (string.IsNullOrWhiteSpace(photo.Format)) photoWarnings.Add("Reported media format is missing; included by photo extension.");
                 if (photo.ContentType is not null && !photo.ContentType.Equals("Image", StringComparison.OrdinalIgnoreCase)
