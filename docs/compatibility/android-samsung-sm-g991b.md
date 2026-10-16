@@ -1,6 +1,6 @@
 # Samsung Galaxy S21 (SM-G991B)
 
-Assessment date: 2026-10-16, Europe/Madrid. Backend: MediaDevices NuGet 2.0.0. Status: **no-go for synchronization with the current public-API backend**. Capture dates were unavailable for every observed image, including 3,601 camera-folder images. Complete inventory coverage remains unverified.
+Assessment date: 2026-10-16, Europe/Madrid. Backend: MediaDevices NuGet 2.0.0 / Windows WPD. Status: **no-go for synchronization through the tested MTP and PTP metadata paths**. Capture dates were unavailable for every image in the inventory sample, including 3,601 camera-folder images; a raw-property follow-up confirmed unsupported capture/creation properties for three camera objects in both USB modes. Complete inventory coverage remains unverified.
 
 ## Observed
 
@@ -35,4 +35,34 @@ The public package API does not expose raw timestamp variants, a separate PTP da
 
 ## Decision
 
-Do not implement or enable date-based synchronization for this phone using this backend yet. Investigate whether a narrow WPD/PTP metadata reader or another supported metadata path can expose an actual capture timestamp without downloading image contents. Verify that timestamp against EXIF/Picasa and complete folder coverage before accepting a capture-date policy. Do not use the observed modification timestamps as an implicit fallback.
+Do not implement or enable date-based synchronization for this phone using this backend yet. The raw WPD/PTP follow-up below did not uncover a capture-date property, so adding a raw-property reader alone is not a demonstrated solution. A different permitted metadata path or an explicitly revised requirement would need validation against EXIF/Picasa and complete folder coverage before accepting a capture-date policy. Do not use modification timestamps as an implicit fallback.
+
+## Raw WPD follow-up: MTP and PTP
+
+The user retained normal USB transfer as a requirement and declined ADB/USB debugging. They selected the phone's Transferring images / PTP mode for the comparison. No ADB commands were run and no phone app was installed.
+
+A throwaway diagnostic using the pinned MediaDevices package inspected three existing camera objects spanning 2017, 2023, and 2026. It ran `IPortableDeviceProperties.GetValues` with a null property-key collection, `GetSupportedProperties`, and `GetPropertyAttributes` on the package's own worker thread. It inspected metadata only, with no resource streams, thumbnails, downloads, setters, or mutations. Private reflection was used only in the ignored diagnostic; it is not a supported application backend or retained product implementation.
+
+Both MTP and PTP returned 16 supported properties per sampled object:
+
+| WPD property | Property ID in object-properties GUID | Advertised | Attribute HRESULT |
+| --- | --- | --- | --- |
+| Date created | 18 | No | `0x80070032` (not supported) |
+| Date modified | 19 | Yes | `0x00000000` (success) |
+| Date authored | 20 | No | `0x80070032` (not supported) |
+
+Modification time was returned as raw `VT_DATE`, preserving the native OLE-date double. A vendor-mapped MTP `DateAdded` property (`0xDC4E`) was a raw `VT_LPWSTR` string equal to modification time for every sample; it is not accepted as capture time. Format and content-type GUIDs were available at this raw layer, confirming that the public package surface hides some metadata, but it was not hiding the missing authored/creation timestamps in these samples.
+
+| Sample period | Raw modification clock, no offset | Raw OLE-date double | MTP DateAdded |
+| --- | --- | --- | --- |
+| 2026 | `2026-10-15 19:17:17` | `46310.80366898148` | `20261015T191717` |
+| 2023 | `2023-02-25 04:20:53` | `44982.18116898148` | `20230225T042053` |
+| 2017 | `2017-10-27 12:03:22` | `43035.502337962964` | `20171027T120322` |
+
+The values and support results were the same in both modes. Source paths and persistent object identifiers resolved to the same three objects. The PTP endpoint reported `PTP: 1.00` rather than `MTP: 1.00`. Device/PnP IDs changed when switching mode; the serial-number candidate stayed unchanged. Therefore the earlier ID stability observation applies only to a reconnect in the same mode, not across USB modes.
+
+Private evidence: `artifacts/android-s21-raw-properties-verified.json`, `artifacts/android-s21-ptp-raw-properties.json`, and `artifacts/android-s21-ptp-devices.txt`. The throwaway diagnostic is under ignored `artifacts/raw-wpd-spike/`. The application project excludes artifact source files from compilation.
+
+This does not prove that every possible Samsung vendor command lacks capture information. It establishes that broadening ordinary WPD property reads does not supply a usable capture timestamp for the tested photos. A raw WPD reader alone is consequently not a demonstrated solution. Synchronization remains blocked under the existing capture-date and metadata-only rules; the specification has not been relaxed.
+
+Reference-source context, not a claim about Samsung's exact firmware: Android's reference [MTP property handler](https://raw.githubusercontent.com/aosp-mirror/platform_frameworks_base/master/media/java/android/mtp/MtpPropertyGroup.java) supplies modification time for both DateModified and DateAdded, and its [object-info implementation](https://raw.githubusercontent.com/aosp-mirror/platform_frameworks_base/master/media/java/android/mtp/MtpDatabase.java) fills both object-info time slots from modification time. These behaviors are consistent with the observations. Microsoft documents [reading all WPD properties](https://learn.microsoft.com/en-us/windows/win32/wpd_sdk/retrieving-properties-for-a-single-object) separately from media-content access.
