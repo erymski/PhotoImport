@@ -176,3 +176,23 @@ Total application bytes: 540,756. The schema-2 report contains canonical paths, 
 The offline `plan` matched all three observations to the existing 3,909-image inventory. With cutoff 2026-10-10, the JPEG is eligible (3,002,932 reported bytes), HEIC/DNG are older, and the other 3,906 rows remain unresolved. The preview correctly exits 4/incomplete because most inventory objects have no capture reports and PNG remains unsupported. This checks real saved-report interoperability and source association, not a complete-library preview or freshness/content identity. No new inventory or broader media scan was performed.
 
 Private evidence: `artifacts/android-s21-day-validation.json`, `artifacts/android-s21-day-validation-preview.json` and its console text. No USB process remains active. Sample day comparison is complete. Remaining gates include other-folder coverage and unresolved-format policy; iPhone remains deferred.
+
+## Separately approved limited Camera live preview
+
+On 2026-10-16 the user authorized the proposed Camera-folder preview with at most three content-open attempts, at most 262,144 application bytes per attempted photo, reports only, and no full-file fallback or phone/state changes. The first attempt found no selected device and exited 3: its manifest records zero attempts and zero application bytes. The user then confirmed the S21 was connected/unlocked; the retry used a new output directory, preserving the first attempt's reports.
+
+Implementation commit `182108f` resolved only `\Internal storage\DCIM\Camera` and completed its metadata inventory through the API: 3,601 images in 40.659 seconds with zero surfaced errors. This matches the previous supported-image count and earlier total-file reconciliation; it does not prove the package exposed every native enumeration error or certify other folders.
+
+Exactly three supported objects were attempted in ordinal canonical-path order:
+
+| Camera file | Reported bytes | Capture day | Application bytes read |
+| --- | --- | --- | --- |
+| 20171027_130322.jpg | 678,759 | 2017-10-27 | 474 |
+| 20171029_074659.jpg | 4,167,145 | 2017-10-29 | 27,721 |
+| 20171029_083849.jpg | 815,934 | 2017-10-29 | 474 |
+
+All three day outcomes were available, with no per-file errors. Total application reads were 28,669 bytes, below the approved 786,432-byte maximum; actual USB traffic/read-ahead was not measured. No photograph bytes were saved. The first sample's day was previously compared with Gallery; the other two observations are not new independent Gallery confirmations, and filename agreement is not used as evidence.
+
+At cutoff 2026-10-10, all three inspected objects are older and zero are eligible. The remaining 3,598 inventory rows are unresolved because they were not read. The manifest records limitReached=true, three attempts, no run errors and incomplete status; native exit 4 is expected. Zero selected does not mean the Camera folder contains no newer photos. No checkpoint, destination or phone file was changed.
+
+Reopening the generated inventory/capture files with the compiled offline `plan` command also returned native exit 4 and produced identical per-file rows, processed count and unresolved count. No further USB calls were needed. Private evidence: `artifacts/android-s21-camera-live-preview-connected/` and console text; offline recheck `artifacts/android-s21-camera-live-preview-offline-recheck.json`. The initial device-not-found manifest remains in `artifacts/android-s21-camera-live-preview/`. All are Git-ignored. No test process remains running. This validates the scoped live path and its limit on this run; broader capture scanning, other-folder comparisons and unresolved-format policy remain separate work. iPhone is deferred.
