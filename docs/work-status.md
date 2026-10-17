@@ -2,6 +2,8 @@
 
 ## Current result and source scope — 2026-10-18
 
+**Video correction:** camera-recorded videos are required alongside camera photos and screenshots; the earlier version-1 exclusion is superseded. Still-image copy evidence remains valid, but video capture-day extraction/full transfer and screenshot date extraction are pending. Next recommended validation uses the existing `photo-sort` MP4/MOV MetadataExtractor approach, then a scoped importer design with resumable transfers and capture-day selection. No new video reads or product implementation yet.
+
 User clarified: camera captures and screenshots only; exclude app caches/assets, stickers and downloaded/shared images. **Selected still-image experiment complete:**3,601 Camera files +83 screenshots +340 older Camera Roll files copied; every saved length verified. Camera11.59GiB/1h3m34s. No videos copied. No phone/import-state/product-code changes. No process running. App-cache diagnostics stopped; do not resume their old remaining-work list. Source clarification is recorded in [specification section8](specs.md#8-media-scope-and-output-behavior); see [final evidence](compatibility/2026-10-17-full-copy-experiment.md). The earlier broad-storage runs below are history.
 
 ## Latest experiment — 2026-10-17

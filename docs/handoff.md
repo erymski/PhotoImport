@@ -2,7 +2,7 @@
 
 ## Current result
 
-The user clarified the source scope: camera captures and screenshots only. Exclude app caches, stickers, game assets and downloaded/shared images. Do not resume all-storage copying or app-cache debugging. The still-image copy experiment is complete for the selected roots in the saved inventory:
+The user clarified the source scope: camera photos, camera-recorded videos and screenshots. **Videos are required**, superseding the earlier version-1 exclusion, but have not been copied or validated. Exclude app caches, stickers, game assets and downloaded/shared images. Do not resume all-storage copying or app-cache debugging. The still-image copy experiment is complete for the selected roots in the saved inventory:
 
 | Root | Copied | Saved bytes |
 | --- | ---: | ---: |
@@ -11,7 +11,7 @@ The user clarified the source scope: camera captures and screenshots only. Exclu
 | `Samsung/Pictures/Camera Roll` | 340 | 1,045,742,521 |
 | Total | 4,024 | 13,527,468,784 |
 
-All selected files reached EOF and matched reported/saved sizes. Follow-up local length checks found zero mismatches. Camera completed in one connection in **1h 3m 34s (11.59 GiB)**; other roots were copied in separate phases, so there is no measured continuous combined time. This is full exposed-resource access, without a phone-side hash comparison or original-asset identity proof. The saved inventory was not refreshed. Videos were not copied; video import remains outside the current version-1 implementation scope.
+All selected still-image files reached EOF and matched reported/saved sizes. Follow-up local length checks found zero mismatches. Camera completed in one connection in **1h 3m 34s (11.59 GiB)**; other roots were copied in separate phases, so there is no measured continuous combined time. This is full exposed-resource access, without a phone-side hash comparison or original-asset identity proof. The saved inventory was not refreshed. Videos remain required, unimplemented and unvalidated.
 
 No test remains running. No phone files or import/checkpoint state were changed. Unrelated earlier artifact copies were preserved and excluded from the selected result; do not delete them without instruction.
 
@@ -25,6 +25,8 @@ No test remains running. No phone files or import/checkpoint state were changed.
 - [Specification section 8](specs.md#8-media-scope-and-output-behavior) records the source clarification. An image extension alone does not establish eligibility. Folder scope must be explicit, not the entire Pictures tree or whole storage.
 
 ## Product implementation and remaining decisions
+
+Next recommended increment: validate capture-day extraction and a complete transfer for a camera video, using the MP4/MOV MetadataExtractor logic in `C:\Projects\photo-sort\app\DateExtractor.cs` as a reference. Validate screenshot dates from the already copied files as well. Then design the scoped importer around complete streams, local metadata and a durable per-file journal/date cache, so successful known files are reused and older media is not repeatedly copied. Apply the day cutoff2026-09-03, preserve unresolved dates, and advance checkpoints only after verified success. The staging/cache approach is a recommendation, not an approved or implemented replacement for the current metadata-first contract. No new hardware reads were performed while recording this requirement.
 
 Branch `feat/metadata-probe`, current checkout. No merge or push requested. Product code was not changed by the copy experiment.
 

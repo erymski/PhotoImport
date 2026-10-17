@@ -2,6 +2,8 @@
 
 ## Final scope correction — 2026-10-18
 
+**Subsequent video clarification:** camera-recorded videos are also required in the product. This report's completed scope is still images only; it must not be read as completing video validation or excluding videos from the intended importer. Next validation must check a camera video's capture day and complete transfer. App-cache/downloaded/shared media remain excluded.
+
 The user clarified that only camera captures and screenshots matter. **App caches/assets, stickers, game images, and downloaded/shared images are excluded. Stop their diagnostics; do not resume the broad remaining-storage copy.** The relevant saved-inventory still images are already copied:
 
 | Selected root | Inventoried/copied | Saved bytes | Local length mismatches |

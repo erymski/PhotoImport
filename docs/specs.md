@@ -7,7 +7,7 @@
 
 ## 1. Purpose
 
-Build a small, reliable Windows command-line tool that imports only new photographs from a connected Android phone or iPhone. The tool replaces the first three steps of the existing workflow: downloading all phone photos, checking the previous import cutoff, and deleting older downloads. Organizing the imported photos in Picasa remains a manual step.
+Build a small, reliable Windows command-line tool that imports only new camera photographs, camera-recorded videos and screenshots from a connected Android phone or iPhone. The tool replaces the first three steps of the existing workflow: downloading all phone media, checking the previous import cutoff, and deleting older downloads. Organizing the imported media in Picasa remains a manual step.
 
 A photo is considered *old* when its capture timestamp is at or before the device's saved import checkpoint, even if its previous PC copy has since been deleted. **The local filesystem and the Picasa database are not used to determine whether a photo is old.**
 
@@ -18,7 +18,7 @@ A photo is considered *old* when its capture timestamp is at or before the devic
 ### Goals
 - Support multiple individually registered phones, with an independent checkpoint for each.
 - List photo metadata **before** downloading photo contents.
-- Transfer only eligible new photos to a configurable Windows directory.
+- Transfer only eligible new camera photos, camera-recorded videos and screenshots to a configurable Windows directory.
 - Keep state in human-readable JSON under `%LOCALAPPDATA%\PhonePhotoSync\`.
 - Allow preview (`--dry-run`), diagnostic inspection, and safe retries.
 - Never delete or modify media on the phone.
@@ -29,7 +29,7 @@ A photo is considered *old* when its capture timestamp is at or before the devic
 - Reading or repairing Picasa's own database.
 - Full duplicate detection by content hash or photo similarity.
 - Wi-Fi sync or downloading iCloud-only assets.
-- Video and Live Photo motion-component import (may be added later).
+- Live Photo motion-component pairing (ordinary camera-recorded video files are in scope).
 - Background service, GUI, or mobile companion app.
 
 ## 3. Development phase 1 — mandatory metadata feasibility test
@@ -205,9 +205,10 @@ A photo **added to the phone later but carrying a capture time earlier than the 
 
 ## 8. Media scope and output behavior
 
-**Source clarification from the user (2026-10-18):** select camera captures and screenshots only. An image extension does not make an app cache, sticker, game asset, or downloaded/shared image eligible. Use explicitly selected camera/screenshot roots; do not scan the whole storage, Android app directories, or the entire Pictures tree as normal import sources. Current S21 roots are `DCIM/Camera`, `DCIM/Screenshots`, and the older `Samsung/Pictures/Camera Roll`. This origin restriction also applies to camera videos if video import is added; this experiment copied still images only, and the existing version-1 video exclusion remains in place. Broad earlier diagnostic inventories are evidence, not the import selection policy.
+**Source clarification from the user (2026-10-18):** select camera photos, camera-recorded videos and screenshots. Videos are required in version 1, superseding the earlier video exclusion; the completed experiment covered still images only and does not establish video support. An image/video extension does not make an app cache, sticker, game asset, or downloaded/shared item eligible. Use explicitly selected camera/screenshot roots; do not scan the whole storage, Android app directories, or the entire Pictures tree as normal import sources. Current S21 roots are `DCIM/Camera`, `DCIM/Screenshots`, and the older `Samsung/Pictures/Camera Roll`. Broad earlier diagnostic inventories are evidence, not the import selection policy.
 
-- Version 1 targets still-image files: `.jpg`, `.jpeg`, `.heic`, `.heif`, `.png`, `.dng`, `.tif`, `.tiff`, subject to what phase 1 proves is available. Extensions are matched case-insensitively and cross-checked with the reported media format when possible.
+- Version 1 includes still-image files (`.jpg`, `.jpeg`, `.heic`, `.heif`, `.png`, `.dng`, `.tif`, `.tiff`) and camera-recorded video files. Validate MP4/MOV first using the existing MetadataExtractor approach in `photo-sort`; other encountered camera-video formats must remain visibly unresolved until supported, not silently disappear from selection. Extensions are matched case-insensitively and cross-checked with the reported media format when possible.
+- Video acceptance requires a verified capture calendar day and a complete-file copy/size check; the still-image experiment does not satisfy these checks for videos. Screenshot day extraction also needs validation before date-based importing is accepted. Missing or ambiguous dates remain unresolved, with no silent filename/modification-time substitution.
 - Search all configured photo roots recursively; do not assume the Android camera folder is the only source.
 - Keep the original filename and file format whenever possible; no automatic resizing, recompression, format conversion, or metadata editing.
 - Never overwrite an existing destination file. If a target filename is occupied by an unrelated file, generate a deterministic unique suffix.
