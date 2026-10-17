@@ -1,5 +1,11 @@
 # Work status
 
+## Latest experiment — 2026-10-17
+
+**Evening update:** all 3,601 Camera files copied successfully,11.59 GiB in 1h3m34s; all 3,910 DCIM/Pictures files completed in 1h4m15s. Across sessions 4,810 completed/12.03 GiB, all local lengths verified. Later app-cache lookup returned not found; next discovery found no S21, so missing-file versus disconnection remains ambiguous. No terminal timeout reported during evening copying. Stopped; reconnect question pending.10,089 inventory paths remain incomplete. See the linked report for current evidence and resume instructions; the paragraph below records the earlier interruption.
+
+User requested all-photo copying with timing, then interruption. **Stopped and saved:** inventory 14,899 images/13.95 GiB in 8m30s;821 complete copies/241.4 MiB across two sessions. One app-data open failure; continuation ended by user-requested process termination. No Camera files reached, so bulk Camera compatibility/time remains unproven. No product/phone/import-state changes. See [experiment results and resume instructions](compatibility/2026-10-17-full-copy-experiment.md) and [handoff](handoff.md). Next: reuse saved inventory, prioritize DCIM/Camera/Pictures, combine successful journals and add cooperative stopping. No further phone work until resumed.
+
 Task tracking uses Markdown, per the user's instruction on 2026-10-15. Do not use Beads for this project.
 
 ## Milestone 1: metadata feasibility probe
@@ -111,7 +117,7 @@ The user later authorized Camera-only bounded reads with a 3,601-attempt limit a
 - [x] Run the screen-awake/max-100 check after user readiness. Inventory 3,601 in 2.235 seconds; the first GetStream returned device-unreachable in 0.370 seconds. Exit 3, one attempt, zero content bytes; no later opens. Screen-awake alone did not restore content access. Reports preserved under ignored `artifacts/android-s21-camera-awake-100/`.
 - [x] Inspect Windows status/logs and upstream tagged source without changing drivers or library code. PnP reported WPD Status OK. Earlier retry window: 25 cancelled GetObject operations followed by a communication failure. Prefix-close cancellation is a hypothesis, not a proven cause; disposal is present in the application and upstream wrapper. See [diagnostic evidence and sources](compatibility/android-samsung-sm-g991b.md).
 - [x] Complete the standalone control after readiness: 20171027_130322.jpg returned day2017-10-27 using474 bytes (exit0,20.211 s). A second standalone process reopened it successfully (474 bytes, exit0,1.955 s). Separate processes do not establish repeated same-session stability.
-- [x] Repeat the authorized max100 Camera batch: nine valid days,175,658 bytes, then terminal timeout at attempt10. Inventory3,601/48.217 s; capture80.518 s including63.214 s final timeout. Exit3,3,592 unresolved; process ended. No further phone command started.
+- [x] Repeat the authorized max100 Camera batch: nine valid days,175,658 bytes, then terminal timeout at attempt 10. Inventory3,601/48.217 s; capture80.518 s including63.214 s final timeout. Exit3,3,592 unresolved; process ended. No further phone command started.
 - [ ] Isolate repeated stream access within one connection without recursive inventory before another full-folder run. Source/upstream research found no proven fix; do not make speculative library changes or silently use full-file reads. Current cutoff remains2026-09-03. See [2026-10-17 handoff](handoff.md) for exact evidence, permissions and recommended next diagnostic.
 
 ### Existing photo-sort implementation inspected on 2026-10-16

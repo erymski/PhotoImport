@@ -2,6 +2,12 @@
 
 ## Resume here
 
+**Evening continuation stopped; phone unavailable at last discovery.** All 3,601 Camera files copied in one session:11.59 GiB in 1h3m34s. All 3,910 DCIM/Pictures entries finished in 1h4m15s. Across sessions:4,810 complete copies/12.03 GiB, zero local completed-file length mismatches. Evening run stopped at app-cache “not found”; subsequent discovery found no S21, so cache deletion or an isolated file error is not established. No USB timeout reported in that run. Reconnect/readiness question sent;10,089 paths remain incomplete (two failures,10,087 unattempted). No experiment remains running. See [latest evidence](compatibility/2026-10-17-full-copy-experiment.md). Resume with original inventory and all three content journals in a NEW directory; preserve copies, no automatic failure retries. Cooperative STOP support exists between files, not physically tested yet. Production code unchanged. Historical paragraphs below predate this result.
+
+**Latest: full-copy experiment stopped at user request on 2026-10-17.** Inventory14,899 images/13.95 GiB in 8m30s; two sessions retained821 complete copies/241.4 MiB. One app-data file could not open; continuation was deliberately terminated, not a USB timeout. No Camera files reached because app/trash images sorted first. Read [results and exact resume instructions](compatibility/2026-10-17-full-copy-experiment.md) first. No experiment remains running. Reuse inventory, prioritize DCIM/Camera and Pictures, combine successful journals, and add cooperative stopping. User explicitly authorized this all-photo full-copy experiment; the older approval restriction below is superseded for this experiment only.
+
+The following diagnostic recommendation predates that experiment:
+
 The implementation is working against automated tests, but a complete Android Camera preview is blocked by intermittent WPD/MTP content-stream failures. Do not repeat the full folder scan or make speculative library changes. The next diagnostic should isolate repeated stream access **within one connection**, without recursive inventory traversal. The two successful standalone controls below used separate processes/connections and do not establish same-session stability.
 
 Prepare a small throwaway reproduction using MediaDevices 2.0.0 and explicit Camera paths from the saved inventory. Keep the same 256 KiB per-photo cap, sequential reads, normal stream disposal, metadata-only output and stop-on-terminal-error behavior. Compare it with the existing inventory-plus-capture result. State the question and exact probe before running it under the selected Superpowers workflow. Existing Camera prefix-read authorization remains in force; check phone readiness rather than asking again for the same scope.
@@ -16,7 +22,7 @@ If repeated prefix closure is still implicated, propose a controlled comparison 
 - Capture calendar day is sufficient; do not convert to PC timezone or infer dates from filenames/modification times. Preserve unknown/ambiguous evidence.
 - Android: Samsung Galaxy S21 SM-G991B, friendly name `Eugene's S21`, normal USB File transfer. No ADB/USB debugging or phone app. iPhone deferred.
 - The user authorized Camera-only bounded inspection with a maximum of 3,601 attempts and 256 KiB application reads per attempt. Smaller Camera controls fit that scope. Driver read-ahead is not bounded/measured. No automatic retries/reconnects, full-file fallback, photo saves or phone/import-state changes.
-- A separate historical approval allowed exactly one full JPEG access test, already completed. It is not blanket full-read permission. Other-folder content reads also need scope agreement.
+- A historical approval allowed one full JPEG access test. Subsequently the user explicitly authorized the all-photo full-copy experiment, including other exposed storage; see the linked report. Production preview remains bounded.
 - `C:\Projects\photo-sort` was inspected read-only: it already uses MetadataExtractor on local files. Do not run its sorter; it can move/delete files and contains unrelated user changes.
 
 ## Completed code
@@ -39,12 +45,12 @@ All paths below are relative to the repository and Git-ignored. Keep raw reports
 | `artifacts/android-s21-day-validation.json` | Product JPEG/HEIC/DNG day samples succeeded and match user-confirmed Gallery days. HEIC maker-note warnings do not discard its valid day. |
 | `artifacts/android-s21-camera-live-preview-connected/` | Camera/max3: 3,601 inventory rows, three valid days, 28,669 application bytes; expected incomplete preview. |
 | `artifacts/android-s21-camera-complete-preview/` | First full attempt: six valid days, 107,982 bytes. Old adapter continued to 3,601 attempts after transport failure; 3,595 unresolved, exit4. |
-| `artifacts/android-s21-camera-complete-preview-retry/` | Corrected adapter: 25 valid days, 430,731 bytes; attempt26 timed out; exit3 and no later opens. Inventory60.352 s, capture116.242 s including63.877 s timeout. |
+| `artifacts/android-s21-camera-complete-preview-retry/` | Corrected adapter: 25 valid days, 430,731 bytes; attempt 26 timed out; exit3 and no later opens. Inventory60.352 s, capture116.242 s including63.877 s timeout. |
 | `artifacts/android-s21-camera-awake-100/` | User said screen would stay awake. First GetStream unreachable, zero content bytes, exit3; inventory still completed. |
 | `artifacts/android-s21-single-camera-control-2026-10-17.json` | Initial standalone control found no phone; zero attempts/bytes. |
 | `artifacts/android-s21-single-camera-control-connected-2026-10-17.json` | After readiness confirmation: `20171027_130322.jpg` day2017-10-27, 474 bytes, exit0; total20.211 s. No folder inventory. |
 | `artifacts/android-s21-single-camera-reopen-2026-10-17.json` | Same photo, second standalone process: 474 bytes, same day, exit0; total1.955 s. |
-| `artifacts/android-s21-camera-awake-100-control-2026-10-17/` | Latest inventory-plus-capture batch: inventory3,601 in48.217 s; nine available days, 175,658 bytes; attempt10 (`20171105_215534.jpg`) timed out after63.214 s. Capture80.518 s, exit3; 3,592 unresolved. |
+| `artifacts/android-s21-camera-awake-100-control-2026-10-17/` | Latest inventory-plus-capture batch: inventory 3,601 in 48.217 s; nine available days, 175,658 bytes; attempt 10 (`20171105_215534.jpg`) timed out after63.214 s. Capture80.518 s, exit3; 3,592 unresolved. |
 
 All observed dates in these early sorted Camera batches are older than the actual cutoff. **Zero eligible is not a usable full-library result**: newer files have not been assessed. The failing file changes between runs; previously failed files have succeeded later. This does not support one consistently corrupt file as the explanation.
 
