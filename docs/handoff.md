@@ -2,7 +2,9 @@
 
 ## Current result
 
-The user clarified the source scope: camera photos, camera-recorded videos and screenshots. **Videos are required**, superseding the earlier version-1 exclusion, but have not been copied or validated. Exclude app caches, stickers, game assets and downloaded/shared images. Do not resume all-storage copying or app-cache debugging. The still-image copy experiment is complete for the selected roots in the saved inventory:
+**Latest validation:** one Camera MP4 (`20260909_082607.mp4`,4,016,530 bytes) fully copied and size-verified;14 Camera video entries inventoried. Embedded movie-header candidate day2026-09-09; Samsung UTC-offset key is unsupported by the parser, so midnight/day-boundary policy remains unresolved. Saved screenshot analysis:81/83 have valid EXIF day evidence; two lack it. The current production resolver rejects18 of those81 due solely to unrelated ICC colour-profile errors; a narrow warning-policy correction is proposed, not implemented. Gallery comparisons requested for the video (9 September2026) and an ICC-warning screenshot (18 January2022). No diagnostic running. See [new validation report](compatibility/2026-10-18-video-and-screenshot-validation.md) for exact evidence, limits and next decisions. The earlier statements about untested videos below describe the state before this sample.
+
+The user clarified the source scope: camera photos, camera-recorded videos and screenshots. **Videos are required**, superseding the earlier version-1 exclusion. One MP4 transfer has now been validated as described above; general video-day policy is still open. Exclude app caches, stickers, game assets and downloaded/shared images. Do not resume all-storage copying or app-cache debugging. The still-image copy experiment is complete for the selected roots in the saved inventory:
 
 | Root | Copied | Saved bytes |
 | --- | ---: | ---: |
@@ -11,7 +13,7 @@ The user clarified the source scope: camera photos, camera-recorded videos and s
 | `Samsung/Pictures/Camera Roll` | 340 | 1,045,742,521 |
 | Total | 4,024 | 13,527,468,784 |
 
-All selected still-image files reached EOF and matched reported/saved sizes. Follow-up local length checks found zero mismatches. Camera completed in one connection in **1h 3m 34s (11.59 GiB)**; other roots were copied in separate phases, so there is no measured continuous combined time. This is full exposed-resource access, without a phone-side hash comparison or original-asset identity proof. The saved inventory was not refreshed. Videos remain required, unimplemented and unvalidated.
+All selected still-image files reached EOF and matched reported/saved sizes. Follow-up local length checks found zero mismatches. Camera completed in one connection in **1h 3m 34s (11.59 GiB)**; other roots were copied in separate phases, so there is no measured continuous combined time. This is full exposed-resource access, without a phone-side hash comparison or original-asset identity proof. The saved still-image inventory was not refreshed. Video product support remains unimplemented, with one successful transfer sample and unresolved capture-day/timezone policy.
 
 No test remains running. No phone files or import/checkpoint state were changed. Unrelated earlier artifact copies were preserved and excluded from the selected result; do not delete them without instruction.
 
@@ -26,7 +28,7 @@ No test remains running. No phone files or import/checkpoint state were changed.
 
 ## Product implementation and remaining decisions
 
-Next recommended increment: validate capture-day extraction and a complete transfer for a camera video, using the MP4/MOV MetadataExtractor logic in `C:\Projects\photo-sort\app\DateExtractor.cs` as a reference. Validate screenshot dates from the already copied files as well. Then design the scoped importer around complete streams, local metadata and a durable per-file journal/date cache, so successful known files are reused and older media is not repeatedly copied. Apply the day cutoff2026-09-03, preserve unresolved dates, and advance checkpoints only after verified success. The staging/cache approach is a recommendation, not an approved or implemented replacement for the current metadata-first contract. No new hardware reads were performed while recording this requirement.
+Next: obtain the pending Gallery comparison, propose the bounded ICC-warning correction with real capture errors still rejected, and resolve video timezone/undated-file policy. Then present the scoped importer design: complete streams, local metadata and a durable per-file journal/date cache, so successful known files are reused and older media is not repeatedly copied. Apply cutoff **2026-09-03**, preserve unresolved dates, and advance checkpoints only after verified success. The staging/cache approach is a recommendation, not an approved or implemented replacement for the original metadata-first contract. The one-video/screenshot spike has been executed; do not repeat it without a specific new question.
 
 Branch `feat/metadata-probe`, current checkout. No merge or push requested. Product code was not changed by the copy experiment.
 

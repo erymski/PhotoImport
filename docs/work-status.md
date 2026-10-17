@@ -1,5 +1,9 @@
 # Work status
 
+## Video/screenshot validation — 2026-10-18
+
+Approved spike executed. Camera-only inventory found14 videos; one MP4 (4,016,530 bytes) copied fully, lengths verified,0.298s transfer/123.382s inventory. Embedded movie-header day candidate2026-09-09; unsupported Samsung UTC-offset metadata leaves general local-day handling unresolved. All83 saved screenshots inspected locally:81 EXIF day candidates, two missing. Current resolver unnecessarily rejects18 dated screenshots for an unrelated ICC-profile error; proposed correction awaits its own design approval/tests. Gallery comparison pending for the video and one ICC-warning screenshot. No new product/state changes and no process running. See [validation evidence](compatibility/2026-10-18-video-and-screenshot-validation.md). Next: resolve these policies before importer design/implementation; do not repeat the bulk still-image test.
+
 ## Current result and source scope — 2026-10-18
 
 **Video correction:** camera-recorded videos are required alongside camera photos and screenshots; the earlier version-1 exclusion is superseded. Still-image copy evidence remains valid, but video capture-day extraction/full transfer and screenshot date extraction are pending. Next recommended validation uses the existing `photo-sort` MP4/MOV MetadataExtractor approach, then a scoped importer design with resumable transfers and capture-day selection. No new video reads or product implementation yet.
