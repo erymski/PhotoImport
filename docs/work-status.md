@@ -1,5 +1,11 @@
 # Work status
 
+## ICC correction and two-file exclusion — 2026-10-18
+
+Implemented the bounded ICC-warning correction after the user-directed policy discussion. Filename fallback was considered, then omitted when the user said to skip the undated files. Five regressions failed first; all265 Release tests now pass. Offline replay:81 of83 screenshots resolve to EXIF days, two missing. The two legacy undated screenshots have an explicit exclusion manifest; no deletion or default drop-all-undated policy was added. No phone reads/import-state writes. One final independent review found no Critical/Important/Minor code issues; README warning-policy text was corrected, with no second review. See [evidence](compatibility/2026-10-18-video-and-screenshot-validation.md). Next work is importer design with camera photos/videos/screenshots only and explicit video-day policy.
+
+Review rulings: keep exact-time outcome separate from day validity (planner integration verified); importer/default missing-date policy stays outside this fix (only the two experiment exclusions recorded); update documentation including README (done); retain independently supplied hardware/replay results without claiming the reviewer reran them (this session executed the tests/replay). No code fixes were requested.
+
 ## Independent day comparison complete — 2026-10-18
 
 User confirmed the camera-video day (9 September2026) and ICC-warning screenshot day (18 January2022) in Gallery/details. The sample validation spike is complete; general video timezone support is not established. Next proposed bounded correction: ICC errors become day-resolution warnings while EXIF validity/ambiguity/missing checks remain strict, with behavioral regressions and offline83-screenshot replay. No product implementation or additional hardware reads yet.

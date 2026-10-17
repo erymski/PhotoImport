@@ -1,6 +1,6 @@
 # Camera-video and screenshot date validation — 2026-10-18
 
-The user approved a small validation spike: copy one camera video, inspect its embedded capture-day evidence using the existing `photo-sort` MetadataExtractor approach, and inspect screenshots already copied. No production feature was implemented. No app-cache reads, phone mutations or import/checkpoint writes were performed.
+The user approved a small validation spike: copy one camera video, inspect its embedded capture-day evidence using the existing `photo-sort` MetadataExtractor approach, and inspect screenshots already copied. A subsequent bounded ICC-warning correction is recorded below. No app-cache reads, phone mutations or import/checkpoint writes were performed.
 
 ## Camera video
 
@@ -15,17 +15,17 @@ The user approved a small validation spike: copy one camera video, inspect its e
 
 All83 saved screenshot files were JPEG, despite PNG being a plausible screenshot format elsewhere. No new screenshot or phone content reads were required; local lengths were checked before parsing.
 
-| Evidence | Count |
-| --- | ---: |
-| Current production day resolver: available | 63 |
-| Current resolver: invalid due to ICC-profile error | 19 |
-| Current resolver: missing EXIF capture day | 1 |
-| Independent valid EXIF calendar-day candidates, including ICC-warning files | 81 |
-| No EXIF capture date at all | 2 |
+| Resolver result | Before ICC correction | After correction |
+| --- | ---: | ---: |
+| Available EXIF calendar day | 63 | 81 |
+| Invalid due to unrelated ICC-profile error | 19 | 0 |
+| Missing EXIF capture day | 1 | 2 |
 
-All19 parser-error rows have the ICC error `year=0 month=0 day=0 hour=0 minute=0 second=0`, a colour-profile timestamp. Eighteen of them also have a valid EXIF DateTimeOriginal day. The existing resolver rejects any non-Apple-maker-note parser error globally, so those18 are rejected even though the date error is outside capture metadata. **Proposed bounded correction:** retain unrelated ICC errors as warnings while validating capture metadata independently; continue rejecting actual capture-field corruption/ambiguity. Not implemented or accepted as a policy change by this spike.
+All19 affected rows have the ICC error `year=0 month=0 day=0 hour=0 minute=0 second=0`, a colour-profile timestamp. Eighteen also have a valid EXIF DateTimeOriginal day. The old resolver rejected any non-Apple-maker-note parser error globally. **Implemented bounded correction:** ICC-profile errors are preserved as warnings while capture metadata is validated independently; actual capture corruption, impossible dates and conflicting days remain failures. Five behavioral regressions failed before the fix, then all265 Release tests passed. Local replay of all83 saved files yielded81 available days and two missing dates; no phone reads were needed.
 
-The two genuinely undated screenshots remain unresolved; neither filename nor the local modification timestamp is substituted. Their dates need an explicit policy or verified manual input before automated day selection can handle them. The user independently confirmed **18 January 2022** in Gallery/details for `DCIM/Screenshots/Screenshot_20220118-195311_Duolingo.jpg`, one of the ICC-warning examples. This validates the example's EXIF calendar day despite the unrelated ICC warning.
+The two genuinely undated screenshots are now explicit user-directed exclusions from this experiment: `Screenshot_20180401-214909_Facebook.jpg` and `Screenshot_20190214-150714_Instagram.jpg`. Copies were preserved; no filename or filesystem timestamp is substituted. This is not a new blanket production rule to discard all undated media. The user independently confirmed **18 January 2022** in Gallery/details for `DCIM/Screenshots/Screenshot_20220118-195311_Duolingo.jpg`, validating that example's EXIF day despite its ICC warning.
+
+The user initially suggested a filename fallback based on `photo-sort`, then directed skipping the undated files instead. Read-only inspection of the current `C:\Projects\photo-sort` checkout found metadata extraction only; its caller skips on failure. No fallback parser was found there, no filename parser was added here, and that repository's unrelated user changes were left untouched.
 
 ## Evidence and next decisions
 
@@ -37,5 +37,7 @@ All raw evidence is Git-ignored:
 - `artifacts/android-s21-screenshot-dates-2026-10-18.json`: all83 local parser results, raw tag evidence and current resolver outcomes.
 - `artifacts/android-s21-screenshot-day-assessment-2026-10-18.json`: diagnostic EXIF-only day evidence, preserving ICC errors separately. Production policy unchanged.
 - `artifacts/android-s21-gallery-day-confirmation-2026-10-18.json`: records the user's independent day confirmation for both samples.
+- `artifacts/android-s21-screenshot-dates-after-icc-fix-2026-10-18.json`: full offline replay using the corrected production resolver,81 available/two missing.
+- `artifacts/android-s21-undated-screenshot-exclusions-2026-10-18.json`: exact source paths, saved lengths and explicit skip decisions for the two undated screenshots. Files are retained and import state is untouched.
 
-No diagnostic remains running. The earlier unlock question is obsolete because the transfer finished. Both Gallery day comparisons are complete. Next: the bounded capture-error policy correction, then video day/timezone and undated-file rules and the scoped resumable importer design. The correction should affect only `CaptureDayResolver`: keep ICC-profile errors as reported warnings when EXIF capture metadata is valid; preserve missing, impossible, conflicting or corrupt EXIF outcomes. Verify available/missing/conflicting/broken-EXIF cases with ICC warnings and replay the83 local screenshots without phone reads. Complete-stream staging plus a durable per-file date/journal cache is a recommendation, not yet an approved replacement for the original metadata-first requirement.
+No diagnostic remains running. Both Gallery comparisons and the bounded ICC correction are complete. Next: resolve video day/timezone policy and present the scoped resumable importer design, including the explicit two-file exclusions. Complete-stream staging plus a durable per-file date/journal cache remains a recommendation, not an approved replacement for the original metadata-first requirement.

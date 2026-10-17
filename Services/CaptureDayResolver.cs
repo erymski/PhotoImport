@@ -2,6 +2,7 @@ using System.Globalization;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using MetadataExtractor.Formats.Exif.Makernotes;
+using MetadataExtractor.Formats.Icc;
 using PhotoImport.Models;
 
 namespace PhotoImport.Services;
@@ -10,8 +11,9 @@ public static class CaptureDayResolver
 {
     public static CaptureDayResolution Resolve(IReadOnlyList<MetadataExtractor.Directory> directories)
     {
-        var warnings = directories.OfType<AppleMakernoteDirectory>().SelectMany(d => d.Errors.Select(e => $"Apple maker-note: {e}")).ToArray();
-        if (directories.Any(d => d.HasError && d is not AppleMakernoteDirectory))
+        var warnings = directories.Where(d => d is AppleMakernoteDirectory or IccDirectory)
+            .SelectMany(d => d.Errors.Select(e => $"{(d is IccDirectory ? "ICC profile" : "Apple maker-note")}: {e}")).ToArray();
+        if (directories.Any(d => d.HasError && d is not (AppleMakernoteDirectory or IccDirectory)))
             return new("invalid", null, warnings, "Capture/container metadata has parser errors.");
         return FromOriginalDates(directories.OfType<ExifSubIfdDirectory>().Select(d => d.GetString(0x9003))) with { Warnings = warnings };
     }
