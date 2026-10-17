@@ -1,5 +1,9 @@
 # Work status
 
+## Current result and source scope — 2026-10-18
+
+User clarified: camera captures and screenshots only; exclude app caches/assets, stickers and downloaded/shared images. **Selected still-image experiment complete:**3,601 Camera files +83 screenshots +340 older Camera Roll files copied; every saved length verified. Camera11.59GiB/1h3m34s. No videos copied. No phone/import-state/product-code changes. No process running. App-cache diagnostics stopped; do not resume their old remaining-work list. Source clarification is recorded in [specification section8](specs.md#8-media-scope-and-output-behavior); see [final evidence](compatibility/2026-10-17-full-copy-experiment.md). The earlier broad-storage runs below are history.
+
 ## Latest experiment — 2026-10-17
 
 **Evening update:** all 3,601 Camera files copied successfully,11.59 GiB in 1h3m34s; all 3,910 DCIM/Pictures files completed in 1h4m15s. Across sessions 4,810 completed/12.03 GiB, all local lengths verified. Later app-cache lookup returned not found; next discovery found no S21, so missing-file versus disconnection remains ambiguous. No terminal timeout reported during evening copying. Stopped; reconnect question pending.10,089 inventory paths remain incomplete. See the linked report for current evidence and resume instructions; the paragraph below records the earlier interruption.

@@ -1,74 +1,43 @@
-# Handoff — 2026-10-17
+# Handoff — 2026-10-18
 
-## Resume here
+## Current result
 
-**Evening continuation stopped; phone unavailable at last discovery.** All 3,601 Camera files copied in one session:11.59 GiB in 1h3m34s. All 3,910 DCIM/Pictures entries finished in 1h4m15s. Across sessions:4,810 complete copies/12.03 GiB, zero local completed-file length mismatches. Evening run stopped at app-cache “not found”; subsequent discovery found no S21, so cache deletion or an isolated file error is not established. No USB timeout reported in that run. Reconnect/readiness question sent;10,089 paths remain incomplete (two failures,10,087 unattempted). No experiment remains running. See [latest evidence](compatibility/2026-10-17-full-copy-experiment.md). Resume with original inventory and all three content journals in a NEW directory; preserve copies, no automatic failure retries. Cooperative STOP support exists between files, not physically tested yet. Production code unchanged. Historical paragraphs below predate this result.
+The user clarified the source scope: camera captures and screenshots only. Exclude app caches, stickers, game assets and downloaded/shared images. Do not resume all-storage copying or app-cache debugging. The still-image copy experiment is complete for the selected roots in the saved inventory:
 
-**Latest: full-copy experiment stopped at user request on 2026-10-17.** Inventory14,899 images/13.95 GiB in 8m30s; two sessions retained821 complete copies/241.4 MiB. One app-data file could not open; continuation was deliberately terminated, not a USB timeout. No Camera files reached because app/trash images sorted first. Read [results and exact resume instructions](compatibility/2026-10-17-full-copy-experiment.md) first. No experiment remains running. Reuse inventory, prioritize DCIM/Camera and Pictures, combine successful journals, and add cooperative stopping. User explicitly authorized this all-photo full-copy experiment; the older approval restriction below is superseded for this experiment only.
+| Root | Copied | Saved bytes |
+| --- | ---: | ---: |
+| `DCIM/Camera` | 3,601 | 12,440,778,898 |
+| `DCIM/Screenshots` | 83 | 40,947,365 |
+| `Samsung/Pictures/Camera Roll` | 340 | 1,045,742,521 |
+| Total | 4,024 | 13,527,468,784 |
 
-The following diagnostic recommendation predates that experiment:
+All selected files reached EOF and matched reported/saved sizes. Follow-up local length checks found zero mismatches. Camera completed in one connection in **1h 3m 34s (11.59 GiB)**; other roots were copied in separate phases, so there is no measured continuous combined time. This is full exposed-resource access, without a phone-side hash comparison or original-asset identity proof. The saved inventory was not refreshed. Videos were not copied; video import remains outside the current version-1 implementation scope.
 
-The implementation is working against automated tests, but a complete Android Camera preview is blocked by intermittent WPD/MTP content-stream failures. Do not repeat the full folder scan or make speculative library changes. The next diagnostic should isolate repeated stream access **within one connection**, without recursive inventory traversal. The two successful standalone controls below used separate processes/connections and do not establish same-session stability.
+No test remains running. No phone files or import/checkpoint state were changed. Unrelated earlier artifact copies were preserved and excluded from the selected result; do not delete them without instruction.
 
-Prepare a small throwaway reproduction using MediaDevices 2.0.0 and explicit Camera paths from the saved inventory. Keep the same 256 KiB per-photo cap, sequential reads, normal stream disposal, metadata-only output and stop-on-terminal-error behavior. Compare it with the existing inventory-plus-capture result. State the question and exact probe before running it under the selected Superpowers workflow. Existing Camera prefix-read authorization remains in force; check phone readiness rather than asking again for the same scope.
+## Evidence and scope
 
-If repeated prefix closure is still implicated, propose a controlled comparison with complete-stream consumption. **Full-stream reads exceed the current exception and need separate approval with exact files/count/byte budget**, even if nothing is saved. Never silently drain the rest of a photo as a workaround. The cancellation logs are a hypothesis, not proof of the cause.
+- [Experiment report](compatibility/2026-10-17-full-copy-experiment.md): final scope, selected results, timings and historical broader attempts. Its old all-storage resume instructions are explicitly superseded.
+- `artifacts/android-s21-camera-screenshot-copy-scope-2026-10-18.json`: filtered inventory/completion counts and local length verification.
+- Copies and flushed journals are under ignored `artifacts/android-s21-full-copy-*/` directories. Journal entries map each source path to its saved destination.
+- Throwaway harness: `artifacts/full-copy-experiment/Program.cs.txt`, built with zero warnings/errors. It now allows only the three canonical roots above. The proposed ID-based lookup optimization was never run and was reverted. Cooperative `STOP`-file support exists between files but was not physically tested.
+- App-cache attempts encountered generic GetStream failures, source-ID mismatches and missing paths. Some missing-path errors coincided with later discovery finding no phone. They do not invalidate successful Camera/screenshot copying, and their causes are not established.
+- [Specification section 8](specs.md#8-media-scope-and-output-behavior) records the source clarification. An image extension alone does not establish eligibility. Folder scope must be explicit, not the entire Pictures tree or whole storage.
 
-## User requirements and workflow
+## Product implementation and remaining decisions
 
-- Workspace `C:\Projects\PhotoImport`; current checkout, branch `feat/metadata-probe`. Preserve it; no merge or push requested.
-- Use Markdown tracking, **not Beads**. Use Superpowers; ignore Ponytail. Native implementation and one final independent review were selected. Do not restart completed design/plan gates.
-- Actual manually completed import cutoff: **2026-09-03**. Exclude that entire recorded capture day and earlier days. `2026-10-10` in old examples was only a diagnostic cutoff.
-- Capture calendar day is sufficient; do not convert to PC timezone or infer dates from filenames/modification times. Preserve unknown/ambiguous evidence.
-- Android: Samsung Galaxy S21 SM-G991B, friendly name `Eugene's S21`, normal USB File transfer. No ADB/USB debugging or phone app. iPhone deferred.
-- The user authorized Camera-only bounded inspection with a maximum of 3,601 attempts and 256 KiB application reads per attempt. Smaller Camera controls fit that scope. Driver read-ahead is not bounded/measured. No automatic retries/reconnects, full-file fallback, photo saves or phone/import-state changes.
-- A historical approval allowed one full JPEG access test. Subsequently the user explicitly authorized the all-photo full-copy experiment, including other exposed storage; see the linked report. Production preview remains bounded.
-- `C:\Projects\photo-sort` was inspected read-only: it already uses MetadataExtractor on local files. Do not run its sorter; it can move/delete files and contains unrelated user changes.
+Branch `feat/metadata-probe`, current checkout. No merge or push requested. Product code was not changed by the copy experiment.
 
-## Completed code
+- MediaDevices 2.0.0 / MetadataExtractor 2.9.3 / .NET 10 Windows.
+- `probe`: metadata-only. `exif`: bounded explicit JPEG/HEIC/HEIF/DNG diagnostic. `plan`: offline date selection. `preview`: explicit roots, bounded capture attempts, partial evidence reports. No production importer or checkpoint persistence yet.
+- Last product verification: **260/260 Release tests**, zero build warnings/errors after `369e185`. Later experiment changes are ignored harness/documentation work, not a USB-stability guarantee from tests.
+- Bounded prefix-reading Camera previews previously failed after 6–25 successful reads. Full Camera streaming subsequently succeeded for all 3,601 inventoried files. The partial-read pattern remains a hypothesis for earlier failures, not a proven cause or implemented fix. Do not silently drain full streams inside the bounded product preview.
+- Future product selection must honor the clarified camera/screenshot roots. A production move to full copies/local EXIF parsing needs an explicit behavior decision and the selected Superpowers workflow; the experiment does not implement it.
+- Capture **day** is sufficient. Actual completed import cutoff: **2026-09-03**, excluding that whole day and earlier days. Do not infer capture dates from filenames or modification times.
+- iPhone is deferred. Counts/format-wide coverage and unresolved metadata remain acceptance limits. See [Samsung assessment](compatibility/android-samsung-sm-g991b.md) and [work status](work-status.md).
 
-- MediaDevices 2.0.0 / MetadataExtractor 2.9.3, .NET 10 Windows CLI.
-- `probe`: metadata-only. `exif`: 1–3 explicit JPEG/HEIC/HEIF/DNG paths, bounded reads and schema-2 source provenance.
-- `plan`: offline JSON preview with strict parsing, source association and completed/tracked same-day boundaries. No device provider or import-state writes.
-- `preview`: explicit disjoint folder roots, required attempt limit, scoped inventory, bounded capture collection, saved inventory/capture/preview/run reports. Unknown/unsupported/unread rows stay unresolved.
-- Independent live-preview review found two Important issues, both fixed in `182108f`: shared-object-ID case aliases must remain visible/unopened; late flush/close failures must correct owned report statuses. No second review. Detailed rulings are in `docs/work-status.md`.
-- Hardware exposed missing terminal-error classifications. `369e185` adds timeout `0x80070079`, device failure `0x8007001F`, unreachable `0x80070141`, shutdown `0x802A0002` alongside existing removal codes. Native HRESULT or exact package diagnostic prefix only; preserve ordinary file errors and code-like filename text. Physical retry verified it stops at the first terminal failure, with earlier results retained.
-- Last code verification: **260/260 Release tests**, build **0 warnings/errors** after `369e185`. Subsequent changes are documentation only. Do not claim that tests prove USB stability.
+## Workflow constraints
 
-## Physical evidence
+Use Superpowers; ignore Ponytail. Use Markdown tracking, not Beads. Preserve current checkout/feature branch, native execution and one final independent review for product increments. Do not restart prior completed design gates. The full-copy experiment was explicitly authorized; no further cache work is wanted.
 
-All paths below are relative to the repository and Git-ignored. Keep raw reports; do not overwrite them. No phone test remains running.
-
-| Evidence | Result |
-| --- | --- |
-| `artifacts/android-s21-camera-pictures-metadata.json` | Scoped metadata inventory: DCIM/Pictures 3,909 images; Camera 3,601. Package can suppress native enumeration errors. |
-| `artifacts/android-s21-day-validation.json` | Product JPEG/HEIC/DNG day samples succeeded and match user-confirmed Gallery days. HEIC maker-note warnings do not discard its valid day. |
-| `artifacts/android-s21-camera-live-preview-connected/` | Camera/max3: 3,601 inventory rows, three valid days, 28,669 application bytes; expected incomplete preview. |
-| `artifacts/android-s21-camera-complete-preview/` | First full attempt: six valid days, 107,982 bytes. Old adapter continued to 3,601 attempts after transport failure; 3,595 unresolved, exit4. |
-| `artifacts/android-s21-camera-complete-preview-retry/` | Corrected adapter: 25 valid days, 430,731 bytes; attempt 26 timed out; exit3 and no later opens. Inventory60.352 s, capture116.242 s including63.877 s timeout. |
-| `artifacts/android-s21-camera-awake-100/` | User said screen would stay awake. First GetStream unreachable, zero content bytes, exit3; inventory still completed. |
-| `artifacts/android-s21-single-camera-control-2026-10-17.json` | Initial standalone control found no phone; zero attempts/bytes. |
-| `artifacts/android-s21-single-camera-control-connected-2026-10-17.json` | After readiness confirmation: `20171027_130322.jpg` day2017-10-27, 474 bytes, exit0; total20.211 s. No folder inventory. |
-| `artifacts/android-s21-single-camera-reopen-2026-10-17.json` | Same photo, second standalone process: 474 bytes, same day, exit0; total1.955 s. |
-| `artifacts/android-s21-camera-awake-100-control-2026-10-17/` | Latest inventory-plus-capture batch: inventory 3,601 in 48.217 s; nine available days, 175,658 bytes; attempt 10 (`20171105_215534.jpg`) timed out after63.214 s. Capture80.518 s, exit3; 3,592 unresolved. |
-
-All observed dates in these early sorted Camera batches are older than the actual cutoff. **Zero eligible is not a usable full-library result**: newer files have not been assessed. The failing file changes between runs; previously failed files have succeeded later. This does not support one consistently corrupt file as the explanation.
-
-The user confirmed screen locking during an earlier run. Later screen-awake checks still failed, so lock behavior does not fully explain or resolve the issue. Do not ask for another full scan merely because the screen is awake.
-
-## Driver/source investigation
-
-- A read-only PnP query reported the S21 WPD device present/Status OK after the awake failure. Device recognition does not prove resource-stream access.
-- Existing MTP operational logging was enabled; DriverFrameworks operational logging was disabled. Neither configuration was changed.
-- The earlier 25-success retry window contains exactly 25 event1004 cancellations of operation `0x1009`, followed by event1008 communication failure. Microsoft identifies `0x1009` as GetObject: [command reference](https://learn.microsoft.com/en-us/windows-hardware/drivers/image/ptp-required-commands). Cancelling a deliberately bounded read may be normal; the correlation is not causation.
-- Upstream tagged [StreamWrapper](https://github.com/Bassman2/MediaDevices/blob/2.0.0/Src/MediaDevicesShare/Internal/StreamWrapper.cs) releases its COM stream on Dispose. [Item.OpenRead](https://github.com/Bassman2/MediaDevices/blob/2.0.0/Src/MediaDevicesShare/Internal/Item.cs) obtains the default resource stream and includes GC/finalizer handling before GetStream. Our wrapper/handle also disposes. No missing application disposal or proven fix was identified.
-- Upstream [issue417](https://github.com/Bassman2/MediaDevices/issues/417) reported a related stream-release/resource-busy regression in a 2.0 preview. The maintainer fixed it before stable2.0.0, and a reporter confirmed stable2.0.0 fixed their case. Its `0x800700AA` symptom is not our timeout/unreachable reproduction. Do not treat it as proof, blindly downgrade, or reapply its fix.
-- SDK `MediaFileInfo.Refresh()` exists, but no caching/performance change has been implemented or validated. Avoid mixing optimization with transport diagnosis.
-
-## References and remaining work
-
-- Full chronology/evidence: [Samsung assessment](compatibility/android-samsung-sm-g991b.md).
-- Durable tracking and review rulings: [work status](work-status.md).
-- Approved design/plan: `docs/superpowers/specs/2026-10-16-scoped-live-preview-design.md`, `docs/superpowers/plans/2026-10-16-scoped-live-preview.md` — implementation complete; do not redo it.
-- Remaining: reproduce/isolate sustained stream failure, get a complete usable Camera preview, independently compare other-folder coverage and settle unresolved formats. PNG/TIFF remain unsupported/unresolved. Enrollment, importer, state persistence, retry journal and iPhone work are not implemented.
-- Current authorization does not permit changing Windows drivers/services, installing a phone app, enabling debugging, sending upstream messages, full media reads or broadening content scope. No such actions have been taken.
+`C:\Projects\photo-sort` was inspected read-only and already uses MetadataExtractor on local files. Do not run its sorter: it can move/delete files and has unrelated user changes. The S21 uses ordinary USB File transfer; no ADB, phone app or USB debugging. No hardware request is needed until a specific new validation is justified.

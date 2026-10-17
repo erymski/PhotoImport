@@ -1,5 +1,23 @@
 # Android full-copy experiment — interrupted 2026-10-17
 
+## Final scope correction — 2026-10-18
+
+The user clarified that only camera captures and screenshots matter. **App caches/assets, stickers, game images, and downloaded/shared images are excluded. Stop their diagnostics; do not resume the broad remaining-storage copy.** The relevant saved-inventory still images are already copied:
+
+| Selected root | Inventoried/copied | Saved bytes | Local length mismatches |
+| --- | ---: | ---: | ---: |
+| `DCIM/Camera` | 3,601 / 3,601 | 12,440,778,898 | 0 |
+| `DCIM/Screenshots` | 83 / 83 | 40,947,365 | 0 |
+| `Samsung/Pictures/Camera Roll` | 340 / 340 | 1,045,742,521 | 0 |
+
+**The still-image copy experiment is complete for these selected roots.** Camera took1h3m34s in one connection. Other roots were copied in later phases; do not invent one continuous combined time. Verification is EOF and reported/saved lengths, not phone-side hashes or a refreshed physical-library census. Videos were not copied. Filtered local evidence: `artifacts/android-s21-camera-screenshot-copy-scope-2026-10-18.json`.
+
+No test remains running. Existing unrelated artifact copies are retained without deletion and excluded from the selected results. The throwaway harness now allows only those three canonical roots. The proposed ID-based lookup optimization was never run and has been reverted; production code is unchanged.
+
+Historical additional runs: `android-s21-full-copy-remaining-connected-2026-10-17` completed3,033 files before a source-association mismatch; `android-s21-full-copy-final-pass-2026-10-17` completedzero and recordedfour changed IDs plus one app-cache read failure; `android-s21-full-copy-final-remaining-2026-10-18` completed14 and recordedapp-cache failures plus a later missing Telegram cache path. Those out-of-scope failures do not invalidate the successful Camera/screenshot copies. The harness was adjusted to recognize library-wrapped per-file errors separately from terminal session and local output errors; this remains experimental, not a production fix.
+
+**The remaining sections are history. Their suggestions to finish all-storage/app-cache copying are superseded by this source clarification.**
+
 The user explicitly requested copying all photos and measuring the time, then requested interruption and a saved handoff. Complete local copies are authorized for this experiment, superseding its former prefix-only restrictions. No phone files or import/checkpoint state were changed.
 
 ## Latest result — evening continuation

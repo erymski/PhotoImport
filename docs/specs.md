@@ -49,7 +49,7 @@ phone-photo-sync probe --device <device-id-or-alias> --output metadata.json
 The probe must:
 1. Enumerate connected portable devices and display friendly name, manufacturer, model, transport, and all available device identifiers.
 2. Open the selected device in read-only mode.
-3. Enumerate photographs recursively in accessible camera/photo folders, including Android `DCIM` and `Pictures` where present.
+3. Enumerate photographs recursively in explicitly selected camera/screenshot roots, such as Android `DCIM/Camera` and `DCIM/Screenshots`. Do not use whole-storage or entire `Pictures` traversal as the import selection policy; see the source clarification in section 8.
 4. For each object, inspect **metadata only**: source path, filename, byte size, media type/format, WPD object ID, date authored, date created, date modified, and any available PTP capture date.
 5. Preserve raw timestamp values and report whether timezone/offset information is present.
 6. Display a concise table and, optionally, export JSON. Clearly mark missing fields.
@@ -204,6 +204,8 @@ A `boundaryKey` is a best-effort fingerprint made from the registered device ID,
 A photo **added to the phone later but carrying a capture time earlier than the checkpoint will be skipped**. This deliberately matches the existing manual workflow. It is not possible to solve that case reliably with a timestamp-only checkpoint; an import-history database or a deliberate lookback policy would be needed.
 
 ## 8. Media scope and output behavior
+
+**Source clarification from the user (2026-10-18):** select camera captures and screenshots only. An image extension does not make an app cache, sticker, game asset, or downloaded/shared image eligible. Use explicitly selected camera/screenshot roots; do not scan the whole storage, Android app directories, or the entire Pictures tree as normal import sources. Current S21 roots are `DCIM/Camera`, `DCIM/Screenshots`, and the older `Samsung/Pictures/Camera Roll`. This origin restriction also applies to camera videos if video import is added; this experiment copied still images only, and the existing version-1 video exclusion remains in place. Broad earlier diagnostic inventories are evidence, not the import selection policy.
 
 - Version 1 targets still-image files: `.jpg`, `.jpeg`, `.heic`, `.heif`, `.png`, `.dng`, `.tif`, `.tiff`, subject to what phase 1 proves is available. Extensions are matched case-insensitively and cross-checked with the reported media format when possible.
 - Search all configured photo roots recursively; do not assume the Android camera folder is the only source.
