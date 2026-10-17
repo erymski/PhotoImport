@@ -1,5 +1,9 @@
 # Work status
 
+## Independent day comparison complete — 2026-10-18
+
+User confirmed the camera-video day (9 September2026) and ICC-warning screenshot day (18 January2022) in Gallery/details. The sample validation spike is complete; general video timezone support is not established. Next proposed bounded correction: ICC errors become day-resolution warnings while EXIF validity/ambiguity/missing checks remain strict, with behavioral regressions and offline83-screenshot replay. No product implementation or additional hardware reads yet.
+
 ## Video/screenshot validation — 2026-10-18
 
 Approved spike executed. Camera-only inventory found14 videos; one MP4 (4,016,530 bytes) copied fully, lengths verified,0.298s transfer/123.382s inventory. Embedded movie-header day candidate2026-09-09; unsupported Samsung UTC-offset metadata leaves general local-day handling unresolved. All83 saved screenshots inspected locally:81 EXIF day candidates, two missing. Current resolver unnecessarily rejects18 dated screenshots for an unrelated ICC-profile error; proposed correction awaits its own design approval/tests. Gallery comparison pending for the video and one ICC-warning screenshot. No new product/state changes and no process running. See [validation evidence](compatibility/2026-10-18-video-and-screenshot-validation.md). Next: resolve these policies before importer design/implementation; do not repeat the bulk still-image test.
