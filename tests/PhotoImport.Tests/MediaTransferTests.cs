@@ -93,4 +93,31 @@ public class MediaTransferTests
         }
         finally{Directory.Delete(link,false);}
     }
+    [Fact] public void StagingCannotBeReplacedWhileUsbOpenIsPending()
+    {
+        using var f=new ImportFixture();var session=Session(f);var d=Device(session.Files[0].Candidate);
+        var staging=Path.GetDirectoryName(session.Files[0].PartialPath)!;
+        var outside=Path.Combine(f.Root,"outside");Directory.CreateDirectory(outside);
+        var replaced=false;
+        d.OnOpen=path=>
+        {
+            try
+            {
+                Directory.Move(staging,staging+"-old");
+                var start=new System.Diagnostics.ProcessStartInfo("cmd.exe"){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true};
+                foreach(var arg in new[]{"/c","mklink","/J",staging,outside})start.ArgumentList.Add(arg);
+                using var process=System.Diagnostics.Process.Start(start)!;process.WaitForExit();
+                if(process.ExitCode!=0)throw new InvalidOperationException("Junction creation failed");
+                replaced=true;
+            }
+            catch(IOException){ /* A held staging directory must deny replacement. */ }
+            return new(new(path,3,null),new MemoryStream([1,2,3]));
+        };
+        try
+        {
+            var error=Record.Exception(()=>new MediaTransfer().Copy(d,session,session.Files[0],_=>{},default));
+            Assert.Empty(Directory.GetFiles(outside));Assert.False(replaced);Assert.Null(error);
+        }
+        finally{if(replaced)Directory.Delete(staging,false);}
+    }
 }

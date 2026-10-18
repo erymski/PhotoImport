@@ -5,6 +5,8 @@
 **Transport:** USB  
 **Primary integration:** Windows Portable Devices (WPD), initially via MediaDevices 2.x
 
+**Current Android importer contract (2026-10-18):** the [approved repeatable filename-day design](superpowers/specs/2026-10-18-filename-importer-design.md) supersedes the older EXIF/timestamp-based configuration, selection and synchronization examples in sections5–7 and the embedded-date acceptance requirements in section8. It implements `init`, automatic normal launch/`sync`, metadata-only `sync --dry-run`, offline `status`, scoped photo/video full copies, journal retries and day/boundary JSON progress. Existing diagnostic contracts are independent. See [README](../README.md) for implemented usage; production hardware registration/acceptance is still pending and iPhone importing is deferred.
+
 ## 1. Purpose
 
 Build a small, reliable Windows command-line tool that imports only new camera photographs, camera-recorded videos and screenshots from a connected Android phone or iPhone. The tool replaces the first three steps of the existing workflow: downloading all phone media, checking the previous import cutoff, and deleting older downloads. Organizing the imported media in Picasa remains a manual step.

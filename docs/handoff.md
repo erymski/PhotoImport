@@ -1,5 +1,17 @@
 # Handoff — 2026-10-18
 
+## Filename importer implemented — next is real registration
+
+The approved repeatable Android filename-day importer is implemented on `feat/metadata-probe`: `init`, normal no-argument launch/`sync`, `sync --dry-run`, and offline `status`. It registers phone identity/destination/roots/initial cutoff, selects filename days, copies full photo/video streams without overwriting, resumes using length/SHA-256 journal evidence, and commits tracked-day JSON progress only after success. Existing diagnostic contracts remain intact. See [usage](../README.md) and [hardware acceptance procedure](compatibility/filename-importer-validation.md).
+
+**Final verification:336/336 Release tests pass; full Release build0 warnings/errors; help smoke check and `git diff --check` pass.** No phone reads, actual registration, real destination copies or `%LOCALAPPDATA%` state writes were performed during implementation. Prior successful126-file throwaway USB trial remains feasibility evidence, not product hardware acceptance. The next missing input is the user's actual existing destination folder. Preserve cutoff2026-09-03 and approved S21 camera/screenshot roots; then perform deliberately scoped registration/reconnect/dry-run acceptance, with copy scope separately selected.
+
+One independent review covered the complete importer increment; two Important findings fixed in one pass, each reproduced RED then verified GREEN: (1) hold validated ordinary Windows directory handles denying rename/delete throughout USB-open/copy/finalization to prevent staging-junction replacement; (2) preserve a matching existing archive on recovery and reject conflicting history, rather than overwriting the original outcome report. No second independent review was performed.
+
+Deferred minor review findings: archived `Finished` timestamps are captured before final timing update; dry-run proposed names do not reserve duplicate basenames within a plan (real sync does); ignored nonmedia entries have no aggregate count. These affect reporting, not copy selection/no-overwrite/checkpoint safety. Keep them visible for follow-up. Reviewer did not run hardware or destructive power-loss tests; those remain separate. Same-path/same-size replacement, older late additions and iPhone support retain the documented limitations.
+
+Native implementation/current checkout preserved. Work is committed locally; no merge/push requested. The older design-stage paragraphs below are historical and superseded by this result.
+
 ## Importer design ready for review
 
 **Latest:** user approved the written design after commit13a3e7a. [Implementation plan](superpowers/plans/2026-10-18-filename-importer.md) is written and self-reviewed, with8 tested increments covering selection, scope/identity, content capability, JSON state, full transfer, recovery/checkpoint commit, CLI and final verification/review. Written-plan review is pending; native execution/current checkout remain selected. No product code or hardware/state changes during planning. After approval use executing-plans/TDD, begin with baseline verification and Task1. The paragraph below records the prior design-review stage.

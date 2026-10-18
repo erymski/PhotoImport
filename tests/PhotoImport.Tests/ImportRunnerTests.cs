@@ -55,6 +55,20 @@ public class ImportRunnerTests
 }
 public class ImportCommitRecoveryTests
 {
+    [Fact] public void HistoryWriteBeforePendingDeletionPreservesOriginalReportOnRetry()
+    {
+        using var f=new ImportFixture();var normal=new ImportStateStore(f.State);var provider=ImportRunnerTests.Setup(f,normal);
+        var broken=new ImportStateStore(f.State,p=>
+        {
+            if(p==ImportWritePoint.AfterJournalReplace&&Directory.Exists(Path.Combine(f.State,"history"))&&Directory.GetFiles(Path.Combine(f.State,"history")).Length>0)
+                throw new IOException("interrupted after history write");
+        });
+        var first=new ImportRunner(broken,new()).Run(provider,null,default);
+        Assert.True(first.CheckpointCommitted);Assert.Equal(5,first.ExitCode);
+        var archive=Directory.GetFiles(Path.Combine(f.State,"history")).Single();var original=File.ReadAllText(archive);
+        Assert.Equal(0,new ImportRunner(normal,new()).Run(provider,null,default).ExitCode);
+        Assert.Equal(original,File.ReadAllText(archive));Assert.Single(provider.Device.Opened);
+    }
     [Theory][InlineData(ImportWritePoint.AfterConfigReplace)][InlineData(ImportWritePoint.BeforeArchive)]
     public void ConfigAlreadyCommitted_ArchivesWithoutOpeningContent(ImportWritePoint point)
     {

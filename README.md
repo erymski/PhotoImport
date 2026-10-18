@@ -1,8 +1,39 @@
 # PhonePhotoSync
 
-Windows 10/11, .NET 10 CLI for investigating USB phone photo metadata before implementing capture-date-based imports. Uses the MediaDevices 2.0.0 NuGet package.
+Windows 10/11, .NET 10 CLI to import new Android camera photos, videos and screenshots over USB using filename dates. Uses MediaDevices 2.0.0. Existing metadata/EXIF diagnostic commands remain available.
 
-Milestone 1's diagnostic CLI is implemented. Samsung S21 WPD properties exposed no authored capture dates in the original partial inventory. Optional bounded EXIF reads and Gallery comparisons verified sample JPEG/HEIC/DNG capture days. A metadata-only run completed DCIM/Pictures through the API (3,909 images), and a separately approved full JPEG resource read passed byte-count, EXIF, and dimension checks. Other-folder counts and unresolved formats remain open; the backend is not yet accepted for synchronization. iPhone validation is deferred. No synchronization commands are implemented yet.
+Connect and unlock the Android phone, select **Transferring files**, and keep it awake. Configure once with your phone name, an existing destination directory and the last day already imported. For the S21, the completed initial day is2026-09-03. Replace the example destination with your real folder:
+
+```powershell
+dotnet bin\Release\net10.0-windows\phone-photo-sync.dll init --device "Eugene's S21" --alias S21 --destination "D:\Photos\Incoming" --cutoff-day 2026-09-03 --root "\Internal storage\DCIM\Camera" --root "\Internal storage\DCIM\Screenshots" --root "\Internal storage\Samsung\Pictures\Camera Roll"
+```
+
+Then run the utility normally:
+
+```powershell
+dotnet bin\Release\net10.0-windows\phone-photo-sync.dll
+# Optional preview and saved progress:
+dotnet bin\Release\net10.0-windows\phone-photo-sync.dll sync --dry-run
+dotnet bin\Release\net10.0-windows\phone-photo-sync.dll status
+```
+
+Normal launch detects the uniquely matching registered phone, reads its JSON progress, copies eligible full files without overwriting existing files, and updates the checkpoint only after successful copying. Use `sync --device S21` if multiple registered phones are connected. Registration uses serial/manufacturer/model when available, otherwise an exact device ID; a changed/missing identity stops automatic matching. Friendly names alone never choose a saved checkpoint. `init` adds registrations and never resets an existing one.
+
+Dates come from recognized `YYYYMMDD...`, `Screenshot_YYYYMMDD...`, or `WP_YYYYMMDD...` filenames. Invalid/unknown names are skipped and listed. No EXIF or modification-time fallback is used for importing. The initial cutoff excludes that entire day; later checkpoints track already imported files on the newest day so additional same-day media can be copied. Late-added files with older dates remain excluded, and organizing/deleting old PC copies never triggers a fresh import. Folder scope determines camera/screenshot origin: manually placing unrelated dated media there also makes it eligible. iPhone importing is deferred.
+
+Dry run lists selected files, proposed destination names and estimated bytes using metadata (filenames, paths, sizes, identifiers), with no photo/video content reads or destination/state writes. Pending-file hash reuse is verified only during a real sync. Collision names may change if the destination changes afterward.
+
+Settings, checkpoints and recovery journals are under `%LOCALAPPDATA%\PhonePhotoSync\`; `status` reads them without accessing USB. A failed/interrupted copy keeps its pending journal and verified completed files. Reconnect and rerun to resume; incomplete files restart from byte zero. Existing unrelated outputs are preserved with collision suffixes. Source/settings conflicts require inspection of the reported journal location; do not delete journals merely to clear an error. Temporary media stays in `.phone-photo-sync` under the destination. Never point this directory at unrelated files or manually edit its contents during a run. Free space must cover remaining selected bytes plus a2GiB reserve.
+
+Checkpoint replacement is atomic and keeps the prior valid configuration as `config.json.bak`; malformed state is rejected rather than silently restored/reset. If progress commits but final archival fails, the CLI explicitly reports that commitment; rerun to finish recovery. Exit codes:0 success (including reported filename skips),2 arguments/configuration,3 device/identity/root,4 incomplete evidence/transfer,5 local I/O/state,130 cancellation before commitment. A synchronous native USB request may delay cancellation.
+
+Implementation is covered by336passing fake-device/filesystem/diagnostic tests; real production registration/reconnect validation remains separate. The prior throwaway filename trial copied126files (116photos/screenshots,10videos),903MiB in2m7s plus24s metadata inventory. It did not create importer state. Full transfer checks compare reported/received/local lengths; local recovery SHA-256 is not a phone-side hash or proof of original-asset identity. MediaDevices can suppress native enumeration errors, so API completion does not prove a physical census. See the [acceptance procedure](docs/compatibility/filename-importer-validation.md).
+
+Known reporting limitations: archived completion timestamps currently reflect early report construction; dry run can propose the same basename for multiple planned files, while real copying reserves distinct names; ignored nonmedia files have no aggregate count. These are tracked in the handoff.
+
+## Diagnostic commands and earlier evidence
+
+Samsung S21 WPD metadata exposed no authored capture dates. Optional EXIF diagnostics and Gallery comparisons verified sample JPEG/HEIC/DNG days. Those diagnostics retain their original provenance/limits independently of the filename importer.
 
 Camera's 3,615 total files match the user's count: 3,599 JPG, 2 DNG, and 14 MP4 by extension. The bounded product diagnostic returned capture days for one HEIC and DNG each, both confirmed against Gallery. HEIC retains unrelated maker-note errors; PNG remains unresolved. Sample agreement does not prove format-wide support.
 
@@ -38,9 +69,9 @@ dotnet bin\Release\net10.0-windows\phone-photo-sync.dll plan --inventory example
 
 The first selects only the 11 October example (200 bytes). A manual cutoff means everything through that day was already imported. The second uses an empty tracked boundary, selecting both examples (300 bytes); keys recorded by a future importer would exclude already imported files on that same day while allowing new ones. Older-day late additions remain excluded. Removing PC copies never changes selection.
 
-Repeat `--capture-report` for additional saved samples and optionally add `--output <new.json>`. Every inventory row gets an eligible/older/alreadyImported/unresolved decision. Source device, canonical path, known size and available persistent IDs must agree; legacy reports, missing/invalid dates, unsupported formats, changed sources and partial inventories produce an incomplete preview, not a guessed result. Metadata fingerprints are not photo hashes, and snapshots do not revalidate the current phone. No device provider is constructed, destination files inspected, photos copied, or checkpoint/configuration files written. This preview is not accepted by an importer; enrollment, state persistence and importing remain future work.
+Repeat `--capture-report` for additional saved samples and optionally add `--output <new.json>`. Every inventory row gets an eligible/older/alreadyImported/unresolved decision. Source device, canonical path, known size and available persistent IDs must agree; legacy reports, missing/invalid dates, unsupported formats, changed sources and partial inventories produce an incomplete preview, not a guessed result. Metadata fingerprints are not photo hashes, and snapshots do not revalidate the current phone. No device provider is constructed, destination files inspected, photos copied, or checkpoint/configuration files written. This EXIF-evidence preview is separate from filename-day importing; the importer uses its registered settings and its own filename plan.
 
-For `plan`, exit 0 means complete preview, 2 malformed/mismatched input, 4 incomplete/unresolved evidence, 5 local I/O failure, and 130 cancellation. Existing reports/inputs are never overwritten.
+For `plan`, exit 0 means complete preview, 2 malformed/mismatched input, 4 incomplete/unresolved evidence, 5 local I/O failure, and 130 cancellation. Existing reports/inputs are never overwritten. Its offline checkpoint/report format is separate from importer configuration and is never silently migrated.
 
 The live `preview` command inventories explicitly chosen device folders recursively, then attempts bounded capture-day reads in canonical path order. Both the folder and the attempt limit are required:
 

@@ -47,7 +47,13 @@ public sealed class ImportStateStore(string stateDirectory,Action<ImportWritePoi
         Require(true);fault?.Invoke(ImportWritePoint.BeforeArchive);
         var history=Path.Combine(DirectoryPath,"history");Directory.CreateDirectory(history);
         var archive=Path.Combine(history,pending.SessionId.ToString("N")+".json");
-        Write(archive,new{session=pending,result},false);
+        if(File.Exists(archive))
+        {
+            var existing=Read<ImportArchive>(archive);
+            if(existing.Session is null||existing.Result is null||!ImportRunner.Same(existing.Session,pending))
+                throw new IOException("Existing history conflicts with the pending session; original history was preserved.");
+        }
+        else Write(archive,new ImportArchive(pending,result),false,replace:false);
         File.Delete(PendingPath(pending.Registration.Id));
     }
     public static void Validate(ImportConfiguration config)
@@ -93,7 +99,8 @@ public sealed class ImportStateStore(string stateDirectory,Action<ImportWritePoi
         try{return JsonSerializer.Deserialize<T>(File.ReadAllText(path),Json)??throw new ImportException("Empty importer JSON.");}
         catch(JsonException ex){throw new ImportException("Malformed importer JSON: "+path,2,ex);}
     }
-    private void Write<T>(string path,T value,bool config)
+    private sealed record ImportArchive(PendingImport Session,ImportRunResult Result);
+    private void Write<T>(string path,T value,bool config,bool replace=true)
     {
         var temp=path+"."+Guid.NewGuid().ToString("N")+".tmp";
         try
@@ -101,7 +108,8 @@ public sealed class ImportStateStore(string stateDirectory,Action<ImportWritePoi
             using(var stream=new FileStream(temp,FileMode.CreateNew,FileAccess.Write,FileShare.None))
             {JsonSerializer.Serialize(stream,value,Json);stream.Flush(true);}
             fault?.Invoke(config?ImportWritePoint.BeforeConfigReplace:ImportWritePoint.BeforeJournalReplace);
-            if(File.Exists(path))File.Replace(temp,path,config?path+".bak":null);
+            if(!replace)File.Move(temp,path,false);
+            else if(File.Exists(path))File.Replace(temp,path,config?path+".bak":null);
             else File.Move(temp,path,false);
             fault?.Invoke(config?ImportWritePoint.AfterConfigReplace:ImportWritePoint.AfterJournalReplace);
         }

@@ -1,6 +1,6 @@
 # Repeatable Android filename-day importer
 
-Date: 2026-10-18. Status: approved by the user after written review of commit13a3e7a; implementation plan review is next.
+Date: 2026-10-18. Status: design and plan approved; implementation complete with336passing Release tests and one final independent review/fix pass. Real registration/hardware acceptance remains separate. Three minor reporting gaps are tracked in `docs/handoff.md`.
 
 ## Intent and evidence
 

@@ -13,6 +13,7 @@ public sealed class MediaTransfer(Func<string,long>? freeBytes=null,Action<Trans
     {
         var destination=new ImportDestination(session.Registration.Destination);destination.ValidateOwnedPaths(session,file);
         if(file.Stage=="planned")return session;
+        using var lease=ImportDirectoryLease.Acquire(destination.Root,session.SessionId);
         if(Matches(file.FinalPath,file,token))
         {var recovered=Replace(session,file with {Stage="completed"});persist(recovered);return recovered;}
         if(file.Stage=="prepared"&&Matches(file.PartialPath,file,token))return Finalize(session,file,destination,persist,token);
@@ -32,7 +33,8 @@ public sealed class MediaTransfer(Func<string,long>? freeBytes=null,Action<Trans
     {
         token.ThrowIfCancellationRequested();var destination=new ImportDestination(session.Registration.Destination);
         destination.ValidateOwnedPaths(session,file);CheckSpace(destination.Root,checked((long)file.Candidate.Source.SizeBytes!.Value));
-        Directory.CreateDirectory(Path.GetDirectoryName(file.PartialPath)!);destination.ValidateOwnedPaths(session,file);
+        using var lease=ImportDirectoryLease.Acquire(destination.Root,session.SessionId);
+        destination.ValidateOwnedPaths(session,file);
         if(File.Exists(file.PartialPath))File.Delete(file.PartialPath); // validated journal-owned incomplete file only
         PhotoReadHandle handle;
         try{handle=device.OpenMediaRead(file.Candidate.Source.SourcePath,token);}

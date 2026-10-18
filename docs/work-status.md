@@ -1,5 +1,11 @@
 # Work status
 
+## Repeatable importer implemented — 2026-10-18
+
+Completed the approved implementation: scoped filename-day photo/video selection, registered identity, full streams, collision-safe output, locked JSON/checkpoints, prepared/completed/ready commit recovery and everyday CLI. Full Release verification336/336tests; build0warnings/errors; help/whitespace checks pass. One independent review, two Important fixes with failing/passing regressions: staging directory replacement during USB-open prevented by Windows handle leases; archival retry preserves original report. No second review, phone reads, real registration or import-state writes during implementation.
+
+Next: obtain actual existing destination, then deliberately scoped registration/reconnect/dry-run hardware acceptance. Initial S21 cutoff2026-09-03. [Usage](../README.md), [acceptance procedure](compatibility/filename-importer-validation.md). Deferred reporting minors: archive finish timestamp, duplicate-name dry-run proposals, ignored-nonmedia count. No merge/push requested.
+
 ## Repeatable filename-day importer design — 2026-10-18
 
 User approved the everyday workflow: connect/unlock/File transfer, launch, auto-detect registered phone, read JSON, copy new media, save progress. [Written design](superpowers/specs/2026-10-18-filename-importer-design.md) prepared and self-reviewed; covers setup/identity, filename selection, same-day boundaries, no-overwrite transfer, journal recovery and atomic checkpoint commits. No product changes or further hardware reads.
@@ -10,8 +16,8 @@ User approved the everyday workflow: connect/unlock/File transfer, launch, auto-
 - [x] Write and self-review architectural design.
 - [x] User review of the written design (approved after commit13a3e7a).
 - [x] Write/self-review [implementation plan](superpowers/plans/2026-10-18-filename-importer.md).
-- [ ] User review of the written implementation plan; native execution already selected.
-- [ ] Implement with behavioral tests, verify existing diagnostics, and perform one final independent review.
+- [x] User review of the written implementation plan; native execution preserved.
+- [x] Implement with behavioral tests, verify existing diagnostics, and perform one final independent review with one fix pass.
 
 ## Filename-selected copy experiment — 2026-10-18
 
