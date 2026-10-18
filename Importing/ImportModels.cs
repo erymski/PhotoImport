@@ -20,3 +20,22 @@ public class ImportException(string message, int exitCode = 2, Exception? inner 
 {
     public int ExitCode { get; } = exitCode;
 }
+public record PendingImportFile(ImportCandidate Candidate,string FinalPath,string PartialPath,string Stage="planned",long Length=0,string? Sha256=null);
+public record PendingImport(int SchemaVersion,Guid SessionId,ImportRegistration Registration,IReadOnlyList<PendingImportFile> Files,
+    string Stage="copying",ImportCheckpoint? NewCheckpoint=null);
+public record ImportRunResult
+{
+    public int ExitCode {get;init;}
+    public bool CheckpointCommitted {get;init;}
+    public int Copied {get;init;}
+    public int Reused {get;init;}
+    public long Bytes {get;init;}
+    public IReadOnlyList<ImportPlanRow> Rows {get;init;}=[];
+    public IReadOnlyList<string> Errors {get;init;}=[];
+    public IReadOnlyList<string> Warnings {get;init;}=[];
+    public ImportCheckpoint? OldCheckpoint {get;init;}
+    public ImportCheckpoint? NewCheckpoint {get;init;}
+    public DateTimeOffset Started {get;init;}=DateTimeOffset.UtcNow;
+    public DateTimeOffset Finished {get;init;}=DateTimeOffset.UtcNow;
+}
+public enum ImportWritePoint {BeforeConfigReplace,AfterConfigReplace,BeforeJournalReplace,AfterJournalReplace,BeforeArchive}
