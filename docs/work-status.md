@@ -1,5 +1,9 @@
 # Work status
 
+## Real registration and product dry run — 2026-10-18
+
+Registered S21 with user-selected `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`, serial identity, initial completed day2026-09-03 and three approved roots. Product dry run succeeded:130files (120photos/screenshots,10videos),947,962,157bytes,one unknown filename skipped. Status confirms unchanged cutoff/no pending; destination empty. Evidence `artifacts/s21-registered-dry-run-2026-10-18.txt`. No production media copied; first production sync awaits scope selection. No command running; registration need not be repeated.
+
 ## Repeatable importer implemented — 2026-10-18
 
 Completed the approved implementation: scoped filename-day photo/video selection, registered identity, full streams, collision-safe output, locked JSON/checkpoints, prepared/completed/ready commit recovery and everyday CLI. Full Release verification336/336tests; build0warnings/errors; help/whitespace checks pass. One independent review, two Important fixes with failing/passing regressions: staging directory replacement during USB-open prevented by Windows handle leases; archival retry preserves original report. No second review, phone reads, real registration or import-state writes during implementation.

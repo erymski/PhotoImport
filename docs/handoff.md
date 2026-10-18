@@ -1,5 +1,17 @@
 # Handoff — 2026-10-18
 
+## S21 registered; first production import awaiting selection
+
+Actual registration succeeded after the user connected/unlocked the S21. AliasS21, serial-based matching, destination `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`, completed-day cutoff2026-09-03, all three approved camera/screenshot roots. Settings exist at `%LOCALAPPDATA%\PhonePhotoSync\config.json`; do not print the enrolled serial unnecessarily or run init again/reset progress.
+
+Product `sync --dry-run` exited0: **130eligible files,120photos/screenshots +10videos,947,962,157bytes (904.05MiB)**. One unknown filename skipped: `Samsung/Pictures/Camera Roll/Office Lens_20160714_135129_processed(1).jpg`. Full console evidence saved under ignored `artifacts/s21-registered-dry-run-2026-10-18.txt`. Offline `status` confirms initial checkpoint unchanged and no pending session; destination verified empty. No content copied. Serial matching succeeded across discovery/open calls; physical unplug/replug after enrollment has not been tested. Backend traversal warning still applies.
+
+Next: the first production-copy scope is now concrete; ask whether to run normal sync for these130files into the selected destination. Registration/dry-run are complete and authorized; don't repeat readiness/registration gates. If user approves copying, use `dotnet bin\Release\net10.0-windows\phone-photo-sync.dll sync --device S21`, monitor flushed pending journal without exposing identity fields, and verify summary/local files/checkpoint afterward. No full-copy operation is currently running. The prior pending-connection paragraph below is historical.
+
+## Registration pending phone connection
+
+User supplied production destination: `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`. It did not exist; created it as requested. Registration attempted with aliasS21, cutoff2026-09-03 and all three approved camera/screenshot roots. No portable USB devices were visible, so registration did not complete. `%LOCALAPPDATA%\PhonePhotoSync\config.json` does not exist; no media copied. Connection-readiness question is pending. Next: retry `init` with that destination once S21 is connected/unlocked/File transfer, then offline `status` and metadata-only `sync --dry-run`. Actual destination/registration setup is now user authorized; no need to ask the destination again. Full production copying has not started.
+
 ## Filename importer implemented — next is real registration
 
 The approved repeatable Android filename-day importer is implemented on `feat/metadata-probe`: `init`, normal no-argument launch/`sync`, `sync --dry-run`, and offline `status`. It registers phone identity/destination/roots/initial cutoff, selects filename days, copies full photo/video streams without overwriting, resumes using length/SHA-256 journal evidence, and commits tracked-day JSON progress only after success. Existing diagnostic contracts remain intact. See [usage](../README.md) and [hardware acceptance procedure](compatibility/filename-importer-validation.md).
