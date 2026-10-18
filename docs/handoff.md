@@ -1,5 +1,17 @@
 # Handoff — 2026-10-18
 
+## First production import COMPLETE
+
+User explicitly approved first import. `sync --device S21` exited0 and copied **130files:120photos/screenshots +10videos,947,962,157bytes (904.05MiB)** to `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`; reused0. One unknown Office Lens filename was intentionally skipped. The checkpoint committed to **2026-10-18, tracked mode,4boundary keys**. Offline status confirms no pending session. Do not reset cutoff/re-register or repeat the original import to test it.
+
+Independent local post-copy verification checked every history entry: completed stage, expected destination, source-reported/received/local lengths and SHA-256 against saved journal evidence;130files/947,962,157bytes all match,0failures,0partials,0pending journals. This is local verification, not a phone-side hash comparison. Evidence: `artifacts/s21-first-product-import-console-2026-10-18.txt` and `artifacts/s21-first-product-import-verification-2026-10-18.json`. Production history/config remain under `%LOCALAPPDATA%\PhonePhotoSync`; don't publish enrolled identity unnecessarily. Known early archived-finish timestamp limitation means no exact product-run duration is claimed here.
+
+Normal future use is now configured: connect/unlock/File transfer, keep awake, launch `bin\Release\net10.0-windows\phone-photo-sync.exe` (or `dotnet ...\phone-photo-sync.dll`). It automatically matches S21, uses saved destination/progress and copies eligible media. Same-day additions with absent keys remain eligible; older late additions and unknown names retain policy limits. No command is running. No phone files were modified. The paragraphs below about running/pending production import are historical.
+
+## First production import running
+
+User approved the first actual import and said continue. Started `dotnet bin\Release\net10.0-windows\phone-photo-sync.dll sync --device S21` into the registered `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`. Pending journal currently has130selected files; early observation25completed/114,687,831bytes. Do not run a concurrent sync, reset init or change checkpoint. The exclusive importer lock is held; read-only direct journal inspection can show progress without exposing registered identity. Inspect the command outcome and local history/config before claiming completion. Actual production copying is now explicitly authorized. No stop requested.
+
 ## S21 registered; first production import awaiting selection
 
 Actual registration succeeded after the user connected/unlocked the S21. AliasS21, serial-based matching, destination `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`, completed-day cutoff2026-09-03, all three approved camera/screenshot roots. Settings exist at `%LOCALAPPDATA%\PhonePhotoSync\config.json`; do not print the enrolled serial unnecessarily or run init again/reset progress.

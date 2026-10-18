@@ -1,5 +1,11 @@
 # Filename importer hardware acceptance
 
+## First production copy result — 2026-10-18
+
+Following explicit user approval, product `sync --device S21` exited0:130files (120photos/screenshots +10videos),947,962,157bytes copied to the registered `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`; no reused transfers. The unknown Office Lens filename remained a visible intentional skip. State committed2026-10-18,tracked boundary with4keys; offline status shows pending none.
+
+Post-copy local verification independently checked all130saved files against the completed journal entries: destination containment, source-reported/received/local byte lengths and local SHA-256 all match. No failures, partial files or pending journals. This is not a phone-side content hash or original-asset identity proof. Evidence: `artifacts/s21-first-product-import-console-2026-10-18.txt`, `artifacts/s21-first-product-import-verification-2026-10-18.json`. Exact product-run elapsed time is not claimed because archived finish timing has the known reporting limitation. Post-enrollment physical unplug/replug, naturally interrupted production recovery and a subsequent real no-new-media run remain untested; fake-device/filesystem tests cover their logical transitions.
+
 ## Recorded registration/dry-run result — 2026-10-18
 
 User supplied `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`; created the missing directory, then registered aliasS21 with serial-based identity, completed cutoff2026-09-03 and all three approved roots after USB connection readiness. Product dry-run exited0:130eligible files (120photos/screenshots,10videos),947,962,157bytes; one unrecognized Office Lens filename skipped. Offline status afterward shows unchanged initial checkpoint and no pending journal; destination contains0items. No media content was copied. Evidence: `artifacts/s21-registered-dry-run-2026-10-18.txt`. Post-enrollment physical reconnect and actual product copying remain untested. No serial value is published here.

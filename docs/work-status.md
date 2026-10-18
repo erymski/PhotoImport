@@ -1,5 +1,9 @@
 # Work status
 
+## First production sync succeeded — 2026-10-18
+
+User-approved `sync --device S21` completed:130files (120photos/screenshots,10videos),947,962,157bytes copied into the selected `auto_s21` folder;0reused,one unknown filename skipped. Checkpoint committed2026-10-18/tracked/4boundary keys; no pending session. Verified all130local output lengths and SHA-256 against history,0failures/partials. No phone-side hash comparison or exact elapsed-time claim. Evidence in ignored `artifacts/s21-first-product-import-{console,verification}-2026-10-18.*`. Normal launch is configured for future use; no process running and no need to repeat setup. See [handoff](handoff.md).
+
 ## Real registration and product dry run — 2026-10-18
 
 Registered S21 with user-selected `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`, serial identity, initial completed day2026-09-03 and three approved roots. Product dry run succeeded:130files (120photos/screenshots,10videos),947,962,157bytes,one unknown filename skipped. Status confirms unchanged cutoff/no pending; destination empty. Evidence `artifacts/s21-registered-dry-run-2026-10-18.txt`. No production media copied; first production sync awaits scope selection. No command running; registration need not be repeated.
