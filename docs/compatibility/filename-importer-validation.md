@@ -1,5 +1,9 @@
 # Filename importer hardware acceptance
 
+## Repeat no-new-media production run — 2026-10-18
+
+User explicitly requested repeating sync. Product exited0:0copied,0reused,0bytes transferred,0photos selected,0videos selected; checkpoint unchanged. The single unknown Office Lens filename remained reported. No new files were transferred. This exercises normal saved-checkpoint selection on a subsequent real invocation. Post-enrollment physical reconnect and production interruption recovery remain untested.
+
 ## First production copy result — 2026-10-18
 
 Following explicit user approval, product `sync --device S21` exited0:130files (120photos/screenshots +10videos),947,962,157bytes copied to the registered `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`; no reused transfers. The unknown Office Lens filename remained a visible intentional skip. State committed2026-10-18,tracked boundary with4keys; offline status shows pending none.

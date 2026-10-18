@@ -1,5 +1,9 @@
 # Handoff — 2026-10-18
 
+## Repeat production sync verified
+
+User requested another real sync expecting files to be skipped. `sync --device S21` exited0: **0copied,0reused,0bytes transferred,0photos/videos selected; checkpoint unchanged**. The same unknown Office Lens filename remained a visible skip. This confirms the saved day/boundary checkpoint excludes the previously imported selection without opening media for recopying. No import is running.
+
 ## First production import COMPLETE
 
 User explicitly approved first import. `sync --device S21` exited0 and copied **130files:120photos/screenshots +10videos,947,962,157bytes (904.05MiB)** to `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`; reused0. One unknown Office Lens filename was intentionally skipped. The checkpoint committed to **2026-10-18, tracked mode,4boundary keys**. Offline status confirms no pending session. Do not reset cutoff/re-register or repeat the original import to test it.
