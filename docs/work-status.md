@@ -1,5 +1,21 @@
 # Work status
 
+## Repeatable filename-day importer design — 2026-10-18
+
+User approved the everyday workflow: connect/unlock/File transfer, launch, auto-detect registered phone, read JSON, copy new media, save progress. [Written design](superpowers/specs/2026-10-18-filename-importer-design.md) prepared and self-reviewed; covers setup/identity, filename selection, same-day boundaries, no-overwrite transfer, journal recovery and atomic checkpoint commits. No product changes or further hardware reads.
+
+- [x] Explore existing interfaces, checkpoint model and successful trial evidence.
+- [x] Present repeatable importer versus manual-cutoff approach; clarify metadata/dry-run and user workflow.
+- [x] User conversational approval of repeatable workflow.
+- [x] Write and self-review architectural design.
+- [ ] User review of the written design.
+- [ ] Write/self-review implementation plan and obtain written-plan review; native execution already selected.
+- [ ] Implement with behavioral tests, verify existing diagnostics, and perform one final independent review.
+
+## Filename-selected copy experiment — 2026-10-18
+
+**Live trial passed:** filename dates after2026-09-03 selected126files (116 photos/screenshots,10videos),946,969,983bytes. Full copies completed in127.249seconds; scoped metadata inventory took24.385seconds. All selected paths and local/reported/received lengths verified, no failures or partials.3913 older/cutoff entries and one unrecognized filename were skipped before opening content. Nine synthetic filename/calendar/cutoff checks and two excluded-root checks passed. Offline EXIF comparison found14day differences among4009comparable stills but zero different selections at this cutoff. No process remains running; no product/checkpoint/phone changes. See [trial evidence](compatibility/2026-10-18-filename-selection-trial.md). Next: scoped filename-first importer design with resume/collision/checkpoint behavior. Earlier EXIF-first/staging recommendations below are history; staging unknown-date files is not approved.
+
 ## ICC correction and two-file exclusion — 2026-10-18
 
 Implemented the bounded ICC-warning correction after the user-directed policy discussion. Filename fallback was considered, then omitted when the user said to skip the undated files. Five regressions failed first; all265 Release tests now pass. Offline replay:81 of83 screenshots resolve to EXIF days, two missing. The two legacy undated screenshots have an explicit exclusion manifest; no deletion or default drop-all-undated policy was added. No phone reads/import-state writes. One final independent review found no Critical/Important/Minor code issues; README warning-policy text was corrected, with no second review. See [evidence](compatibility/2026-10-18-video-and-screenshot-validation.md). Next work is importer design with camera photos/videos/screenshots only and explicit video-day policy.

@@ -1,5 +1,19 @@
 # Handoff — 2026-10-18
 
+## Importer design ready for review
+
+The user approved the connect/run/copy/save workflow after clarifying that metadata here means filename/path/size/identifiers, with dates parsed from filenames. Written design: [repeatable Android filename-day importer](superpowers/specs/2026-10-18-filename-importer-design.md). It includes one-time registration, automatic sync on normal launch, JSON per-device checkpoints, tracked boundary-day keys, metadata-only dry run, safe collision handling, full streams and crash-recoverable journal/checkpoint commit ordering. Self-review completed; written-design review is the next Superpowers gate. No implementation plan or product changes yet. Current checkout/native execution and one final independent product review remain selected. No phone reads or registration/state writes are needed for design/implementation.
+
+## Latest direction: filename-selected copying
+
+The user approved a filename-first copy experiment (“yep, let's try it”). This supersedes the earlier recommendation below to require local EXIF/date-cache staging before selecting downloads. Recognized, valid filename dates strictly after **2026-09-03** select camera photos/videos/screenshots; unknown names are reported and skipped. EXIF is optional after copying, not a prerequisite for this experiment. No production behavior or checkpoint changes are implemented.
+
+**Filename-selected copy trial PASSED:**126 files (116 photos/screenshots,10 videos),946,969,983bytes (903.10MiB), all copied fully in **127.249seconds (2m7s)**. Metadata enumeration:24.385seconds saved measurement,4,040entries,no reported errors. Separate local verification confirms exact selected-path coverage and all local/reported/received lengths, zero failures/partials. Evidence: `artifacts/android-s21-filename-copy-2026-10-18/{summary.json,events.jsonl,local-verification.json}`. Successful inventory: `artifacts/android-s21-filename-storage-check-2026-10-18.json`; selection: `artifacts/android-s21-filename-selection-live-2026-10-18/`. Nine filename/calendar/cutoff checks and two excluded-root checks also passed. See [trial details](compatibility/2026-10-18-filename-selection-trial.md). No process is running; no checkpoint or phone changes. Do not repeat this completed trial without a new question.
+
+Next: design/implement a scoped filename-first importer with durable resume/journal, no-overwrite destinations, and explicit checkpoint behavior. Unknown names are skipped/reported; staging unknown-date files was not approved. Existing metadata/EXIF diagnostic commands retain their contracts. The EXIF-first importer/staging proposals in historical sections below are superseded for selection by this direction. No phone reads are needed for the next implementation design.
+
+Saved EXIF comparison:4,009 comparable stills,14 filename/EXIF day differences, **zero different selection decisions for this cutoff**. Filename days are not universally identical to capture days; all observed differences here are old under both sources. No new media reads were needed for this comparison.
+
 ## Current result
 
 `CaptureDayResolver` now preserves valid EXIF days despite unrelated ICC-profile errors, retaining those errors as warnings. Missing, impossible, conflicting and corrupt EXIF dates remain unresolved. Five regressions failed before the correction; **265/265 Release tests pass**. Offline replay of all 83 saved screenshots resolves 81 dates. The user directed skipping the two remaining undated legacy screenshots; they are explicitly recorded in `artifacts/android-s21-undated-screenshot-exclusions-2026-10-18.json`. No files were deleted, no filename fallback was added, and this does not create a blanket policy to discard every undated file.
@@ -41,7 +55,7 @@ Branch `feat/metadata-probe`, current checkout. No merge or push requested. Prod
 - Last product verification: **265/265 Release tests** after the ICC-warning correction, plus the offline 83-screenshot replay. Tests do not prove general USB stability.
 - Bounded prefix-reading Camera previews previously failed after 6–25 successful reads. Full Camera streaming subsequently succeeded for all 3,601 inventoried files. The partial-read pattern remains a hypothesis for earlier failures, not a proven cause or implemented fix. Do not silently drain full streams inside the bounded product preview.
 - Future product selection must honor the clarified camera/screenshot roots. A production move to full copies/local EXIF parsing needs an explicit behavior decision and the selected Superpowers workflow; the experiment does not implement it.
-- Capture **day** is sufficient. Actual completed import cutoff: **2026-09-03**, excluding that whole day and earlier days. Do not infer capture dates from filenames or modification times.
+- Capture **day** is sufficient. Actual completed import cutoff: **2026-09-03**, excluding that whole day and earlier days. The newly approved experiment uses recognized filename days for copy selection; existing EXIF diagnostics retain their metadata provenance. Modification-time fallback is not approved.
 - iPhone is deferred. Counts/format-wide coverage and unresolved metadata remain acceptance limits. See [Samsung assessment](compatibility/android-samsung-sm-g991b.md) and [work status](work-status.md).
 
 ## Workflow constraints

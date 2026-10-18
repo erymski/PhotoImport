@@ -15,6 +15,10 @@ A photo is considered *old* when its capture timestamp is at or before the devic
 
 ## 2. Goals and non-goals
 
+**Repeatable importer design (2026-10-18):** the user approved the connect/run/copy/save workflow in conversation. The [written Android filename-day importer design](superpowers/specs/2026-10-18-filename-importer-design.md) now defines registration, daily use, same-day checkpoints, full copies and crash recovery; it awaits written-design review. Its proposed rules explicitly replace older EXIF/timestamp-based importer examples below when approved. No production importer is implemented yet.
+
+**Approved filename-selection experiment (2026-10-18):** for explicitly scoped Android camera photos, camera videos and screenshots, use recognized valid filename calendar dates to select files strictly after2026-09-03, excluding the entire cutoff day. Report and skip unrecognized/invalid names; EXIF content reads are not required before copying. This supersedes EXIF-first selection for the approved experiment, without changing the provenance contract of existing diagnostics. It does not implement the production importer or approve staging/date-cache/checkpoint behavior. See [rules and evidence](compatibility/2026-10-18-filename-selection-trial.md).
+
 ### Goals
 - Support multiple individually registered phones, with an independent checkpoint for each.
 - List photo metadata **before** downloading photo contents.
