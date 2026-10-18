@@ -2,9 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <AssemblyName>phone-photo-sync</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="tests/**/*.cs" />
+    <Compile Remove="artifacts/**/*.cs" />
+    <PackageReference Include="MediaDevices" Version="2.0.0" />
+    <PackageReference Include="MetadataExtractor" Version="2.9.3" />
+    <InternalsVisibleTo Include="PhotoImport.Tests" />
+  </ItemGroup>
 </Project>

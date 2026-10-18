@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "deviceId": "example-android",
+  "cutoffDay": "2026-10-10",
+  "boundaryMode": "tracked",
+  "boundaryKeys": []
+}

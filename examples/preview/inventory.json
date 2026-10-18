@@ -1,0 +1,25 @@
+{
+  "device": { "id": "example-android", "friendlyName": "Synthetic example", "manufacturer": null, "model": null, "transport": "USB", "identifiers": { "DeviceId": "example-android" }, "warnings": [] },
+  "startedAt": "2026-10-16T00:00:00+00:00",
+  "enumerationDuration": "00:00:00",
+  "completionStatus": "complete",
+  "searchedRoots": ["\\DCIM\\Camera"],
+  "photos": [
+    {
+      "objectId": "example-1", "persistentObjectId": "example-1", "sourcePath": "\\DCIM\\Camera\\boundary.jpg", "fileName": "boundary.jpg", "sizeBytes": 100, "contentType": null, "format": null,
+      "dateAuthored": { "source": "dateAuthored", "rawValue": null, "rawType": null, "displayValue": null, "offsetPresence": "unknown", "availability": "missing", "error": null },
+      "dateCreated": { "source": "dateCreated", "rawValue": null, "rawType": null, "displayValue": null, "offsetPresence": "unknown", "availability": "missing", "error": null },
+      "dateModified": { "source": "dateModified", "rawValue": null, "rawType": null, "displayValue": null, "offsetPresence": "unknown", "availability": "missing", "error": null },
+      "ptpCaptureDate": { "source": "ptpCaptureDate", "rawValue": null, "rawType": null, "displayValue": null, "offsetPresence": "unknown", "availability": "missing", "error": null }, "warnings": []
+    },
+    {
+      "objectId": "example-2", "persistentObjectId": "example-2", "sourcePath": "\\DCIM\\Camera\\newer.jpg", "fileName": "newer.jpg", "sizeBytes": 200, "contentType": null, "format": null,
+      "dateAuthored": { "source": "dateAuthored", "rawValue": null, "rawType": null, "displayValue": null, "offsetPresence": "unknown", "availability": "missing", "error": null },
+      "dateCreated": { "source": "dateCreated", "rawValue": null, "rawType": null, "displayValue": null, "offsetPresence": "unknown", "availability": "missing", "error": null },
+      "dateModified": { "source": "dateModified", "rawValue": null, "rawType": null, "displayValue": null, "offsetPresence": "unknown", "availability": "missing", "error": null },
+      "ptpCaptureDate": { "source": "ptpCaptureDate", "rawValue": null, "rawType": null, "displayValue": null, "offsetPresence": "unknown", "availability": "missing", "error": null }, "warnings": []
+    }
+  ],
+  "errors": [],
+  "warnings": ["Synthetic example, not physical-phone evidence."]
+}
