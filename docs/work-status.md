@@ -22,6 +22,7 @@ S21 destination `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`:131 media files
 ## Remaining / explicit limits
 
 - iPhone validation is deferred by the user.
+- Bump the application version when iPhone support is added or validated; include the support/validation change in the release notes.
 - Physical cable-pull/mid-native-read interruption is not covered by the cooperative recovery test; automated failure/partial-read coverage and real between-file cancellation are separate evidence.
 - Filename-policy, backend completeness and identity/content-evidence limits remain documented; no additional Android implementation task is pending here.
 

@@ -25,7 +25,18 @@ Dry run lists selected files, proposed destination names and estimated bytes usi
 
 Settings, checkpoints and recovery journals are under `%LOCALAPPDATA%\PhonePhotoSync\`; `status` reads them without accessing USB. A failed/interrupted copy keeps its pending journal and verified completed files. Reconnect and rerun to resume; incomplete files restart from byte zero. Existing unrelated outputs are preserved with collision suffixes. Source/settings conflicts require inspection of the reported journal location; do not delete journals merely to clear an error. Temporary media stays in `.phone-photo-sync` under the destination. Never point this directory at unrelated files or manually edit its contents during a run. Free space must cover remaining selected bytes plus a 2 GiB reserve.
 
-Checkpoint replacement is atomic and keeps the prior valid configuration as `config.json.bak`; malformed state is rejected rather than silently restored/reset. If progress commits but final archival fails, the CLI explicitly reports that commitment; rerun to finish recovery. Exit codes: 0 success (including reported filename skips), 2 arguments/configuration, 3 device/identity/root, 4 incomplete evidence/transfer, 5 local I/O/state, 130 cancellation before commitment. A synchronous native USB request may delay cancellation.
+Checkpoint replacement is atomic and keeps the prior valid configuration as `config.json.bak`; malformed state is rejected rather than silently restored/reset. If progress commits but final archival fails, the CLI explicitly reports that commitment; rerun to finish recovery.
+
+| Exit code | Meaning |
+| --- | --- |
+| `0` | Success, including reported filename skips |
+| `2` | Argument or configuration error |
+| `3` | Device, identity or source-root error |
+| `4` | Incomplete evidence or transfer failure |
+| `5` | Local I/O or state error |
+| `130` | Cancellation before checkpoint commitment |
+
+A synchronous native USB request may delay cancellation.
 
 Implementation is covered by 341 passing fake-device/filesystem/diagnostic tests; real production registration/reconnect validation remains separate. The prior throwaway filename trial copied 126 files (116 photos/screenshots, 10 videos), 903 MiB in 2 min 7 sec plus 24 sec metadata inventory. It did not create importer state. Full transfer checks compare reported/received/local lengths; local recovery SHA-256 is not a phone-side hash or proof of original-asset identity. MediaDevices can suppress native enumeration errors, so API completion does not prove a physical census. See the [acceptance procedure](docs/compatibility/filename-importer-validation.md).
 

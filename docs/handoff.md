@@ -27,6 +27,7 @@ Evidence/procedure: [Android follow-up](compatibility/2026-10-18-android-follow-
 ## Limits and remaining scope
 
 - iPhone remains deferred by the user. Android filename policy needs no EXIF/video timezone parsing.
+- When iPhone support is added or validated, bump the application version and document that support/validation in the release notes.
 - A physical cable pull or cancellation inside a native USB read was **not** tested by the cooperative recovery probe. Automated tests exercise failure/partial-file recovery; a blocked native call can delay cancellation. Do not promise immediate interruption or label this a cable-pull test.
 - Filename days can differ from EXIF days. Unknown names are skipped/reported; older late additions and same-path/same-size content replacements retain the documented policy limits.
 - MediaDevices may suppress native enumeration errors. API traversal is not an independent physical census. Local SHA-256 verification is not a phone-side hash comparison/original-asset proof.
