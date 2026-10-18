@@ -11,5 +11,6 @@ public sealed class PhotoReadHandle(PhotoSourceInfo source, Stream stream) : IDi
 {
     public PhotoSourceInfo Source { get; } = source;
     public Stream Stream { get; } = stream;
+
     public void Dispose() => Stream.Dispose();
 }

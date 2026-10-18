@@ -10,12 +10,17 @@ public sealed class JpegExifReaderTests
     [InlineData(0x9291)]
     public void OrphanOffsetOrSubsecondsCannotBeBorrowedFromAnotherDirectory(int orphanTag)
     {
-        using var stream = new ForwardOnlyStream(JpegFixture.Create(offset: null, subseconds: null, orphanTag: (ushort)orphanTag));
+        using var stream = new ForwardOnlyStream(
+            JpegFixture.Create(offset: null, subseconds: null, orphanTag: (ushort)orphanTag)
+        );
         var result = JpegExifReader.Read(stream, default);
         Assert.Equal("ambiguous", result.Outcome);
         Assert.Null(result.CaptureClock);
         Assert.Null(result.CaptureTimestamp);
-        Assert.Contains(result.Warnings, w => w.Contains("directory", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            result.Warnings,
+            w => w.Contains("directory", StringComparison.OrdinalIgnoreCase)
+        );
         Assert.Equal(2, result.CaptureDirectories.Count);
         Assert.Equal("2026:10:15 19:17:14", result.CaptureDirectories[0].DateTimeOriginal);
         Assert.Null(result.CaptureDirectories[0].OffsetTimeOriginal);
@@ -65,7 +70,9 @@ public sealed class JpegExifReaderTests
     [Fact]
     public void MissingOffsetKeepsWallClockWithoutInferringAnInstant()
     {
-        using var stream = new ForwardOnlyStream(JpegFixture.Create(offset: null, subseconds: null));
+        using var stream = new ForwardOnlyStream(
+            JpegFixture.Create(offset: null, subseconds: null)
+        );
         var result = JpegExifReader.Read(stream, default);
         Assert.Equal("available", result.Outcome);
         Assert.Equal("2026-10-15T19:17:14", result.CaptureClock);
@@ -78,7 +85,11 @@ public sealed class JpegExifReaderTests
     [InlineData("2026:10:15 19:17:14", "+15:00", "762")]
     [InlineData("2026:10:15 19:17:14", "+02:60", "762")]
     [InlineData("2026:10:15 19:17:14", "+02:00", "not-a-number")]
-    public void InvalidCaptureFieldsRemainRawWithoutFabricatingTimestamp(string date, string offset, string sub)
+    public void InvalidCaptureFieldsRemainRawWithoutFabricatingTimestamp(
+        string date,
+        string offset,
+        string sub
+    )
     {
         using var stream = new ForwardOnlyStream(JpegFixture.Create(date, offset, sub));
         var result = JpegExifReader.Read(stream, default);
@@ -113,7 +124,10 @@ public sealed class JpegExifReaderTests
     public void StopsAtBudgetOnLargePrecedingSegments()
     {
         var app = JpegFixture.Segment(0xE2, new byte[65533]);
-        var jpeg = new byte[] { 0xFF, 0xD8 }.Concat(Enumerable.Range(0, 5).SelectMany(_ => app)).Concat(JpegFixture.Create()[2..]).ToArray();
+        var jpeg = new byte[] { 0xFF, 0xD8 }
+            .Concat(Enumerable.Range(0, 5).SelectMany(_ => app))
+            .Concat(JpegFixture.Create()[2..])
+            .ToArray();
         using var stream = new ForwardOnlyStream(jpeg, 127);
         var result = JpegExifReader.Read(stream, default);
         Assert.Equal("incomplete", result.Outcome);
@@ -127,7 +141,11 @@ public sealed class JpegExifReaderTests
     {
         using var cts = new CancellationTokenSource();
         using var stream = new ForwardOnlyStream(JpegFixture.Create(), 1);
-        stream.OnRead = () => { if (stream.Consumed >= 10) cts.Cancel(); };
+        stream.OnRead = () =>
+        {
+            if (stream.Consumed >= 10)
+                cts.Cancel();
+        };
         var result = JpegExifReader.Read(stream, cts.Token);
         Assert.Equal("cancelled", result.Outcome);
         Assert.Equal(stream.Consumed, result.BytesRead);
