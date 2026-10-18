@@ -1,6 +1,6 @@
 # Repeatable Android filename-day importer
 
-Date: 2026-10-18. Status: written design awaiting user review.
+Date: 2026-10-18. Status: approved by the user after written review of commit13a3e7a; implementation plan review is next.
 
 ## Intent and evidence
 

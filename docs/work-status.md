@@ -8,8 +8,9 @@ User approved the everyday workflow: connect/unlock/File transfer, launch, auto-
 - [x] Present repeatable importer versus manual-cutoff approach; clarify metadata/dry-run and user workflow.
 - [x] User conversational approval of repeatable workflow.
 - [x] Write and self-review architectural design.
-- [ ] User review of the written design.
-- [ ] Write/self-review implementation plan and obtain written-plan review; native execution already selected.
+- [x] User review of the written design (approved after commit13a3e7a).
+- [x] Write/self-review [implementation plan](superpowers/plans/2026-10-18-filename-importer.md).
+- [ ] User review of the written implementation plan; native execution already selected.
 - [ ] Implement with behavioral tests, verify existing diagnostics, and perform one final independent review.
 
 ## Filename-selected copy experiment — 2026-10-18

@@ -2,6 +2,8 @@
 
 ## Importer design ready for review
 
+**Latest:** user approved the written design after commit13a3e7a. [Implementation plan](superpowers/plans/2026-10-18-filename-importer.md) is written and self-reviewed, with8 tested increments covering selection, scope/identity, content capability, JSON state, full transfer, recovery/checkpoint commit, CLI and final verification/review. Written-plan review is pending; native execution/current checkout remain selected. No product code or hardware/state changes during planning. After approval use executing-plans/TDD, begin with baseline verification and Task1. The paragraph below records the prior design-review stage.
+
 The user approved the connect/run/copy/save workflow after clarifying that metadata here means filename/path/size/identifiers, with dates parsed from filenames. Written design: [repeatable Android filename-day importer](superpowers/specs/2026-10-18-filename-importer-design.md). It includes one-time registration, automatic sync on normal launch, JSON per-device checkpoints, tracked boundary-day keys, metadata-only dry run, safe collision handling, full streams and crash-recoverable journal/checkpoint commit ordering. Self-review completed; written-design review is the next Superpowers gate. No implementation plan or product changes yet. Current checkout/native execution and one final independent product review remain selected. No phone reads or registration/state writes are needed for design/implementation.
 
 ## Latest direction: filename-selected copying
