@@ -10,6 +10,21 @@ internal sealed class ImportDirectoryLease : IDisposable
 {
     private readonly List<SafeFileHandle> handles = [];
 
+    public static void RemoveEmptySession(string destination, Guid sessionId)
+    {
+        using var lease = new ImportDirectoryLease();
+        lease.Pin(destination);
+        var staging = Path.Combine(destination, ".phone-photo-sync");
+        if (!Directory.Exists(staging))
+            return;
+        // Hold the parents against replacement while deleting only the empty session.
+        lease.Pin(staging);
+        var session = Path.Combine(staging, sessionId.ToString("N"));
+        ImportDestination.RejectReparse(session);
+        if (Directory.Exists(session) && !Directory.EnumerateFileSystemEntries(session).Any())
+            Directory.Delete(session, recursive: false);
+    }
+
     public static ImportDirectoryLease Acquire(string destination, Guid sessionId)
     {
         var lease = new ImportDirectoryLease();

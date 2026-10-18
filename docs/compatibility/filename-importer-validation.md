@@ -5,16 +5,16 @@ The product importer has been registered and exercised on the S21. Historical me
 | Check | Result |
 | --- | --- |
 | Registration | S21 serial identity; user-selected destination and roots saved |
-| Initial production import |130 files:120 photos/screenshots,10 videos;947,962,157 bytes; all local sizes/hashes verified |
-| Repeat import |0 copied,0 bytes,checkpoint unchanged |
+| Initial production import |130 files: 120 photos/screenshots, 10 videos; 947,962,157 bytes; all local sizes/hashes verified |
+| Repeat import |0 copied, 0 bytes, checkpoint unchanged |
 | Physical reconnect | User unplugged/reconnected; existing registration matched without re-enrollment |
-| New same-day photo |1 photo/2,335,654 bytes copied, day unchanged; boundary keys4→5 |
+| New same-day photo |1 photo/2,335,654 bytes copied, day unchanged; boundary keys 4 → 5 |
 | Following preview |0 eligible files/0 bytes; one unknown filename skip remains |
-| Cooperative recovery | Isolated real-USB two-file import cancelled between complete files; resume reused1and copied1; no production-state changes |
+| Cooperative recovery | Isolated real-USB two-file import cancelled between complete files; resume reused 1 and copied 1; no production-state changes |
 
-Current production destination: `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`;131 media files/950,297,811 bytes. Checkpoint2026-10-18,tracked,5 boundary keys; no pending production journal. Do not rerun init/reset cutoff to repeat acceptance tests.
+Current production destination: `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`; 131 media files/950,297,811 bytes. Checkpoint 2026-10-18, tracked, 5 boundary keys; no pending production journal. Do not rerun init/reset cutoff to repeat acceptance tests.
 
-Detailed latest evidence: [Android follow-up](2026-10-18-android-follow-up-validation.md). Earlier product evidence: ignored `artifacts/s21-first-product-import-console-2026-10-18.txt`, `artifacts/s21-first-product-import-verification-2026-10-18.json`, `artifacts/s21-registered-dry-run-2026-10-18.txt`. The initial registration/dry run selected130 files; that historical count is not a promise about future inventory.
+Detailed latest evidence: [Android follow-up](2026-10-18-android-follow-up-validation.md). Earlier product evidence: ignored `artifacts/s21-first-product-import-console-2026-10-18.txt`, `artifacts/s21-first-product-import-verification-2026-10-18.json`, `artifacts/s21-registered-dry-run-2026-10-18.txt`. The initial registration/dry run selected 130 files; that historical count is not a promise about future inventory.
 
 ## Evidence limits
 

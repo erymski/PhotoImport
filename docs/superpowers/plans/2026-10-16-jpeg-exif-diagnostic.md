@@ -1,6 +1,6 @@
 # Optional JPEG EXIF Diagnostic Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers: executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Inspect capture-date EXIF in bounded prefixes of explicitly selected Android JPEGs without altering the metadata-only probe.
 
@@ -66,7 +66,7 @@ Command: `phone-photo-sync exif --device <exact-id-or-unique-name> --photo <abso
 - [x] Request independent gallery/Picasa dates for the selected photos if not already available; record that comparison as pending until supplied. EXIF matching filename is not independent validation. Follow-up: user Gallery comparison supplied; calendar-day agreement accepted under the user's clarified day-only requirement. Exact seconds/offsets were not independently verified and are not required.
 - [x] Update acceptance status honestly: folder coverage, other formats, identity/cancellation, original-file access, and deferred iPhone validation are not established by this command.
 - [x] Run full Release tests/build and `git diff --check`, then commit documentation. Expected all tests pass, build 0 warnings/errors, diff clean.
-- [x] Run one independent review of this addendum's full implementation range, focused on the five Review Focus cases. Fix important findings with regression tests RED→GREEN and rerun the suite. Do not merge/push or claim milestone acceptance while hardware gates remain open. Result: one important cross-directory timestamp association finding fixed with two RED→GREEN regression cases; final suite 93/93, build 0 warnings/errors. No Critical or Minor findings. User Gallery comparison later confirmed the required day-level precision; hardware reads were not repeated after the synthetic regression fix.
+- [x] Run one independent review of this addendum's full implementation range, focused on the five Review Focus cases. Fix important findings with regression tests RED → GREEN and rerun the suite. Do not merge/push or claim milestone acceptance while hardware gates remain open. Result: one important cross-directory timestamp association finding fixed with two RED → GREEN regression cases; final suite 93/93, build 0 warnings/errors. No Critical or Minor findings. User Gallery comparison later confirmed the required day-level precision; hardware reads were not repeated after the synthetic regression fix.
 
 ## Plan self-review
 

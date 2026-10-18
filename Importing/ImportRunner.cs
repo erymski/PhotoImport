@@ -310,6 +310,24 @@ public sealed class ImportRunner(
     {
         result = Finish(result);
         store.Archive(session, result);
+        try
+        {
+            ImportDirectoryLease.RemoveEmptySession(
+                session.Registration.Destination,
+                session.SessionId
+            );
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            result = result with
+            {
+                Warnings =
+                [
+                    .. result.Warnings,
+                    "Could not remove empty staging directory: " + ex.Message,
+                ],
+            };
+        }
         return result;
     }
 

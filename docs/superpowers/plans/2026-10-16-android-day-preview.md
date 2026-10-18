@@ -1,6 +1,6 @@
 # Android Capture-Day Reporting and Offline Preview Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers: executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Report capture calendar days for bounded JPEG/HEIC/DNG reads and preview day-based eligibility from local reports without copying media or updating state.
 

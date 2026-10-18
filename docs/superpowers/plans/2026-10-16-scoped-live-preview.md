@@ -1,6 +1,6 @@
 # Scoped Live Preview Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Native execution in the current checkout and one final independent review are already selected. Steps use checkbox syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers: executing-plans to implement this plan task-by-task. Native execution in the current checkout and one final independent review are already selected. Steps use checkbox syntax for tracking.
 
 **Goal:** Produce a bounded, read-only Android folder preview using live metadata and capture-day evidence, without saving photographs or updating import state.
 

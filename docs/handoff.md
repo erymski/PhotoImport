@@ -7,26 +7,28 @@ Branch `feat/metadata-probe`, current checkout. The registered S21 workflow is i
 - Alias: `S21`, serial-based identity. Do not publish the enrolled serial or rerun init/reset progress.
 - Destination: `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`.
 - Roots: internal-storage `DCIM/Camera`, `DCIM/Screenshots`, `Samsung/Pictures/Camera Roll`.
-- Current checkpoint: **2026-10-18, tracked mode, 5 boundary keys**. Initial completed cutoff was2026-09-03; do not restore it.
-- Incoming media: **131 files,950,297,811 bytes**. No pending production journal. No command running.
+- Current checkpoint: **2026-10-18, tracked mode, 5 boundary keys**. Initial completed cutoff was 2026-09-03; do not restore it.
+- Incoming media: **131 files, 950,297,811 bytes**. No pending production journal. No command running.
 - State/history: `%LOCALAPPDATA%\PhonePhotoSync\`. An interrupted run resumes with verified local evidence; never discard its journal merely to clear an error.
 
 ## Latest completed work
+
+Empty staging-session cleanup is implemented after successful archival, including commit-recovery archival. Only the current empty session directory is removed; the `.phone-photo-sync` parent, other sessions and nonempty directories are preserved. Parent directory handles prevent junction redirection during cleanup. Cleanup I/O/access failures warn without changing successful import status. Seven new filesystem/recovery tests bring the Release suite to 348/348. No production USB run or cleanup of historical directories was performed for this increment.
 
 All three deferred reporting issues are fixed: capture completion time before archiving; share filename reservation logic between dry run and real planning; count ignored nonmedia entries in preview/console/history without reading their metadata/content. Existing historical archives remain unchanged. **341/341 Release tests pass**, including five reporting regressions; clean Release build. One independent review of this bounded increment found no issues and did not rerun tests or hardware checks.
 
 Hardware follow-up after the user's reported unplug/replug:
 
 1. Existing registration matched; no re-enrollment needed.
-2. Exactly one new same-day Camera photo, `20261018_152453.jpg`,2335654 bytes, selected and copied. Its local hash matches history; previous130 files remained excluded. Checkpoint day stayed2026-10-18; boundary keys increased4→5.
-3. Subsequent metadata-only preview selected0 files/0 bytes, with the one known Office Lens unknown-date filename still visibly skipped.
-4. Isolated real-USB recovery probe copied two previously imported camera JPEGs,2241122 bytes total. Cooperative cancellation **between complete files** left one completed entry and the isolated cutoff unchanged. Resume verified/reused that file, copied only the second, committed isolated progress and cleared pending state. Exactly2 USB media opens across both runs; both local length/hash checks passed. Production config hash remained unchanged by this probe. All test copies/state are ignored artifacts, not additional incoming media.
+2. Exactly one new same-day Camera photo, `20261018_152453.jpg`, 2335654 bytes, selected and copied. Its local hash matches history; previous 130 files remained excluded. Checkpoint day stayed 2026-10-18; boundary keys increased 4 → 5.
+3. Subsequent metadata-only preview selected 0 files/0 bytes, with the one known Office Lens unknown-date filename still visibly skipped.
+4. Isolated real-USB recovery probe copied two previously imported camera JPEGs, 2241122 bytes total. Cooperative cancellation **between complete files** left one completed entry and the isolated cutoff unchanged. Resume verified/reused that file, copied only the second, committed isolated progress and cleared pending state. Exactly 2 USB media opens across both runs; both local length/hash checks passed. Production config hash remained unchanged by this probe. All test copies/state are ignored artifacts, not additional incoming media.
 
 Evidence/procedure: [Android follow-up](compatibility/2026-10-18-android-follow-up-validation.md), [acceptance record](compatibility/filename-importer-validation.md), and ignored `artifacts/s21-android-follow-up-verification-2026-10-18.json` / `artifacts/s21-isolated-recovery-2026-10-18/result.json`.
 
 ## Limits and remaining scope
 
-- iPhone remains deferred by the user. Android filename policy needs no EXIF/video timezone parsing.
+- iPhone validation started: see [iPhone assessment](compatibility/iphone-17e-ios-26.md). 5,217 supported images / 6,393 total resources inventoried; four JPEG/HEIC/PNG/MOV samples reached EOF and matched sizes in Automatic and Keep Originals, with identical hashes across the switch/reconnect. Device serial/Windows IDs stayed unchanged, but all 6,393 file persistent IDs changed. User confirmed Photos dimensions 1280×960 for HEIC (matching transferred image, despite EXIF 3264×2448) and JPEG/PNG/MOV sample days. Library-count reconciliation, general date policy and volatile source-ID handling remain open. No command running, registration or production iPhone support claimed. Android filename policy needs no EXIF/video timezone parsing.
 - When iPhone support is added or validated, bump the application version and document that support/validation in the release notes.
 - A physical cable pull or cancellation inside a native USB read was **not** tested by the cooperative recovery probe. Automated tests exercise failure/partial-file recovery; a blocked native call can delay cancellation. Do not promise immediate interruption or label this a cable-pull test.
 - Filename days can differ from EXIF days. Unknown names are skipped/reported; older late additions and same-path/same-size content replacements retain the documented policy limits.
