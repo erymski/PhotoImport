@@ -16,7 +16,7 @@ public static class ScopedMediaInventory
         IReadOnlyList<DeviceEntry> resolved;
         try{resolved=DeviceFolderScope.Resolve(device,roots,token);}
         catch(IOException ex){throw new ImportException("Cannot resolve selected device folders: "+ex.Message,3,ex);}
-        var files=new List<PhotoMetadata>();var errors=new List<string>();
+        var files=new List<PhotoMetadata>();var errors=new List<string>();var ignoredNonmedia=0;
         var paths=new HashSet<string>(StringComparer.OrdinalIgnoreCase);var ids=new HashSet<string>(StringComparer.Ordinal);
         var stack=new Stack<DeviceEntry>(resolved);
         try
@@ -32,7 +32,7 @@ public static class ScopedMediaInventory
                     if(!DeviceFolderScope.IsDirectChild(entry.Path,directory.Path)){errors.Add("Noncanonical child: "+entry.Path);continue;}
                     if(entry.IsDirectory){stack.Push(entry);continue;}
                     if(!paths.Add(entry.Path)){errors.Add("Duplicate file path: "+entry.Path);continue;}
-                    if(FilenameDayPolicy.Classify(entry.Name) is null)continue;
+                    if(FilenameDayPolicy.Classify(entry.Name) is null){ignoredNonmedia++;continue;}
                     var source=device.ReadPhotoMetadata(entry,token);
                     if(source.SourcePath!=entry.Path||source.FileName!=Path.GetFileName(entry.Path))errors.Add("Metadata/path association differs: "+entry.Path);
                     else files.Add(source);
@@ -41,6 +41,6 @@ public static class ScopedMediaInventory
         }
         catch(OperationCanceledException){throw;}
         catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or System.Runtime.InteropServices.COMException){errors.Add(ex.Message);}
-        return new(files,errors,["MediaDevices may suppress native enumeration errors; API traversal is not an independent physical census."],errors.Count==0);
+        return new(files,errors,["MediaDevices may suppress native enumeration errors; API traversal is not an independent physical census."],errors.Count==0,ignoredNonmedia);
     }
 }

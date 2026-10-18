@@ -1,29 +1,29 @@
-# Filename importer hardware acceptance
+# Filename importer hardware acceptance — current record
 
-## Repeat no-new-media production run — 2026-10-18
+The product importer has been registered and exercised on the S21. Historical metadata/EXIF investigations and the throwaway full-copy trial remain separate feasibility evidence. iPhone validation is deferred.
 
-User explicitly requested repeating sync. Product exited0:0copied,0reused,0bytes transferred,0photos selected,0videos selected; checkpoint unchanged. The single unknown Office Lens filename remained reported. No new files were transferred. This exercises normal saved-checkpoint selection on a subsequent real invocation. Post-enrollment physical reconnect and production interruption recovery remain untested.
+| Check | Result |
+| --- | --- |
+| Registration | S21 serial identity; user-selected destination and roots saved |
+| Initial production import |130 files:120 photos/screenshots,10 videos;947,962,157 bytes; all local sizes/hashes verified |
+| Repeat import |0 copied,0 bytes,checkpoint unchanged |
+| Physical reconnect | User unplugged/reconnected; existing registration matched without re-enrollment |
+| New same-day photo |1 photo/2,335,654 bytes copied, day unchanged; boundary keys4→5 |
+| Following preview |0 eligible files/0 bytes; one unknown filename skip remains |
+| Cooperative recovery | Isolated real-USB two-file import cancelled between complete files; resume reused1and copied1; no production-state changes |
 
-## First production copy result — 2026-10-18
+Current production destination: `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`;131 media files/950,297,811 bytes. Checkpoint2026-10-18,tracked,5 boundary keys; no pending production journal. Do not rerun init/reset cutoff to repeat acceptance tests.
 
-Following explicit user approval, product `sync --device S21` exited0:130files (120photos/screenshots +10videos),947,962,157bytes copied to the registered `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`; no reused transfers. The unknown Office Lens filename remained a visible intentional skip. State committed2026-10-18,tracked boundary with4keys; offline status shows pending none.
+Detailed latest evidence: [Android follow-up](2026-10-18-android-follow-up-validation.md). Earlier product evidence: ignored `artifacts/s21-first-product-import-console-2026-10-18.txt`, `artifacts/s21-first-product-import-verification-2026-10-18.json`, `artifacts/s21-registered-dry-run-2026-10-18.txt`. The initial registration/dry run selected130 files; that historical count is not a promise about future inventory.
 
-Post-copy local verification independently checked all130saved files against the completed journal entries: destination containment, source-reported/received/local byte lengths and local SHA-256 all match. No failures, partial files or pending journals. This is not a phone-side content hash or original-asset identity proof. Evidence: `artifacts/s21-first-product-import-console-2026-10-18.txt`, `artifacts/s21-first-product-import-verification-2026-10-18.json`. Exact product-run elapsed time is not claimed because archived finish timing has the known reporting limitation. Post-enrollment physical unplug/replug, naturally interrupted production recovery and a subsequent real no-new-media run remain untested; fake-device/filesystem tests cover their logical transitions.
+## Evidence limits
 
-## Recorded registration/dry-run result — 2026-10-18
+- Recovery probe cancellation was between full-file transfers, not physical cable removal or cancellation inside a blocking native read. It used real USB media and the production importer with isolated settings/output. Automated tests cover additional failure/partial-file transitions.
+- Local SHA-256 verifies saved content against journal evidence, not against an independently computed phone-side hash or original-asset identity.
+- MediaDevices can suppress native enumeration errors; completed traversal is not an independent physical census.
+- Unknown filenames remain visible skips. Older late additions and same-path/same-size replacements retain the documented filename/date policy limits.
+- Old archives are preserved, including their pre-fix timestamp limitations. Newly written reports use corrected finish timing.
 
-User supplied `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`; created the missing directory, then registered aliasS21 with serial-based identity, completed cutoff2026-09-03 and all three approved roots after USB connection readiness. Product dry-run exited0:130eligible files (120photos/screenshots,10videos),947,962,157bytes; one unrecognized Office Lens filename skipped. Offline status afterward shows unchanged initial checkpoint and no pending journal; destination contains0items. No media content was copied. Evidence: `artifacts/s21-registered-dry-run-2026-10-18.txt`. Post-enrollment physical reconnect and actual product copying remain untested. No serial value is published here.
+## Future validation procedure
 
-## Procedure
-
-The registration/dry-run results above are actual product hardware observations. Steps below define remaining acceptance; completed registration should not be repeated. The successful126-file throwaway trial is separate [feasibility evidence](2026-10-18-filename-selection-trial.md). Implementation tests use fake devices and temporary local files.
-
-1. Obtain the real user-selected existing destination and the chosen camera/screenshot roots. Do not substitute an example directory. Initial S21 completed day is2026-09-03. Confirm any intended real copy scope before a hardware copy run; implementation approval did not select that destination.
-2. Connect/unlock the S21 with USB File transfer, keep it awake, and run `list-devices`. Register once using `init` with its exact ID/unique friendly name, alias, real destination, cutoff and roots. Init reads identity/root metadata and writes local configuration, with no media reads.
-3. Run offline `status` and confirm destination/day/identity policy. Unplug/reconnect the phone, run discovery and `sync --dry-run`, and verify that enrollment still matches. A missing or changed identity must stop rather than reuse another phone's checkpoint.
-4. Compare dry-run selected count/names/bytes/skips with the intended scope. It should not open content or change destination/config/journal. Unknown filename dates stay skipped and visible. Photos/videos on/before the initial completed day are excluded; don't expect actual new inventory to equal the historical126-file snapshot.
-5. Under the separately selected hardware copy scope, run normal launch or `sync --device <alias>`. Check successful destinations, photo/video counts, bytes and checkpoint. Existing files must remain intact, with suffixes for collisions. Do not modify phone files or involve Picasa.
-6. Repeat sync: previously completed boundary files should not transfer again. An approved later same-day media sample should be eligible; earlier late additions intentionally are not. No source mutations are needed merely to test this; fake-device tests cover the boundary behavior.
-7. If an interruption naturally occurs, inspect `status`/pending journal, reconnect and rerun. Verify completed local files are reused only after hash/length checks, unfinished ones restart fully, and checkpoint stays unchanged until success. Do not deliberately unplug during a large real copy without agreeing on that experiment.
-
-Record actual identity observations across reconnect, counts/skips, transferred/reused bytes, durations, source-reported/local lengths, pending/checkpoint outcomes and limitations. Avoid publishing serial numbers unnecessarily. No phone-side content hash comparison is claimed. A synchronous USB call may delay Ctrl+C; do not promise immediate interruption.
+Normal use is already configured: connect/unlock/File transfer, keep awake and launch the utility; use dry run to inspect selection without content reads/state writes. Do not repeat bulk experiments without a specific new question. Any deliberate cable-pull/mid-read failure experiment needs its own small, explicit scope and should use isolated state/output. Preserve source media and never discard production recovery journals to clear an error. Record actual results and limitations, without publishing enrolled serials. Read [current handoff](../handoff.md) for the authoritative next step; archived logs are history.

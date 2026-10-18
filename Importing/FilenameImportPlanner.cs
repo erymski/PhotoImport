@@ -53,6 +53,6 @@ public static class FilenameImportPlanner
             catch (OverflowException) { errors.Add("Selected byte total exceeds supported range."); }
             candidates.Add(new(source,day,key,kind));
         }
-        return new(rows,candidates,errors);
+        return new(rows,candidates,errors,inventory.IgnoredNonmediaCount);
     }
 }

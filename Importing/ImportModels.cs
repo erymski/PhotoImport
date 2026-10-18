@@ -7,10 +7,10 @@ public record ImportIdentityRecord(string Mode, string? SerialNumber, string Dev
 public record ImportRegistration(Guid Id, string Alias, string Destination, IReadOnlyList<string> Roots,
     ImportIdentityRecord Identity, string DatePolicy, ImportCheckpoint Checkpoint);
 public record ImportConfiguration(int SchemaVersion, string Kind, IReadOnlyList<ImportRegistration> Devices);
-public record ImportInventory(IReadOnlyList<PhotoMetadata> Files, IReadOnlyList<string> Errors, IReadOnlyList<string> Warnings, bool Complete);
+public record ImportInventory(IReadOnlyList<PhotoMetadata> Files, IReadOnlyList<string> Errors, IReadOnlyList<string> Warnings, bool Complete,int IgnoredNonmediaCount=0);
 public record ImportCandidate(PhotoMetadata Source, DateOnly Day, string Key, string Kind);
 public record ImportPlanRow(PhotoMetadata Source, DateOnly? Day, string? Key, string Decision, string Reason);
-public record ImportPlan(IReadOnlyList<ImportPlanRow> Rows, IReadOnlyList<ImportCandidate> Candidates, IReadOnlyList<string> Errors)
+public record ImportPlan(IReadOnlyList<ImportPlanRow> Rows, IReadOnlyList<ImportCandidate> Candidates, IReadOnlyList<string> Errors,int IgnoredNonmediaCount=0)
 {
     public bool Complete => Errors.Count == 0;
     public long TotalBytes => Candidates.Aggregate(0L, (sum,c) => checked(sum + (long)c.Source.SizeBytes!.Value));
@@ -30,6 +30,7 @@ public record ImportRunResult
     public int Copied {get;init;}
     public int Reused {get;init;}
     public long Bytes {get;init;}
+    public int IgnoredNonmediaCount {get;init;}
     public IReadOnlyList<ImportPlanRow> Rows {get;init;}=[];
     public IReadOnlyList<string> Errors {get;init;}=[];
     public IReadOnlyList<string> Warnings {get;init;}=[];

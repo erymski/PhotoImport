@@ -56,7 +56,7 @@ public sealed class ImportCli(TextWriter output,TextWriter error,ImportStateStor
             if(dry)
             {
                 var preview=runner.DryRun(provider,alias,token);
-                output.WriteLine($"Dry run: {preview.Plan.Candidates.Count} eligible files, {preview.Plan.TotalBytes} bytes; {preview.Plan.SkippedCount} skipped filename/format entries.");
+                output.WriteLine($"Dry run: {preview.Plan.Candidates.Count} eligible files, {preview.Plan.TotalBytes} bytes; {preview.Plan.SkippedCount} skipped filename/format entries; {preview.Plan.IgnoredNonmediaCount} nonmedia files ignored.");
                 for(var i=0;i<preview.Plan.Candidates.Count;i++)output.WriteLine($"Would copy {preview.Plan.Candidates[i].Source.SourcePath} -> {preview.ProposedNames[i]}");
                 PrintRows(preview.Plan.Rows);foreach(var warning in preview.Warnings)output.WriteLine("Warning: "+warning);
                 if(preview.PendingReuseCandidates>0)output.WriteLine($"Pending reuse candidates: {preview.PendingReuseCandidates}; local hashes will be checked only during real sync.");
@@ -67,6 +67,7 @@ public sealed class ImportCli(TextWriter output,TextWriter error,ImportStateStor
             var result=runner.Run(provider,alias,token);
             output.WriteLine($"Copied {result.Copied}; verified reused {result.Reused}; transferred {result.Bytes} bytes. Photos selected: {result.Rows.Count(r=>r.Decision=="eligible"&&FilenameDayPolicy.Classify(r.Source.FileName)=="photo")}; videos selected: {result.Rows.Count(r=>r.Decision=="eligible"&&FilenameDayPolicy.Classify(r.Source.FileName)=="video")}.");
             PrintRows(result.Rows);
+            output.WriteLine($"{result.IgnoredNonmediaCount} nonmedia files ignored.");
             output.WriteLine(result.CheckpointCommitted?$"Checkpoint committed: {result.NewCheckpoint!.Day:yyyy-MM-dd} (tracked boundary).":"Checkpoint unchanged.");
             foreach(var warning in result.Warnings)output.WriteLine("Warning: "+warning);
             foreach(var problem in result.Errors)error.WriteLine(problem);
