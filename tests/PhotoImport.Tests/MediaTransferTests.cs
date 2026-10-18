@@ -86,7 +86,11 @@ public class MediaTransferTests
         var start=new System.Diagnostics.ProcessStartInfo("cmd.exe"){UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
         start.ArgumentList.Add("/c");start.ArgumentList.Add("mklink");start.ArgumentList.Add("/J");start.ArgumentList.Add(link);start.ArgumentList.Add(target);
         using var process=System.Diagnostics.Process.Start(start)!;process.WaitForExit();Assert.Equal(0,process.ExitCode);
-        Assert.Throws<IOException>(()=>new MediaTransfer().Copy(d,session,session.Files[0],_=>{},default));
-        Assert.Equal("keep",File.ReadAllText(Path.Combine(target,"keep.txt")));Assert.Empty(d.Opened);
+        try
+        {
+            Assert.Throws<IOException>(()=>new MediaTransfer().Copy(d,session,session.Files[0],_=>{},default));
+            Assert.Equal("keep",File.ReadAllText(Path.Combine(target,"keep.txt")));Assert.Empty(d.Opened);
+        }
+        finally{Directory.Delete(link,false);}
     }
 }
