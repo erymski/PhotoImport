@@ -1,12 +1,17 @@
 using PhotoImport.Cli;
 using PhotoImport.Devices;
+using PhotoImport.Importing;
 
 namespace PhotoImport;
 
 internal static class Program
 {
     internal static int Run(string[] args, CancellationToken token, Func<IPhotoDeviceProvider> deviceProviderFactory, TextWriter output, TextWriter error)
+        =>Run(args,token,deviceProviderFactory,output,error,Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"PhonePhotoSync"));
+    internal static int Run(string[] args,CancellationToken token,Func<IPhotoDeviceProvider> deviceProviderFactory,TextWriter output,TextWriter error,string stateDirectory)
     {
+        if(args.Length==0||args[0] is "init" or "sync" or "status" or "--help" or "-h")
+            return new ImportCli(output,error,new(stateDirectory),new()).Run(args,token,deviceProviderFactory);
         if(args.FirstOrDefault()=="plan")return new DayPreviewCli(output,error).Run(args,token);
         if(args.FirstOrDefault()=="preview")return new LivePreviewCli(output,error).Run(args,token,deviceProviderFactory);
         var provider=deviceProviderFactory();
