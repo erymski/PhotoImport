@@ -147,7 +147,7 @@ public sealed class ImportStateStore(string stateDirectory, Action<ImportWritePo
             if (
                 string.IsNullOrWhiteSpace(r.Destination)
                 || !Path.IsPathFullyQualified(r.Destination)
-                || r.DatePolicy != "androidFilenameDayV1"
+                || r.DatePolicy is not ("androidFilenameDayV1" or IPhoneWindowsDayPolicy.Name)
             )
                 throw new ImportException("Invalid registration destination/date policy.");
             if (
@@ -159,7 +159,7 @@ public sealed class ImportStateStore(string stateDirectory, Action<ImportWritePo
                 throw new ImportException("Invalid enrolled device identity.");
             if (r.Roots is null)
                 throw new ImportException("Missing roots.");
-            ScopedMediaInventory.ValidateRoots(r.Roots);
+            ScopedMediaInventory.ValidateRoots(r.Roots, r.DatePolicy);
             FilenameImportPlanner.ValidateCheckpoint(r.Checkpoint);
         }
         for (var i = 0; i < config.Devices.Count; i++)

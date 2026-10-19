@@ -1,32 +1,28 @@
-# Work status — 2026-10-18
+# Work status — 2026-10-20
 
-The Android filename-day importer is implemented, registered and exercised on the S21. See [current handoff](handoff.md) for state and [README](../README.md) for usage.
+Android and iPhone imports are implemented and exercised. See [handoff](handoff.md), [usage](../README.md) and [release notes](release-notes.md).
 
-## Completed
+## Production state
 
-- [x] USB metadata investigation and selected full-file feasibility tests.
-- [x] Explicit scope: camera photos/videos and screenshots; no app-cache importing.
-- [x] Filename-day selection, registered identity, safe full copies, journal retries and atomic day/boundary checkpoints.
-- [x] Production import: 130 files/947,962,157 bytes verified, then a repeat run copied 0 bytes.
-- [x] Fix archive finish timing, distinct dry-run destination proposals and ignored-nonmedia counts.
-- [x] User unplug/replug followed by successful matching of existing registration.
-- [x] New same-day Camera photo copied once; boundary keys 4 → 5; later preview selects 0 files.
-- [x] Real-USB cooperative cancellation between files and resume in isolated state/output; one verified copy reused, one copied, production state unchanged.
-- [x] Historical instructions archived; current handoff replaced with actionable state.
-- [x] Full Release suite 341/341 passing; clean build; one independent bounded-change review with no findings.
-- [x] Empty current-session staging directory removed after successful archival; incomplete/nonempty/other sessions preserved, cleanup failure warns. Seven new filesystem/recovery tests; Release suite 348/348 passing.
+| Alias | Destination | Checkpoint | Media |
+| --- | --- | --- | --- |
+| S21 | `C:\Users\eu\Pictures\Photos\_incoming\auto_s21` | 2026-10-18, tracked, 5 boundary keys | 131 files / 950,297,811 bytes |
+| iPhone | `C:\Users\eu\Pictures\Photos\_incoming\auto_iphone` | 2026-10-19, tracked, 3 boundary keys | 1,835 files / 13,299,430,838 bytes |
 
-## Current production state
+Neither registration has pending state; no USB command is running. S21 registration matches its pre-iPhone-enrollment snapshot exactly. Its existing filename policy and roots are preserved.
 
-S21 destination `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`: 131 media files/950,297,811 bytes. Checkpoint 2026-10-18, tracked, 5 boundary keys. No pending production session or active command. One legacy Office Lens filename remains intentionally skipped because its date prefix is unrecognized.
+The iPhone user explicitly approved all supported photos/videos, including forwarded and edited versions, by Windows WPD DateCreated day. Initial completed cutoff 2025-12-05 included 3 files from 6 December 2025. Production copied 1,697 photos and 138 videos. All final local lengths/SHA-256 values match archived transfer evidence. Repeat preview selects 0 files/0 bytes, with 0 date/format skips and 540 ignored nonmedia files. See the [production record](compatibility/2026-10-19-iphone-import.md).
 
-## Remaining / explicit limits
+## Implementation and validation
 
-- iPhone validation started: 5,217 supported images / 6,393 resources inventoried; four selected photo/video resources fully read in Automatic and Keep Originals with identical hashes. One reconnect retained device identity but changed all file persistent IDs. User confirmed JPEG/PNG/MOV sample days and HEIC 1280×960 against Photos. General date policy, original identity and Library coverage remain open; current Android source/date rules are not accepted for iPhone. See [iPhone assessment](compatibility/iphone-17e-ios-26.md).
-- 19 October follow-up: new user-selected camera JPEG, PNG screenshot and MOV read completely; all three match Photos dimensions and yield embedded capture-day candidates for 19 October. Four older file IDs changed between connections but stayed stable across two current processes. An October metadata delta has 16 older resources unavailable for unknown reasons; no complete Library census is claimed. See [follow-up](compatibility/2026-10-19-iphone-follow-up.md).
-- User-reported previous iPhone synchronization: **6 December 2025 (`2025-12-06`)**. Recorded for future import planning; exact time and full-day coverage unspecified, no production iPhone checkpoint written.
-- Bump the application version when iPhone support is added or validated; include the support/validation change in the release notes.
-- Physical cable-pull/mid-native-read interruption is not covered by the cooperative recovery test; automated failure/partial-read coverage and real between-file cancellation are separate evidence.
-- Filename-policy, backend completeness and identity/content-evidence limits remain documented; no additional Android implementation task is pending here.
+Version 1.1.0 adds explicit `iphoneWindowsDayV1` and rebinding of connection-local IDs for unfinished files after exact path/size/creation-timestamp agreement. Fresh ID validation still precedes content reads. Independent review found an Android candidate-refresh edge case; a failing regression reproduced it, and candidate refresh is now restricted to iPhone. **361/361 Release tests pass**.
 
-Detailed evidence: [follow-up](compatibility/2026-10-18-android-follow-up-validation.md), [hardware acceptance](compatibility/filename-importer-validation.md). Older milestones/decisions are in the [archived work log](archive/2026-10-18-work-status-before-reporting-cleanup.md), which is historical and must not be used as a remaining-work list. No merge/push requested.
+The first attempt stopped after 1,132 completed files on a local sharing error without advancing the checkpoint. Normal resume verified/reused these copies and transferred the remaining 703. Monitoring stopped reading the active journal because ordinary readers can block atomic replacement. The final session archived successfully and its empty staging directory was removed.
+
+Earlier Android reporting, cleanup, reconnect and cooperative recovery work remains complete: [Android follow-up](compatibility/2026-10-18-android-follow-up-validation.md). Earlier iPhone samples remain in the [assessment](compatibility/iphone-17e-ios-26.md) and [follow-up](compatibility/2026-10-19-iphone-follow-up.md). Private evidence stays Git-ignored under artifacts.
+
+## Limits
+
+Windows creation day is the explicit iPhone policy, not universal capture-day proof. There is no date fallback. Older late additions remain excluded. Local hashes are not phone-side hashes or proof of original-asset identity. MediaDevices traversal is not an independent Library census. The older October resource delta remains inconclusive; deletion/edit history is unknown and no old-photo search is pending.
+
+Physical cable-pull/mid-native-read cancellation remains untested; local-error recovery and between-file cancellation are separate evidence. Native requests can delay cancellation. The user requested committing and pushing this implementation and its documentation.

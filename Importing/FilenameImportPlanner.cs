@@ -45,7 +45,7 @@ public static class FilenameImportPlanner
     public static ImportPlan Build(ImportRegistration registration, ImportInventory inventory)
     {
         ValidateCheckpoint(registration.Checkpoint);
-        if (registration.DatePolicy != "androidFilenameDayV1")
+        if (registration.DatePolicy is not ("androidFilenameDayV1" or IPhoneWindowsDayPolicy.Name))
             throw new ImportException("Unsupported importer date policy.");
         var errors = inventory.Errors.ToList();
         if (!inventory.Complete)
@@ -68,7 +68,11 @@ public static class FilenameImportPlanner
                 continue;
             }
             var kind = FilenameDayPolicy.Classify(source.FileName);
-            if (kind is null || !FilenameDayPolicy.TryGetDay(source.FileName, out var day))
+            var iphone = registration.DatePolicy == IPhoneWindowsDayPolicy.Name;
+            var hasDay = iphone
+                ? IPhoneWindowsDayPolicy.TryGetDay(source, out var day)
+                : FilenameDayPolicy.TryGetDay(source.FileName, out day);
+            if (kind is null || !hasDay)
             {
                 rows.Add(
                     new(
@@ -76,7 +80,9 @@ public static class FilenameImportPlanner
                         null,
                         null,
                         "skipped",
-                        kind is null ? "Unsupported extension." : "Unknown filename date."
+                        kind is null ? "Unsupported extension."
+                            : iphone ? "Missing or invalid iPhone Windows dateCreated."
+                            : "Unknown filename date."
                     )
                 );
                 continue;
@@ -99,7 +105,15 @@ public static class FilenameImportPlanner
                 && checkpoint.BoundaryKeys.Contains(key, StringComparer.Ordinal)
                     ? "alreadyImported"
                     : "eligible";
-            rows.Add(new(source, day, key, decision, "Filename-day policy."));
+            rows.Add(
+                new(
+                    source,
+                    day,
+                    key,
+                    decision,
+                    iphone ? "iPhone Windows dateCreated day policy." : "Filename-day policy."
+                )
+            );
             if (decision != "eligible")
                 continue;
             try

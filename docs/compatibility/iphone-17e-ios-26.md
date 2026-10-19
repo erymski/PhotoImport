@@ -1,6 +1,6 @@
 # iPhone 17e / iOS 26.6 — USB assessment
 
-Assessment started 2026-10-18 at the user's request. Model and OS are user-reported; the backend identifies the device only as Apple iPhone. **Four selected complete-resource reads succeeded in both Automatic and Keep Originals. Device identifiers survived one reconnect, but all reported file persistent IDs changed. Production iPhone synchronization and original-asset identity are not yet validated.**
+Assessment started 2026-10-18 at the user's request. Model and OS are user-reported; the backend identifies the device only as Apple iPhone. **Four selected complete-resource reads succeeded in both Automatic and Keep Originals. Device identifiers survived one reconnect, but all reported file persistent IDs changed.** Production import under the explicit user-approved Windows-date policy completed on 20 October: 1,835 resources / 13,299,430,838 bytes, all final local lengths/hashes verified, repeat preview empty. See the [production record](2026-10-19-iphone-import.md). Original-asset identity and independent Library coverage remain unverified.
 
 The [19 October follow-up](2026-10-19-iphone-follow-up.md) adds successful complete reads of new user-selected camera JPEG, PNG screenshot and MOV samples, with matching Photos dimensions and embedded capture-day candidates. It repeats volatile file-ID evidence and records an unresolved change in October resource membership.
 

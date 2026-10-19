@@ -13,22 +13,32 @@ public static class ScopedMediaInventory
         "\\Internal storage\\Samsung\\Pictures\\Camera Roll",
     ];
 
-    public static void ValidateRoots(IReadOnlyList<string> roots)
+    public static void ValidateRoots(
+        IReadOnlyList<string> roots,
+        string datePolicy = "androidFilenameDayV1"
+    )
     {
         DeviceFolderScope.Validate(roots);
-        if (roots.Any(r => !Allowed.Any(a => DeviceFolderScope.IsWithin(r, a))))
+        var allowed = datePolicy switch
+        {
+            "androidFilenameDayV1" => Allowed,
+            IPhoneWindowsDayPolicy.Name => new[] { @"\Internal Storage" },
+            _ => throw new ImportException("Unsupported importer date policy."),
+        };
+        if (roots.Any(r => !allowed.Any(a => DeviceFolderScope.IsWithin(r, a))))
             throw new ImportException(
-                "Importer roots must be approved camera/screenshot folders or their subfolders."
+                "Importer roots must match the selected policy's approved storage/camera folders."
             );
     }
 
     public static ImportInventory Read(
         IPhotoDevice device,
         IReadOnlyList<string> roots,
-        CancellationToken token
+        CancellationToken token,
+        string datePolicy = "androidFilenameDayV1"
     )
     {
-        ValidateRoots(roots);
+        ValidateRoots(roots, datePolicy);
         IReadOnlyList<DeviceEntry> resolved;
         try
         {

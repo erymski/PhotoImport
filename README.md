@@ -1,6 +1,6 @@
 # PhonePhotoSync
 
-Windows 10/11, .NET 10 CLI to import new Android camera photos, videos and screenshots over USB using filename dates. Uses MediaDevices 2.0.0. Existing metadata/EXIF diagnostic commands remain available.
+Windows 10/11, .NET 10 CLI to import Android camera photos, videos and screenshots using filename dates, or iPhone media using the date reported to Windows. Uses MediaDevices 2.0.0. Existing metadata/EXIF diagnostic commands remain available. See [release notes](docs/release-notes.md).
 
 Build the Release executable once from the repository root:
 
@@ -27,7 +27,17 @@ Then run the utility normally:
 
 Normal launch detects the uniquely matching registered phone, reads its JSON progress, copies eligible full files without overwriting existing files, and updates the checkpoint only after successful copying. Use `sync --device S21` if multiple registered phones are connected. Registration uses serial/manufacturer/model when available, otherwise an exact device ID; a changed/missing identity stops automatic matching. Friendly names alone never choose a saved checkpoint. `init` adds registrations and never resets an existing one.
 
-Dates come from recognized `YYYYMMDD...`, `Screenshot_YYYYMMDD...`, or `WP_YYYYMMDD...` filenames. Invalid/unknown names are skipped and listed. No EXIF or modification-time fallback is used for importing. The initial cutoff excludes that entire day; later checkpoints track already imported files on the newest day so additional same-day media can be copied. Late-added files with older dates remain excluded, and organizing/deleting old PC copies never triggers a fresh import. Folder scope determines camera/screenshot origin: manually placing unrelated dated media there also makes it eligible. iPhone importing is deferred.
+The default `androidFilenameDayV1` policy takes dates from recognized `YYYYMMDD...`, `Screenshot_YYYYMMDD...`, or `WP_YYYYMMDD...` filenames. Invalid/unknown names are skipped and listed. Folder scope determines camera/screenshot origin: manually placing unrelated dated media there also makes it eligible.
+
+For iPhone, explicitly select `iphoneWindowsDayV1` at registration. It uses the calendar day of Windows WPD `DateCreated`, without timezone conversion or EXIF/filename/modification-time fallback. This is a Windows-reported file date; sample agreement with capture metadata does not prove every file's capture day. All supported photos/videos under Internal Storage are eligible, including forwarded files and edited versions. Missing or invalid dates are skipped and reported. Connect, unlock, allow access, and keep the phone awake. Example for importing **6 December 2025 and later**, using an existing destination directory:
+
+```powershell
+.\phone-photo-sync.exe init --device "Apple iPhone" --alias iPhone --destination "C:\Users\eu\Pictures\Photos\_incoming\auto_iphone" --cutoff-day 2025-12-05 --root "\Internal Storage" --date-policy iphoneWindowsDayV1
+.\phone-photo-sync.exe sync --device iPhone --dry-run
+.\phone-photo-sync.exe sync --device iPhone
+```
+
+Run `init` only once. The initial cutoff excludes that entire day; later checkpoints track already imported files on the newest day so additional same-day media can be copied. Late-added files with older dates remain excluded, and organizing/deleting old PC copies never triggers a fresh import. iPhone file IDs can change after reconnect: unfinished copies require unchanged path, size and exact reported creation timestamp before binding the new connection's ID. The current ID is checked again immediately before reading. These metadata checks cannot detect every same-path/same-size content replacement.
 
 Dry run lists selected files, proposed destination names and estimated bytes using metadata (filenames, paths, sizes, identifiers), with no photo/video content reads or destination/state writes. Pending-file hash reuse is verified only during a real sync. Collision names may change if the destination changes afterward.
 
@@ -46,7 +56,7 @@ Checkpoint replacement is atomic and keeps the prior valid configuration as `con
 
 A synchronous native USB request may delay cancellation.
 
-Implementation is covered by 348 passing fake-device/filesystem/diagnostic tests; real production registration/reconnect validation remains separate. The prior throwaway filename trial copied 126 files (116 photos/screenshots, 10 videos), 903 MiB in 2 min 7 sec plus 24 sec metadata inventory. It did not create importer state. Full transfer checks compare reported/received/local lengths; local recovery SHA-256 is not a phone-side hash or proof of original-asset identity. MediaDevices can suppress native enumeration errors, so API completion does not prove a physical census. See the [acceptance procedure](docs/compatibility/filename-importer-validation.md).
+Implementation is covered by 361 passing fake-device/filesystem/diagnostic tests; real production registration/reconnect validation remains separate. The prior throwaway filename trial copied 126 files (116 photos/screenshots, 10 videos), 903 MiB in 2 min 7 sec plus 24 sec metadata inventory. It did not create importer state. Full transfer checks compare reported/received/local lengths; local recovery SHA-256 is not a phone-side hash or proof of original-asset identity. MediaDevices can suppress native enumeration errors, so API completion does not prove a physical census. See the [acceptance procedure](docs/compatibility/filename-importer-validation.md).
 
 Reporting records completion time before archiving, reserves distinct proposed names during dry run, and includes ignored nonmedia counts. Historical archives are preserved unchanged. Reconnect, new same-day media and isolated real-USB cancellation/resume observations are recorded in the handoff.
 

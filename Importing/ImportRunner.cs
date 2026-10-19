@@ -38,7 +38,12 @@ public sealed class ImportRunner(
             alias
         );
         using var device = provider.Open(info, token);
-        var inventory = ScopedMediaInventory.Read(device, registration.Roots, token);
+        var inventory = ScopedMediaInventory.Read(
+            device,
+            registration.Roots,
+            token,
+            registration.DatePolicy
+        );
         var plan = FilenameImportPlanner.Build(registration, inventory);
         var pending = store.ReadPending(registration.Id);
         if (pending is not null)
@@ -124,7 +129,12 @@ public sealed class ImportRunner(
             device = provider.Open(selected.Device, token);
             if (device is not IMediaContentDevice content)
                 throw new ImportException("Device backend does not support full media reads.", 3);
-            var inventory = ScopedMediaInventory.Read(device, registration.Roots, token);
+            var inventory = ScopedMediaInventory.Read(
+                device,
+                registration.Roots,
+                token,
+                registration.DatePolicy
+            );
             var plan = FilenameImportPlanner.Build(registration, inventory);
             result = result with
             {
@@ -169,7 +179,7 @@ public sealed class ImportRunner(
             {
                 if (
                     !current.TryGetValue(entry.Candidate.Key, out var match)
-                    || !SameSource(entry.Candidate.Source, match.Source)
+                    || !SameSource(entry.Candidate.Source, match.Source, registration.DatePolicy)
                 )
                     throw new ImportException(
                         "Unfinished source is missing or changed; inspect pending journal: "
@@ -178,7 +188,18 @@ public sealed class ImportRunner(
                     );
             }
             var keys = session.Files.Select(f => f.Candidate.Key).ToHashSet(StringComparer.Ordinal);
-            var planned = session.Files.ToList();
+            // iPhone IDs are connection-local: bind unfinished entries to this verified inventory.
+            // MediaTransfer still checks the fresh ID immediately before reading content.
+            var planned = session
+                .Files.Select(f =>
+                    f.Stage == "completed" || registration.DatePolicy != IPhoneWindowsDayPolicy.Name
+                        ? f
+                        : f with
+                        {
+                            Candidate = current[f.Candidate.Key],
+                        }
+                )
+                .ToList();
             var reserved = planned
                 .Select(f => f.FinalPath)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -331,13 +352,19 @@ public sealed class ImportRunner(
         return result;
     }
 
-    private static bool SameSource(PhotoMetadata expected, PhotoMetadata actual) =>
+    private static bool SameSource(
+        PhotoMetadata expected,
+        PhotoMetadata actual,
+        string datePolicy
+    ) =>
         expected.SourcePath == actual.SourcePath
         && expected.SizeBytes == actual.SizeBytes
         && (
-            string.IsNullOrWhiteSpace(expected.PersistentObjectId)
-            || string.IsNullOrWhiteSpace(actual.PersistentObjectId)
-            || expected.PersistentObjectId == actual.PersistentObjectId
+            datePolicy == IPhoneWindowsDayPolicy.Name
+                ? expected.DateCreated.DisplayValue == actual.DateCreated.DisplayValue
+                : string.IsNullOrWhiteSpace(expected.PersistentObjectId)
+                    || string.IsNullOrWhiteSpace(actual.PersistentObjectId)
+                    || expected.PersistentObjectId == actual.PersistentObjectId
         );
 
     private static void ValidateSession(ImportRegistration registration, PendingImport session)

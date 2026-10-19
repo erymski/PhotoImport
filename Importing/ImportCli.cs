@@ -43,7 +43,15 @@ public sealed class ImportCli(
                 }
                 var allowed =
                     command == "init"
-                        ? new[] { "--device", "--alias", "--destination", "--cutoff-day", "--root" }
+                        ? new[]
+                        {
+                            "--device",
+                            "--alias",
+                            "--destination",
+                            "--cutoff-day",
+                            "--root",
+                            "--date-policy",
+                        }
                     : command == "sync" ? ["--device"]
                     : Array.Empty<string>();
                 if (
@@ -68,7 +76,8 @@ public sealed class ImportCli(
                 )
                     if (!options.ContainsKey(key))
                         throw new ImportException("init requires " + key);
-                ScopedMediaInventory.ValidateRoots(roots);
+                var datePolicy = options.GetValueOrDefault("--date-policy", "androidFilenameDayV1");
+                ScopedMediaInventory.ValidateRoots(roots, datePolicy);
                 if (!Path.IsPathFullyQualified(options["--destination"]))
                     throw new ImportException(
                         "Destination must be an absolute existing directory."
@@ -120,6 +129,14 @@ public sealed class ImportCli(
                         "Select exactly one connected phone by ID or unique friendly name.",
                         matches.Length == 0 ? 3 : 2
                     );
+                if (
+                    datePolicy == IPhoneWindowsDayPolicy.Name
+                    && matches[0].Manufacturer != "Apple Inc."
+                )
+                    throw new ImportException(
+                        "The iPhone Windows date policy requires an Apple device.",
+                        3
+                    );
                 var identity = ImportIdentity.Enroll(matches[0]);
                 IReadOnlyList<string> canonicalRoots;
                 using (var device = provider.Open(matches[0], token))
@@ -133,7 +150,7 @@ public sealed class ImportCli(
                     destination,
                     canonicalRoots,
                     identity,
-                    "androidFilenameDayV1",
+                    datePolicy,
                     new(cutoff, "completedDay", [])
                 );
                 var updated = config with { Devices = [.. config.Devices, registration] };
@@ -158,6 +175,7 @@ public sealed class ImportCli(
                 output.WriteLine(
                     $"Registered {registration.Alias}; destination: {destination}; completed through {cutoff:yyyy-MM-dd}. Run phone-photo-sync to import."
                 );
+                output.WriteLine("Date policy: " + datePolicy);
                 if (identity.Mode == "deviceId")
                     output.WriteLine(
                         "Identity uses an exact device ID; if it changes after reconnect, automatic matching will stop."
@@ -177,7 +195,10 @@ public sealed class ImportCli(
             {
                 var preview = runner.DryRun(provider, alias, token);
                 output.WriteLine(
-                    $"Dry run: {preview.Plan.Candidates.Count} eligible files, {preview.Plan.TotalBytes} bytes; {preview.Plan.SkippedCount} skipped filename/format entries; {preview.Plan.IgnoredNonmediaCount} nonmedia files ignored."
+                    $"Date policy: {preview.Registration.DatePolicy}; destination: {preview.Registration.Destination}."
+                );
+                output.WriteLine(
+                    $"Dry run: {preview.Plan.Candidates.Count} eligible files, {preview.Plan.TotalBytes} bytes; {preview.Plan.SkippedCount} skipped date/format entries; {preview.Plan.IgnoredNonmediaCount} nonmedia files ignored."
                 );
                 for (var i = 0; i < preview.Plan.Candidates.Count; i++)
                     output.WriteLine(
@@ -256,7 +277,7 @@ public sealed class ImportCli(
         {
             var pending = store.ReadPending(r.Id);
             output.WriteLine(
-                $"{r.Alias}: {r.Destination}; checkpoint {r.Checkpoint.Day:yyyy-MM-dd} ({r.Checkpoint.Mode}, {r.Checkpoint.BoundaryKeys.Count} boundary files); identity {r.Identity.Mode}; pending {(pending is null ? "none" : pending.Stage + " / " + pending.Files.Count + " files")}"
+                $"{r.Alias}: {r.Destination}; checkpoint {r.Checkpoint.Day:yyyy-MM-dd} ({r.Checkpoint.Mode}, {r.Checkpoint.BoundaryKeys.Count} boundary files); policy {r.DatePolicy}; identity {r.Identity.Mode}; pending {(pending is null ? "none" : pending.Stage + " / " + pending.Files.Count + " files")}"
             );
         }
         return 0;
@@ -270,7 +291,7 @@ public sealed class ImportCli(
 
     private static void WriteFirstUse(TextWriter writer) =>
         writer.WriteLine(
-            "Not configured. Run phone-photo-sync init --device <id-or-unique-name> --alias <name> --destination <absolute-existing-directory> --cutoff-day YYYY-MM-DD --root <absolute-camera-folder> [--root ...]"
+            "Not configured. Run phone-photo-sync init --device <id-or-unique-name> --alias <name> --destination <absolute-existing-directory> --cutoff-day YYYY-MM-DD --root <approved-folder> [--root ...] [--date-policy <policy>]"
         );
 
     public static void WriteHelp(TextWriter writer)
@@ -280,6 +301,9 @@ public sealed class ImportCli(
         writer.WriteLine("phone-photo-sync status");
         writer.WriteLine(
             "Filename-day importing: camera photos/videos/screenshots only. Unknown names are skipped/reported. Never modifies the phone; existing destination files are preserved."
+        );
+        writer.WriteLine(
+            "Date policies: androidFilenameDayV1 (default); iphoneWindowsDayV1 (explicit iPhone Windows dateCreated day, no EXIF fallback; all supported media under Internal Storage). Missing/invalid days are skipped/reported."
         );
         writer.WriteLine(
             "Diagnostic commands: list-devices; probe --device <id-or-name> [--output <new.json>]; exif --device <id-or-name> --photo <path> [--photo ...] --output <new.json>"
