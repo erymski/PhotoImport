@@ -2,6 +2,8 @@
 
 Assessment started 2026-10-18 at the user's request. Model and OS are user-reported; the backend identifies the device only as Apple iPhone. **Four selected complete-resource reads succeeded in both Automatic and Keep Originals. Device identifiers survived one reconnect, but all reported file persistent IDs changed. Production iPhone synchronization and original-asset identity are not yet validated.**
 
+The [19 October follow-up](2026-10-19-iphone-follow-up.md) adds successful complete reads of new user-selected camera JPEG, PNG screenshot and MOV samples, with matching Photos dimensions and embedded capture-day candidates. It repeats volatile file-ID evidence and records an unresolved change in October resource membership.
+
 ## Successful accessible session
 
 After the user requested another attempt, the third fresh-process probe completed in **313.103 seconds (5 m 13 s)** with **5,217 still-image resources** and no surfaced errors: 2,510 JPG, 2,058 HEIC, 649 PNG. Every image had a known reported size. Authored capture dates were missing on all 5,217 (100%); separate PTP capture dates remain unavailable through the product adapter. The previously empty storage is historical evidence, not the current state. The precise unlock/trust action that restored access was not observed by the application.

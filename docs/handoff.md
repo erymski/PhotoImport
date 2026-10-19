@@ -1,8 +1,8 @@
-# Current handoff — 2026-10-18
+# Current handoff — 2026-10-19
 
 ## Ready for normal Android use
 
-Branch `feat/metadata-probe`, current checkout. The registered S21 workflow is implemented and physically exercised: connect/unlock, select USB File transfer, keep awake and run `bin\Release\net10.0-windows\phone-photo-sync.exe`. With no arguments it syncs the unique connected registered phone. `--help` prints help; `sync --device S21 --dry-run` previews without media reads/state changes; `status` is offline. Several connected matches require an explicit registered alias.
+Current checkout is `main`; the prior changes were committed and pushed as `0fdb3cd` at the user's request. The registered S21 workflow is implemented and physically exercised: connect/unlock, select USB File transfer, keep awake and run `bin\Release\net10.0-windows\phone-photo-sync.exe`. With no arguments it syncs the unique connected registered phone. `--help` prints help; `sync --device S21 --dry-run` previews without media reads/state changes; `status` is offline. Several connected matches require an explicit registered alias.
 
 - Alias: `S21`, serial-based identity. Do not publish the enrolled serial or rerun init/reset progress.
 - Destination: `C:\Users\eu\Pictures\Photos\_incoming\auto_s21`.
@@ -12,6 +12,12 @@ Branch `feat/metadata-probe`, current checkout. The registered S21 workflow is i
 - State/history: `%LOCALAPPDATA%\PhonePhotoSync\`. An interrupted run resumes with verified local evidence; never discard its journal merely to clear an error.
 
 ## Latest completed work
+
+The user reports the iPhone's last synchronization date as **6 December 2025 (`2025-12-06`)**. Retain it for future iPhone import planning; no exact time/full-day completion was specified and no iPhone registration/checkpoint has been written.
+
+Manual follow-up on missing `IMG_8124`: the user could not find it and clarified that the phone belongs to someone else, with unknown deletion/edit history. The older resource delta is inconclusive, not a proven backend failure or verified deletion. No further older-photo search is pending. The three new selected samples remain the controlled evidence for complete reads, dimensions and embedded dates.
+
+On 19 October, resumed iPhone experiments: four prior metadata samples retain paths/sizes but have different IDs from the prior connection; two fresh processes within today's connection agree on IDs. User-selected new camera photo `IMG_8363.JPG`, video `IMG_8364.MOV` and screenshot `IMG_8366.PNG` were fully read (14,536,893 bytes), with matching EOF/lengths/local hashes, Photos dimensions and embedded capture-day candidates for 19 October. JPEG orientation explains encoded 5712×4284 versus displayed 4284×5712; JPEG/MOV metadata reports iPhone 17e. The initial photo name `IMG_8386` was corrected by the user before any photo content read. Only October folder metadata was enumerated, not the full library. Its delta includes three new samples and 16 unavailable prior resources; user is unsure about intervening edits/deletions. One old missing path also failed direct metadata lookup while a fresh positive control succeeded, so do not assume physical deletion or complete census. See [follow-up](compatibility/2026-10-19-iphone-follow-up.md). Previous HEIC camera origin remains unverified. No production state changes or USB command running.
 
 Empty staging-session cleanup is implemented after successful archival, including commit-recovery archival. Only the current empty session directory is removed; the `.phone-photo-sync` parent, other sessions and nonempty directories are preserved. Parent directory handles prevent junction redirection during cleanup. Cleanup I/O/access failures warn without changing successful import status. Seven new filesystem/recovery tests bring the Release suite to 348/348. No production USB run or cleanup of historical directories was performed for this increment.
 
@@ -35,7 +41,7 @@ Evidence/procedure: [Android follow-up](compatibility/2026-10-18-android-follow-
 - MediaDevices may suppress native enumeration errors. API traversal is not an independent physical census. Local SHA-256 verification is not a phone-side hash comparison/original-asset proof.
 - Commit-finalization-only recovery does not rescan inventory or reconstruct original session counters; a previously written matching archive is preserved.
 
-No Android implementation tasks remain from this follow-up. Do not repeat prior bulk-copy/registration/design gates. Future hardware operations need a concrete validation question; preserve production state/media. Work stays on the feature branch; no merge/push requested.
+No Android implementation tasks remain from this follow-up. Do not repeat prior bulk-copy/registration/design gates. Future hardware operations need a concrete validation question; preserve production state/media. The user requested committing and pushing the 19 October experimental documentation; private evidence and media stay Git-ignored.
 
 ## Workflow and history
 
